@@ -236,7 +236,7 @@ Do: all loading, empty and error states on every screen; remove the styleguide r
 Acceptance: [x] three clean runs of the demo path. [x] type check and lint pass.
 Commit: `chore(frontend): demo polish [F09]`.
 
-## F10. [ ] Final fixes (Monday morning)
+## F10. [x] Final fixes (Monday morning)
 
 Only bug fixes from the final clean run (backend B25). Seed state: the demo should start at `/` with the Load demo persona button. Commit: `fix(frontend): final demo fixes [F10]`.
 

@@ -189,17 +189,26 @@ export default function ProfilePage() {
   return (
     <div className="max-w-[1100px] mx-auto px-4 md:px-6 pb-36 pt-4 flex flex-col gap-8">
       {/* Audit Context Banner */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between py-2 px-4 rounded bg-[#121318] border border-[#262932] gap-2">
+      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between py-2 px-4 rounded-xl bg-[#121318] border border-[#262932] gap-3">
         <div className="flex items-center gap-2 text-xs font-mono text-[#9AA0AE]">
           <span className="w-1.5 h-1.5 rounded-full bg-[#49e095]" />
           <span className="text-[#ECEDF0] font-medium">PROFILE VAULT</span>
           <span className="text-[#626877]">/</span>
           <span>INDEX STATUS: DETERMINISTIC PROVENANCE</span>
         </div>
-        <div className="flex items-center gap-3 text-xs font-mono text-[#626877]">
-          <span>LATENCY: 12ms</span>
-          <span>|</span>
-          <span className="text-[#49e095]">STRICT TRUTH GUARD ON</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleLoadDemo}
+            disabled={intakeLoading}
+            className="px-2.5 py-1 rounded bg-[#5b8cff]/15 hover:bg-[#5b8cff]/25 border border-[#5b8cff]/40 text-xs font-medium text-[#b2c5ff] hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+            id="page-load-demo-persona-btn"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#5b8cff]" />
+            <span>Load demo persona</span>
+          </button>
+          <span className="text-[#626877] text-xs font-mono hidden sm:inline">|</span>
+          <span className="text-[#49e095] text-xs font-mono hidden sm:inline">STRICT TRUTH GUARD ON</span>
         </div>
       </div>
 

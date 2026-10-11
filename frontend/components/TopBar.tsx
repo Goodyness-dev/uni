@@ -10,10 +10,20 @@ import { Run } from "../lib/types";
 export function TopBar() {
   const pathname = usePathname();
   const [latestRun, setLatestRun] = useState<Run | null>(null);
+  const [demoMode, setDemoMode] = useState<boolean>(true);
   const isMock = typeof window !== "undefined" && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
   useEffect(() => {
     let mounted = true;
+    api
+      .getHealth()
+      .then((health) => {
+        if (mounted) setDemoMode(health.demo_mode);
+      })
+      .catch(() => {
+        if (mounted) setDemoMode(true);
+      });
+
     api
       .getLatestRun()
       .then((run) => {
@@ -111,8 +121,8 @@ export function TopBar() {
             </span>
           </div>
 
-          {/* Load demo persona button (visible when mock mode is enabled) */}
-          {isMock && (
+          {/* Load demo persona button (visible when demo_mode is enabled) */}
+          {demoMode && (
             <button
               type="button"
               onClick={handleLoadDemo}
