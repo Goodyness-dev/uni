@@ -147,3 +147,35 @@ This document records every architectural assumption, design decision, dependenc
 4. `app/agents/edge_finder.py`: Edge Finder agent with recorded reasoning and outcome feedback hooks.
 5. `app/agents/drafter.py`: Drafter agent with word-limit enforcement, grounding check, and source citation tagging.
 6. `tests/test_agents_queue.py`: Tests executing the queue workflow and verifying grounded drafts for 3 scholarships with zero unsourced claims.
+
+### Milestone 3 Summary (Completed):
+- **What Changed**:
+  - Implemented `app/jobs/queue.py` providing asynchronous job queue runner, task registration (`@register_job_handler`), attempt tracking, and dead-letter handling.
+  - Implemented `app/agents/matcher.py` as queue job worker evaluating eligibility and producing ranked matches.
+  - Implemented `app/agents/researcher.py` with strict source enforcement (dropping unsourced claims) and 7-day TTL caching.
+  - Implemented `app/agents/edge_finder.py` selecting top grounded angles and recording reasoning for user transparency.
+  - Implemented `app/agents/drafter.py` with in-code word-limit enforcement, real-time grounding checks, and versioned draft storage.
+  - Created and passed test suite `tests/test_agents_queue.py` verifying that one profile produces grounded drafts for 3 scholarships with zero unsourced claims.
+- **What is Untested**:
+  - Multi-process distributed Redis cluster workers across network nodes (tested via async job runner and DB queue states).
+- **Assumptions**:
+  - Research dossiers cache for 7 days per scholarship to avoid redundant web fetches.
+  - Drafter strips ungrounded or suspicious claims prior to committing draft versions to the database.
+
+---
+
+## 6. Milestone 4 Plan: State Machine and Modes
+
+**Goal**: Full application lifecycle, Autopilot and Review modes, approval endpoints, and append-only event logging.
+**Acceptance Criteria**: Illegal transitions are impossible, and every change appears in `application_events`.
+
+### Target Files:
+1. `app/jobs/state_machine.py`: Centralized state machine enforcing the 12 application states, transition validation, event emission, and kill switch enforcement.
+2. `app/api/v1/applications.py`:
+   - `GET /v1/applications`: list user applications.
+   - `GET /v1/applications/{id}`: application details, draft history, and append-only event timeline.
+   - `POST /v1/applications`: start application for scholarship.
+   - `POST /v1/applications/{id}/approve`: approve draft in Review mode (`ready_for_review -> approved`).
+   - `POST /v1/applications/{id}/resume`: continue after `needs_human` blocker.
+   - `POST /v1/applications/{id}/withdraw`: cancel application (`withdrawn`).
+3. `tests/test_state_machine.py`: Tests verifying all 12 states, transition validation (illegal transitions raise errors), append-only `application_events` auditing, and Autopilot vs. Review mode branches.
