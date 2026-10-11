@@ -1,4 +1,4 @@
-﻿"""Scout agent: sources scholarship listings and filters by open deadline."""
+"""Scout agent: sources scholarship listings and filters by open deadline."""
 import json
 from datetime import date, datetime
 from pathlib import Path
@@ -69,3 +69,13 @@ def filter_open(
             expired_listings.append(listing)
 
     return open_listings, expired_listings
+
+
+def get_listing(listing_id: str) -> Listing | None:
+    """Finds and returns a single listing by ID."""
+    all_listings = load_listings()
+    for l in all_listings:
+        if l.id == listing_id:
+            return l
+    return None
+

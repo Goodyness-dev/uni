@@ -1,4 +1,4 @@
-﻿"""Matcher agent: computes eligibility hard rules and scores scholarship fit."""
+"""Matcher agent: computes eligibility hard rules and scores scholarship fit."""
 from datetime import date, datetime
 from typing import Any
 
@@ -204,3 +204,18 @@ def run_matcher(
         pass
 
     return app_ids
+
+
+def match_listings(
+    run_id: str,
+    listings: list[Listing],
+    facts: list[Fact],
+    prefs: Preferences,
+    mode: str = "B",
+    ctx: RunContext | None = None,
+) -> list[str]:
+    """Convenience entry point partitioning open/expired listings and running Matcher."""
+    from app.agents.scout import filter_open
+    open_listings, expired = filter_open(listings)
+    return run_matcher(open_listings, expired, facts, prefs, run_id, mode=mode, ctx=ctx)
+

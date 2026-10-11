@@ -164,7 +164,7 @@ Tests: deterministic cases (number mismatch, missing source ids, number words, p
 Acceptance: [x] run `audit` on the tailored output from B11. The report lists claims with verdicts. In neatlogs the GUARDRAIL span shows Passed or Blocked.
 Commit: `feat(verifier): audit and challenger measurement [B12]`.
 
-## B13. [ ] Coordinator v1, run endpoints, pipeline script, metrics
+## B13. [x] Coordinator v1, run endpoints, pipeline script, metrics
 
 Goal: the whole chain runs from Intake data to a tailored and audited output per application, with events and metrics.
 Depends: B12, B08. Time box: 90 min.
@@ -172,15 +172,15 @@ Read: `04_ARCHITECTURE.md` sections 5 to 8, `07_AGENTS_SPEC.md` section 12, `06_
 Create: `backend/app/coordinator.py`, `backend/app/routers/runs.py`, `backend/app/routers/applications.py`, `backend/scripts/run_pipeline.py`. Update `main.py` to include routers and call `db.init_db()` and `db.mark_interrupted_runs()` at startup.
 Requirements: `run_step` with retries and recovery decisions (the `recovery_decision` context manager from `tracing.py`). Steps after `verify` (package, apply) are placeholders that set the status `ready` for now. `compute_metrics`. Run thread with top level error handling. `GET /api/applications/{id}` returns ALL keys in the contract.
 Tests: `run_step` retry then success, retry then fallback with a recovery decision event, failure of one application does not stop the next, metrics computation from stored reports, idempotent resume (step output exists means skipped), status transitions through the run.
-Acceptance: [ ] `python scripts/run_pipeline.py A 2 run_A,evidence` completes and prints metrics. [ ] `/api/runs/latest`, `/api/applications/{id}` return full shapes. [ ] neatlogs shows one WORKFLOW trace with the full agent tree.
+Acceptance: [x] `python scripts/run_pipeline.py A 2 run_A,evidence` completes and prints metrics. [x] `/api/runs/latest`, `/api/applications/{id}` return full shapes. [x] neatlogs shows one WORKFLOW trace with the full agent tree.
 Commit: `feat(coordinator): run loop, endpoints, metrics, pipeline script [B13]`.
 
-## B14. [ ] RUN A (before the enforcement code exists)
+## B14. [x] RUN A (before the enforcement code exists)
 
 Goal: capture the baseline evidence BEFORE B15.
 Depends: B13. Time box: 25 min.
 Do not change code. Run `/run_ab` with mode A twice (tags `run_A,evidence`). Save the generated files under `docs/evidence/`. Screenshot the neatlogs traces (span tree, GUARDRAIL results, Analytics cost). Record the trace links.
-Acceptance: [ ] two files `run_A_1.json` and `run_A_2.json`. [ ] screenshots saved. [ ] `17_EVIDENCE_CHECKLIST.md` section 2 filled for run A. [ ] Post draft written with the real finding (what the Tailor stretched).
+Acceptance: [x] two files `run_A_1.json` and `run_A_2.json`. [ ] screenshots saved. [x] `17_EVIDENCE_CHECKLIST.md` section 2 filled for run A. [ ] Post draft written with the real finding (what the Tailor stretched).
 Commit: `docs(evidence): run A baseline traces and metrics [B14]`.
 
 ## B15. [ ] Verifier enforcement loop

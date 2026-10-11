@@ -1,4 +1,4 @@
-﻿import functools
+import functools
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from typing import Any
@@ -151,7 +151,8 @@ def trace_block(name: str, kind: str, **attrs: Any) -> Generator[Any, None, None
             set_attrs(span, **attrs)
             yield span
     except Exception:
-        yield _NoSpan()
+        raise
+
 
 
 class _Guardrail:

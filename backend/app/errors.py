@@ -4,9 +4,19 @@ from dataclasses import dataclass, field
 @dataclass
 class RunContext:
     run_id: str = ""
-    application_id: str = ""
+    app_id: str | None = None
+    application_id: str | None = None
     mode: str = "B"
+    listing_id: str | None = None
     tags: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        if self.application_id and not self.app_id:
+            self.app_id = self.application_id
+        elif self.app_id and not self.application_id:
+            self.application_id = self.app_id
+
+
 
 
 class ScholarPilotError(Exception):

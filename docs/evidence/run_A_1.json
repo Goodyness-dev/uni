@@ -1,0 +1,72 @@
+{
+  "run_id": "run_20261011_007",
+  "mode": "A",
+  "tags": [
+    "run_A",
+    "evidence"
+  ],
+  "metrics": {
+    "tokens_total": 0,
+    "cost_usd": 0.0,
+    "latency_seconds": 0.0,
+    "claims_total": 16,
+    "claims_unsupported": 16,
+    "claims_removed": 0,
+    "claims_overturned": 0,
+    "personal_refs_total": 1,
+    "personal_refs_sourced": 1,
+    "llm_calls": 0,
+    "llm_fallbacks": 0,
+    "retries": 0,
+    "recovery_decisions": 0,
+    "crustdata_credits": 0
+  },
+  "applications": [
+    {
+      "id": "app_12",
+      "listing_id": "real_one",
+      "status": "ready",
+      "unsupported_before": 11,
+      "unsupported_final": 11,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_13",
+      "listing_id": "real_two",
+      "status": "matched",
+      "unsupported_before": 0,
+      "unsupported_final": 0,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_14",
+      "listing_id": "mock_portal_masters",
+      "status": "matched",
+      "unsupported_before": 0,
+      "unsupported_final": 0,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_15",
+      "listing_id": "mock_captcha_award",
+      "status": "ready",
+      "unsupported_before": 5,
+      "unsupported_final": 5,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_16",
+      "listing_id": "mock_email_award",
+      "status": "matched",
+      "unsupported_before": 0,
+      "unsupported_final": 0,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    }
+  ],
+  "trace_url": null
+}

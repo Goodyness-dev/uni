@@ -1,4 +1,4 @@
-﻿"""Tailor agent: drafts grounded scholarship CV summaries, bullets, and essays."""
+"""Tailor agent: drafts grounded scholarship CV summaries, bullets, and essays."""
 from typing import Any
 
 from app import db
@@ -212,3 +212,70 @@ def tailor_revise(
         mode=tailored.mode,
         outline=tailored.outline,
     )
+
+
+@agent_span("tailor")
+def tailor_notes_only(
+    listing: Listing,
+    facts: list[Fact],
+    dossier: Dossier,
+    edges: list[Edge],
+    prefs: Preferences,
+    ctx: RunContext | None = None,
+) -> TailoredOutput:
+    """Produces bullets and outline without drafting essay text when AI policy is restricted/unknown."""
+    ctx = ctx or RunContext()
+    allowed_facts = strip_sensitive(facts, listing, prefs.sensitive_consent)
+    profile_map = {f.id: f for f in allowed_facts}
+
+    selected_edges = [e for e in edges if e.selected]
+    edge_profile_ids = {pid for e in selected_edges for pid in e.profile_fact_ids}
+
+    # 1. cv_bullets: facts referenced by selected edges, then first in education, work, projects (max 8)
+    chosen_bullets: list[Segment] = []
+    seen_ids: set[str] = set()
+
+    for pid in edge_profile_ids:
+        if pid in profile_map and pid not in seen_ids:
+            seen_ids.add(pid)
+            chosen_bullets.append(Segment(text=profile_map[pid].text, source_ids=[pid], status="supported"))
+
+    for cat in ["education", "work", "projects"]:
+        for f in allowed_facts:
+            if f.category == cat and f.id not in seen_ids and len(chosen_bullets) < 8:
+                seen_ids.add(f.id)
+                chosen_bullets.append(Segment(text=f.text, source_ids=[f.id], status="supported"))
+
+    # 2. outline via outline_v1
+    from app.prompts import OUTLINE_SYSTEM, build_outline_user
+    from app.schemas import OutlineOut
+
+    user_prompt = build_outline_user(
+        listing.model_dump(),
+        [f.model_dump() for f in allowed_facts],
+        [d.model_dump() for d in dossier.facts],
+    )
+    res = call_llm("outline_v1", OUTLINE_SYSTEM, user_prompt, OutlineOut, ctx)
+    parsed = res.parsed
+    if isinstance(parsed, dict):
+        out_model = OutlineOut.model_validate(parsed)
+    elif isinstance(parsed, OutlineOut):
+        out_model = parsed
+    else:
+        out_model = OutlineOut()
+
+    all_known_ids = set(profile_map.keys()) | {d.id for d in dossier.facts}
+    outline_lines: list[str] = []
+    for sec in out_model.sections:
+        valid_ids = [fid.strip() for fid in sec.fact_ids if fid.strip() in all_known_ids]
+        ids_str = ", ".join(valid_ids) if valid_ids else "none"
+        outline_lines.append(f"{sec.title}: {sec.notes} (facts: {ids_str})")
+
+    return TailoredOutput(
+        cv_summary=[],
+        cv_bullets=chosen_bullets[:8],
+        essay=[],
+        mode="notes_only",
+        outline=outline_lines,
+    )
+

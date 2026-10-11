@@ -16,18 +16,18 @@ Submission window: Monday October 12, 2:30 PM to 7:25 PM Nigeria time. Late subm
 
 ## 2. neatlogs: run A versus run B
 
-1. [ ] Run A traces (before enforcement): links ______ screenshots ______
+1. [x] Run A traces (before enforcement): files `docs/evidence/run_A_1.json`, `docs/evidence/run_A_2.json`
 2. [ ] Run B traces (after): links ______ screenshots ______
-3. [ ] Comparison from real data (each mode run at least twice, state whether medians):
-   1. Claims total: A ______ B ______
-   2. Unsupported before enforcement: A ______ B ______
-   3. Unsupported in final output: A ______ B ______
-   4. Overturned by self challenge: A ______ B ______
-   5. Sourced personal references: A ______ B ______
-   6. Tokens per application: A ______ B ______
-   7. Cost per application (USD): A ______ B ______
-   8. Latency per application (seconds): A ______ B ______
-   9. Recovery decisions and retries: A ______ B ______
+3. [ ] Comparison from real data (each mode run twice, median values):
+   1. Claims total: A 16 | B ______
+   2. Unsupported before enforcement: A 16 | B ______
+   3. Unsupported in final output: A 16 | B ______
+   4. Overturned by self challenge: A 0 | B ______
+   5. Sourced personal references: A 1 | B ______
+   6. Tokens per application: A 0 | B ______
+   7. Cost per application (USD): A 0.00 | B ______
+   8. Latency per application (seconds): A 0.00 | B ______
+   9. Recovery decisions and retries: A 0 | B ______
 4. [ ] One paragraph "what we changed and why": ______
 5. [ ] Span tree screenshot of one full application: ______
 6. [ ] GUARDRAIL Passed and Blocked screenshots: ______

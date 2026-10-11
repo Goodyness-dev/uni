@@ -1,4 +1,4 @@
-﻿import json
+import json
 import re
 import time
 from typing import Any
@@ -40,6 +40,148 @@ def set_clients_for_tests(primary: Any = None, fallback: Any = None) -> None:
     _test_fallback = fallback
 
 
+class _DemoMessage:
+    def __init__(self, content: str):
+        self.content = content
+
+
+class _DemoChoice:
+    def __init__(self, content: str):
+        self.message = _DemoMessage(content)
+
+
+class _DemoUsage:
+    def __init__(self, prompt_tokens: int = 150, completion_tokens: int = 80):
+        self.prompt_tokens = prompt_tokens
+        self.completion_tokens = completion_tokens
+
+
+class _DemoResponse:
+    def __init__(self, content: str, p_tok: int = 150, c_tok: int = 80):
+        self.choices = [_DemoChoice(content)]
+        self.usage = _DemoUsage(p_tok, c_tok)
+
+
+class _DemoCompletions:
+    def create(self, **kwargs: Any) -> Any:
+        messages = kwargs.get("messages", [])
+        sys_msg = next((m.get("content", "") for m in messages if m.get("role") == "system"), "")
+        user_msg = next((m.get("content", "") for m in messages if m.get("role") == "user"), "")
+        content = "{}"
+
+        if "convert a personal document" in sys_msg.lower() or "intake" in sys_msg.lower():
+            lines = [line.strip() for line in user_msg.splitlines() if line.strip() and not line.startswith("Section:") and len(line.strip()) > 5]
+            facts = []
+            for line in lines[:10]:
+                cat = "education" if "bsc" in line.lower() or "cgpa" in line.lower() else ("work" if "intern" in line.lower() or "firmware" in line.lower() else "projects")
+                facts.append({"category": cat, "text": line, "source_line": line})
+            content = json.dumps({"facts": facts})
+        elif "score how well an applicant fits" in sys_msg.lower() or "matcher" in sys_msg.lower():
+            content = json.dumps({
+                "fit_score": 87,
+                "fit_reason": "Applicant qualifications in computer engineering and solar IoT align closely with programme focus.",
+                "strongest_fact_ids": ["C1"],
+                "missing_criteria": []
+            })
+        elif "extract facts about a school" in sys_msg.lower() or "researcher" in sys_msg.lower():
+            content = json.dumps({
+                "facts": [
+                    {
+                        "topic": "program_focus",
+                        "text": "Masters program focusing on clean renewable energy and smart grid systems.",
+                        "snippet": "renewable energy"
+                    }
+                ]
+            })
+        elif "strongest evidence for one specific scholarship" in sys_msg.lower() or "find the applicant" in sys_msg.lower():
+            content = json.dumps({
+                "edges": [
+                    {
+                        "profile_fact_ids": ["C1"],
+                        "dossier_fact_ids": ["D1"],
+                        "reason": "Direct experience with solar firmware sensors on BrightGrid project matches smart grid theme.",
+                        "use_in": "essay",
+                        "strength": 0.88
+                    }
+                ],
+                "gaps": []
+            })
+        elif "revise specific sentences" in sys_msg.lower():
+            content = json.dumps({
+                "revisions": [
+                    {
+                        "section": "essay",
+                        "segment_index": 2,
+                        "text": "During my 5-month internship at BrightGrid Solar, I focused on testing sensor firmware.",
+                        "source_ids": ["C1"]
+                    }
+                ]
+            })
+        elif "write parts of a scholarship application" in sys_msg.lower():
+            content = json.dumps({
+                "cv_summary": [
+                    {"text": "BSc Computer Engineering graduate focused on embedded solar monitoring systems.", "source_ids": ["C1"]}
+                ],
+                "cv_bullets": [
+                    {"text": "Developed and verified data logging firmware for 12 solar sensor boards at BrightGrid.", "source_ids": ["C1"]}
+                ],
+                "essay": [
+                    {"text": "I am applying for the scholarship to advance renewable smart grid engineering.", "source_ids": ["D1"]},
+                    {"text": "During my time at BrightGrid Solar, I developed firmware for sensor boards.", "source_ids": ["C1"]},
+                    {"text": "I bring extensive professional experience spanning years of solar engineering.", "source_ids": ["C1"]}
+                ]
+            })
+        elif "split the numbered application sentences" in sys_msg.lower():
+            content = json.dumps({
+                "claims": [
+                    {"text": "I am applying for the scholarship to advance renewable smart grid engineering.", "section": "essay", "segment_index": 0},
+                    {"text": "During my time at BrightGrid Solar, I developed firmware for sensor boards.", "section": "essay", "segment_index": 1},
+                    {"text": "I bring extensive professional experience spanning years of solar engineering.", "section": "essay", "segment_index": 2}
+                ]
+            })
+        elif "strict fact checker" in sys_msg.lower():
+            # Extract claim IDs from user message
+            c_ids = re.findall(r"Claim\s+([A-Za-z0-9_-]+):", user_msg)
+            verdicts = []
+            for idx, cid in enumerate(c_ids):
+                if idx == len(c_ids) - 1:  # last claim has the duration trap
+                    verdicts.append({"claim_id": cid, "verdict": "unsupported", "reason": "CV documents a 5-month internship, not multiple years of professional experience."})
+                else:
+                    verdicts.append({"claim_id": cid, "verdict": "supported", "reason": "Directly supported by source facts."})
+            if not verdicts:
+                verdicts = [
+                    {"claim_id": "CLM1", "verdict": "supported", "reason": "Consistent with programme focus."},
+                    {"claim_id": "CLM2", "verdict": "supported", "reason": "Directly supported by BrightGrid internship fact."},
+                    {"claim_id": "CLM3", "verdict": "unsupported", "reason": "CV documents a 5-month internship, not multiple years of professional experience."}
+                ]
+            content = json.dumps({"verdicts": verdicts})
+        elif "skeptical scholarship committee" in sys_msg.lower():
+            c_ids = re.findall(r"Claim\s+([A-Za-z0-9_-]+):", user_msg)
+            challenges = []
+            for idx, cid in enumerate(c_ids):
+                if idx == 0 and len(c_ids) > 1:
+                    challenges.append({"claim_id": cid, "outcome": "overturn", "reason": "Challenger probe marks scope as needing further evidence."})
+                else:
+                    challenges.append({"claim_id": cid, "outcome": "defend", "reason": "Supported without overreach."})
+            if not challenges:
+                challenges = [{"claim_id": "CLM1", "outcome": "defend", "reason": "Supported without overreach."}]
+            content = json.dumps({"challenges": challenges})
+        elif "plan their own essay" in sys_msg.lower():
+            content = json.dumps({
+                "sections": [
+                    {"title": "Introduction", "notes": "State interest in smart grid systems.", "fact_ids": ["D1"]},
+                    {"title": "Technical Background", "notes": "Discuss firmware logging work.", "fact_ids": ["C1"]}
+                ]
+            })
+
+        return _DemoResponse(content)
+
+
+class _DemoClient:
+    def __init__(self):
+        self.chat = type("Chat", (), {"completions": _DemoCompletions()})()
+
+
 def get_primary_client() -> Any:
     global _primary_client
     if _test_primary is not None:
@@ -52,7 +194,10 @@ def get_primary_client() -> Any:
                 timeout=10.0,
             )
             _primary_client = wrap_client(raw)
+        elif settings.demo_mode:
+            _primary_client = _DemoClient()
     return _primary_client
+
 
 
 def get_fallback_client() -> Any:
