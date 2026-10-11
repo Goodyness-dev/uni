@@ -178,4 +178,43 @@ This document records every architectural assumption, design decision, dependenc
    - `POST /v1/applications/{id}/approve`: approve draft in Review mode (`ready_for_review -> approved`).
    - `POST /v1/applications/{id}/resume`: continue after `needs_human` blocker.
    - `POST /v1/applications/{id}/withdraw`: cancel application (`withdrawn`).
-3. `tests/test_state_machine.py`: Tests verifying all 12 states, transition validation (illegal transitions raise errors), append-only `application_events` auditing, and Autopilot vs. Review mode branches.
+3. `app/api/v1/settings.py`: `GET /v1/settings` and `PUT /v1/settings` managing user autonomy mode (`autopilot` vs `review`).
+4. `tests/test_state_machine.py`: Tests verifying all 12 states, transition validation (illegal transitions raise errors), append-only `application_events` auditing, and Autopilot vs. Review mode branches.
+
+### Milestone 4 Summary (Completed):
+- **What Changed**:
+  - Implemented `app/jobs/state_machine.py` enforcing the 12 formal states (`discovered`, `matched`, `researching`, `drafting`, `ready_for_review`, `approved`, `submitting`, `needs_human`, `submitted`, `failed`, `expired`, `withdrawn`), strict transition matrix, review mode checks, kill switch enforcement, and append-only `application_events` auditing.
+  - Implemented `app/api/v1/applications.py` with endpoints for application creation, retrieval, draft/timeline viewing, user approval (`ready_for_review` -> `approved`), human blocker resume (`needs_human` -> `submitting`), and withdrawal.
+  - Implemented `app/api/v1/settings.py` managing user autonomy mode (`autopilot` vs `review`).
+  - Added comprehensive test suite `tests/test_state_machine.py` (6/6 tests passing: autopilot lifecycle, review approval, illegal transition rejections, needs_human resume, kill switch halt, REST endpoints).
+- **What is Untested**:
+  - Webhook delivery push to external customer notification endpoints during transitions (scheduled for Milestone 6).
+- **Assumptions**:
+  - Review mode applications must stay in `ready_for_review` until explicit user approval via `POST /v1/applications/{id}/approve`.
+  - Withdrawing an application transitions it immediately to `withdrawn` from any non-final state.
+
+---
+
+## 7. Milestone 5 Plan: Submitter
+
+**Goal**: Playwright browser runner, screenshot capture at every critical stage, CAPTCHA and human blocker handoff (`needs_human`), confirmation extraction, and strict idempotent submission.
+**Acceptance Criteria**: A mocked portal run submits once, and a CAPTCHA run stops cleanly and resumes after approval.
+
+### Target Files:
+1. `app/integrations/browser_runner.py`:
+   - Headless Playwright runner interface and mocked browser adapter for sandboxed tests and demo portal.
+   - Form field population using Profile Vault facts and drafted essays.
+   - Screenshot capture per step (stored with content hash in screenshot directory).
+   - Blocker detection: CAPTCHA detection, login wall / password prompt, two-factor auth prompt, identity verification, payment fee demand.
+2. `app/agents/submitter.py`:
+   - Submitter agent job worker (`submit_application_job`).
+   - Idempotency guard: verifies if already submitted before taking any browser actions.
+   - Credentials decryption: portal passwords decrypted securely using `app.core.security.decrypt_credential`.
+   - Blocker handoff: on CAPTCHA / 2FA / login wall, stops browser, captures screenshot, and transitions state to `needs_human`.
+   - Success handling: extracts portal submission confirmation reference, saves final screenshot, transitions application to `submitted`.
+3. `tests/test_submitter.py`:
+   - Tests mocked portal submission completing successfully and generating confirmation reference.
+   - Tests idempotent submission: re-running submitter on an already submitted application exits immediately without resubmitting.
+   - Tests CAPTCHA / bot check detection cleanly transitioning to `needs_human` with screenshot saved.
+   - Tests resuming after user resolves blocker in `needs_human`.
+
