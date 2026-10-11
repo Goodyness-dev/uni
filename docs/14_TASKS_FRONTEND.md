@@ -154,7 +154,7 @@ Requirements:
 Acceptance (mock mode and then real after F05): [x] Load demo persona fills everything. [x] Facts list shows grouped facts. [x] Run agent navigates to Matches.
 Commit: `feat(frontend): upload and profile screen [F03]`.
 
-## F04. [ ] Screen 2: Matches (`/matches`)
+## F04. [x] Screen 2: Matches (`/matches`)
 
 Goal: ranked matches and the live agent feed.
 Depends: F02. Time box: 90 min.
@@ -168,7 +168,7 @@ Requirements:
 5. Top: StageTracker for the run (Match, Research, Evidence, Write, Verify, Apply) derived from the statuses of applications, plus a Run metrics strip (StatTile for tokens, cost, time, claims checked, removed, overturned, recovery decisions) shown when `metrics` is not null, and a View trace button when `trace_url` is not null.
 6. Gaps card at the bottom from `getGaps()` with a text field and Save (`answerGap`).
 7. Interrupted run banner with a Resume button (`resumeRun`).
-Acceptance: [ ] mock mode shows the full layout. [ ] polling stops when the run is final (verify with a console log in development, remove it).
+Acceptance: [x] mock mode shows the full layout. [x] polling stops when the run is final (verify with a console log in development, remove it).
 Commit: `feat(frontend): matches screen with live feed [F04]`.
 
 Checkpoint (Saturday 1:00 PM): F03 and F04 work on mocks and the backend B07 and B08 endpoints are ready for F05.
