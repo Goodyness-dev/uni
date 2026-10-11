@@ -8,7 +8,7 @@ How to verify by hand without command flags: start the server with `python run_s
 
 Tick each checkbox in the commit that finishes the card.
 
-## B01. [ ] Skeleton, config, errors, health
+## B01. [x] Skeleton, config, errors, health
 
 Goal: a running FastAPI app with the folder structure, settings, error classes and the health endpoint.
 Depends: S01 to S10 done. Time box: 30 min.
@@ -28,7 +28,7 @@ Acceptance:
 3. [ ] `.gitignore` contains `.env`, `backend/data/vault/`, `backend/data/app.db`, `backend/data/packages/`, `node_modules`, `.venv`, `.entire/settings.local.json`.
 Commit: `feat(backend): fastapi skeleton, settings and health [B01]`.
 
-## B02. [ ] neatlogs tracing and the hello trace
+## B02. [x] neatlogs tracing and the hello trace
 
 Goal: `tracing.py` with init and all span helpers, plus a script that proves traces and a real Gemini call show up in neatlogs.
 Depends: B01. Time box: 40 min.
