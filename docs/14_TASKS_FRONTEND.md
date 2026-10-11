@@ -230,10 +230,10 @@ Requirements:
 Acceptance: [x] mock `application_awaiting.json` shows the waiting state. [x] with the backend: full CAPTCHA flow ends in the success state. [x] looks right on a phone width in browser dev tools.
 Commit: `feat(frontend): handoff screen [F08]`.
 
-## F09. [ ] Polish (Sunday evening)
+## F09. [x] Polish (Sunday evening)
 
 Do: all loading, empty and error states on every screen; remove the styleguide route and any debug text; check readability at 1080p with browser zoom 110 percent; check that animations are under 300 milliseconds and nothing jumps while data loads; run the demo path three times (`15_DESIGN_BRIEF.md` section 12); add the Traced with neatlogs badge and View trace button where `trace_url` exists; take screenshots of each screen into `docs/evidence/screenshots/` for the posts.
-Acceptance: [ ] three clean runs of the demo path. [ ] type check and lint pass.
+Acceptance: [x] three clean runs of the demo path. [x] type check and lint pass.
 Commit: `chore(frontend): demo polish [F09]`.
 
 ## F10. [ ] Final fixes (Monday morning)

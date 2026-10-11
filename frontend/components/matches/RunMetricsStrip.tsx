@@ -106,15 +106,21 @@ export function RunMetricsStrip({
 
         {/* View Trace Button */}
         {traceUrl && (
-          <a
-            href={traceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-2.5 py-1 rounded bg-[#181A20] hover:bg-[#292a2d] border border-[#5b8cff]/40 text-[#b2c5ff] hover:text-white flex items-center gap-1.5 transition-colors font-medium ml-auto sm:ml-0"
-          >
-            <span>View trace</span>
-            <ExternalLink className="w-3 h-3 text-[#5b8cff]" />
-          </a>
+          <div className="flex items-center gap-2 ml-auto sm:ml-0">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#181A20] border border-[#5b8cff]/30 text-[11px] text-[#b2c5ff]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5b8cff] animate-pulse" />
+              <span>Traced with neatlogs</span>
+            </span>
+            <a
+              href={traceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1 rounded bg-[#181A20] hover:bg-[#262932] border border-[#5b8cff]/40 text-[#b2c5ff] hover:text-white flex items-center gap-1.5 transition-colors font-medium text-xs"
+            >
+              <span>View trace</span>
+              <ExternalLink className="w-3 h-3 text-[#5b8cff]" />
+            </a>
+          </div>
         )}
       </div>
     </section>

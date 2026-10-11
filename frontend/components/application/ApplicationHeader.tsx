@@ -72,9 +72,13 @@ export function ApplicationHeader({ application }: ApplicationHeaderProps) {
           </div>
         </div>
 
-        {/* View trace button */}
+        {/* View trace button & neatlogs badge */}
         {trace_url && (
-          <div className="shrink-0">
+          <div className="shrink-0 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#181A20] border border-[#5b8cff]/30 text-[11px] text-[#b2c5ff]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5b8cff] animate-pulse" />
+              <span>Traced with neatlogs</span>
+            </span>
             <a
               href={trace_url}
               target="_blank"
