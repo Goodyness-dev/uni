@@ -1,0 +1,10 @@
+{
+  "run_id": "run_20261011_002",
+  "mode": "B",
+  "status": "running",
+  "started_at": "2026/10/11 09:15:00",
+  "finished_at": null,
+  "application_ids": ["app_1", "app_2", "app_3"],
+  "metrics": null,
+  "trace_url": null
+}

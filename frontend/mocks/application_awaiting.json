@@ -1,0 +1,149 @@
+{
+  "id": "app_2",
+  "run_id": "run_20261011_001",
+  "listing": {
+    "id": "mock_captcha_award",
+    "name": "Northlight Graduate Award",
+    "is_mock": true,
+    "provider": "Northlight Institute (fictional demo school)",
+    "country": "Germany",
+    "deadline": "2026/11/20",
+    "channel": "portal_captcha",
+    "ai_policy": "allowed",
+    "source_url": "http://localhost:8000/portal/about/mock_captcha_award",
+    "essay_prompt": "In 250 words, explain how you would use technology to address a public problem.",
+    "essay_word_limit": 250
+  },
+  "status": "awaiting_user",
+  "fit_score": 78,
+  "fit_reason": "Strong engineering background; requires civic engagement confirmation.",
+  "failure_reason": null,
+  "dossier": {
+    "listing_id": "mock_captcha_award",
+    "facts": [
+      {
+        "id": "D1",
+        "topic": "program_focus",
+        "text": "The award supports research on technology that improves public services.",
+        "source_url": "http://localhost:8000/portal/about/mock_captcha_award",
+        "snippet": "research on technology that improves public services",
+        "retrieved_at": "2026/10/10 14:20:00"
+      },
+      {
+        "id": "D2",
+        "topic": "values",
+        "text": "The institute values teamwork, curiosity and engagement with public policy.",
+        "source_url": "http://localhost:8000/portal/about/mock_captcha_award",
+        "snippet": "We value teamwork, curiosity and engagement with public policy",
+        "retrieved_at": "2026/10/10 14:20:00"
+      }
+    ],
+    "degraded": false
+  },
+  "edges": [
+    {
+      "id": "E1",
+      "profile_fact_ids": ["C8", "P5"],
+      "dossier_fact_ids": ["D2"],
+      "reason": "Organizing FSU campus hackathon demonstrates collaborative leadership aligned with institute values.",
+      "use_in": "essay_body",
+      "strength": 0.85,
+      "selected": true
+    }
+  ],
+  "tailored": {
+    "cv_summary": [
+      {
+        "text": "Computer engineering graduate with practical experience in low-cost IoT systems and hackathon organization.",
+        "source_ids": ["C1", "C8"],
+        "status": "supported"
+      }
+    ],
+    "cv_bullets": [
+      {
+        "text": "Developed firmware for solar sensor units and led campus hackathon with 120 students.",
+        "source_ids": ["C4", "C8"],
+        "status": "supported"
+      }
+    ],
+    "essay": [
+      {
+        "text": "To address public reliability challenges in energy distribution, technology must be designed for resource-constrained environments.",
+        "source_ids": ["P9", "D1"],
+        "status": "supported"
+      },
+      {
+        "text": "At FSU, my final year project SunTrack demonstrated low-cost solar monitoring on rooftop installations.",
+        "source_ids": ["C6", "T9"],
+        "status": "supported"
+      }
+    ],
+    "mode": "full",
+    "outline": []
+  },
+  "verification": {
+    "rounds": 1,
+    "claims": [
+      {
+        "id": "CL1",
+        "text": "Computer engineering graduate with practical experience in low-cost IoT systems.",
+        "segment_index": 0,
+        "section": "cv_summary",
+        "source_ids": ["C1", "C6"],
+        "verdict": "supported",
+        "reason": "Directly backed by degree and final year project in profile.",
+        "deterministic_pass": true,
+        "llm_pass": true,
+        "challenged": false,
+        "overturned": false
+      }
+    ],
+    "removed_claims": [],
+    "overturned_claims": [],
+    "unsupported_before": 0,
+    "unsupported_final": 0
+  },
+  "package": {
+    "cv_pdf_url": "/api/applications/app_2/files/cv",
+    "essay_url": "/api/applications/app_2/files/essay",
+    "checklist_url": "/api/applications/app_2/files/checklist"
+  },
+  "handoff": {
+    "reason": "captcha",
+    "portal_url": "http://localhost:8000/portal/draft/abc123",
+    "instructions": "The Northlight portal is protected by a CAPTCHA. Open the portal, solve the challenge, and tap Done."
+  },
+  "submission": {
+    "confirmed": false,
+    "confirmation_code": null,
+    "channel": "portal_captcha",
+    "at": null
+  },
+  "notifications": [
+    {
+      "at": "2026/10/11 09:04:15",
+      "text": "Northlight Graduate Award needs you for a quick CAPTCHA. Open http://localhost:3000/handoff/app_2, solve it, then tap Done.",
+      "sent": true
+    }
+  ],
+  "timeline": [
+    {
+      "event_no": 8,
+      "at": "2026/10/11 09:04:15",
+      "run_id": "run_20261011_001",
+      "application_id": "app_2",
+      "agent": "applier",
+      "type": "recovery_decision",
+      "message": "Portal CAPTCHA detected on Northlight form. Switched to manual user handoff.",
+      "data": {
+        "trigger": "captcha_wall",
+        "options": ["solve_captcha", "handoff_user", "fail"],
+        "chosen": "handoff_user",
+        "reason": "Security policy forbids bypassing external CAPTCHA challenges.",
+        "outcome": "awaiting_user"
+      }
+    }
+  ],
+  "trace_url": "https://app.neatlogs.com/traces/tr_scholarpilot_20261011_001",
+  "metrics": null
+}

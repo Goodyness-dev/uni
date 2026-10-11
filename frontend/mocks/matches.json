@@ -1,0 +1,114 @@
+{
+  "matches": [
+    {
+      "application_id": "app_1",
+      "listing_id": "mock_portal_masters",
+      "name": "Aurora Energy AI Scholarship",
+      "is_mock": true,
+      "country": "UK",
+      "level": "masters",
+      "deadline": "2026/12/01",
+      "channel": "portal_form",
+      "fit_score": 92,
+      "fit_reason": "High alignment with solar energy projects and community leadership.",
+      "status": "ready",
+      "hard_rule_results": {
+        "country": true,
+        "level": true,
+        "gpa": true,
+        "field": true,
+        "deadline": true,
+        "nationality": true
+      },
+      "failed_rules": []
+    },
+    {
+      "application_id": "app_2",
+      "listing_id": "mock_captcha_award",
+      "name": "Northlight Graduate Award",
+      "is_mock": true,
+      "country": "Germany",
+      "level": "masters",
+      "deadline": "2026/11/20",
+      "channel": "portal_captcha",
+      "fit_score": 78,
+      "fit_reason": "Strong engineering background; requires civic engagement confirmation.",
+      "status": "awaiting_user",
+      "hard_rule_results": {
+        "country": true,
+        "level": true,
+        "gpa": true,
+        "field": true,
+        "deadline": true,
+        "nationality": true
+      },
+      "failed_rules": []
+    },
+    {
+      "application_id": "app_3",
+      "listing_id": "mock_email_award",
+      "name": "Harbor Bay Foundation Award",
+      "is_mock": true,
+      "country": "Canada",
+      "level": "masters",
+      "deadline": "2026/12/15",
+      "channel": "email",
+      "fit_score": 84,
+      "fit_reason": "Matches computer engineering field and volunteering criteria.",
+      "status": "researched",
+      "hard_rule_results": {
+        "country": true,
+        "level": true,
+        "gpa": true,
+        "field": true,
+        "deadline": true,
+        "nationality": true
+      },
+      "failed_rules": []
+    },
+    {
+      "application_id": "app_4",
+      "listing_id": "real_one",
+      "name": "Commonwealth Master's Scholarship",
+      "is_mock": false,
+      "country": "UK",
+      "level": "masters",
+      "deadline": "2026/11/03",
+      "channel": "package_only",
+      "fit_score": 88,
+      "fit_reason": "Direct match for Nigerian engineering graduate with First Class equivalent.",
+      "status": "matched",
+      "hard_rule_results": {
+        "country": true,
+        "level": true,
+        "gpa": true,
+        "field": true,
+        "deadline": true,
+        "nationality": true
+      },
+      "failed_rules": []
+    },
+    {
+      "application_id": "app_5",
+      "listing_id": "real_two",
+      "name": "Nordic Tech Tuition Waiver",
+      "is_mock": false,
+      "country": "Sweden",
+      "level": "masters",
+      "deadline": "2026/10/30",
+      "channel": "package_only",
+      "fit_score": 35,
+      "fit_reason": "Target destination country and GPA threshold do not align.",
+      "status": "skipped",
+      "hard_rule_results": {
+        "country": false,
+        "level": true,
+        "gpa": false,
+        "field": true,
+        "deadline": true,
+        "nationality": true
+      },
+      "failed_rules": ["country", "gpa"]
+    }
+  ]
+}
