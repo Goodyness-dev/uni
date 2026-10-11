@@ -1,9 +1,12 @@
 """FastAPI application entrypoint for ScholarPilot Production."""
 from contextlib import asynccontextmanager
 from typing import Any, Dict
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
+from app.api.deps import get_request_id
+from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.logging import logger, setup_logging
 from app.db.base import AsyncSessionLocal, engine, Base
@@ -35,6 +38,37 @@ app = FastAPI(
     description="Autonomous, verification-first scholarship application agent platform.",
     lifespan=lifespan,
 )
+
+
+# Global Exception Handlers for consistent error payloads per Section 11
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    req_id = get_request_id(request.headers.get("X-Request-ID"))
+    detail = exc.detail
+    if isinstance(detail, dict) and "code" in detail:
+        return JSONResponse(status_code=exc.status_code, content=detail)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "code": "HTTP_ERROR",
+            "message": str(detail),
+            "request_id": req_id,
+        },
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    req_id = get_request_id(request.headers.get("X-Request-ID"))
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "code": "VALIDATION_ERROR",
+            "message": "Request validation failed.",
+            "request_id": req_id,
+            "details": exc.errors(),
+        },
+    )
 
 
 @app.get("/health", tags=["System"])
@@ -73,3 +107,7 @@ async def readiness_check() -> JSONResponse:
             "checks": checks,
         },
     )
+
+
+# Mount versioned API routes
+app.include_router(api_v1_router)

@@ -109,3 +109,41 @@ This document records every architectural assumption, design decision, dependenc
 6. `app/api/v1/matches.py`: `GET /v1/matches` and `POST /v1/matches/refresh`.
 7. `app/api/v1/router.py`: Aggregates all `/v1` route modules into a single FastAPI router.
 8. `tests/test_core_api.py`: Contract tests covering key generation, profile updates, scholarship filtering, and match queries against OpenAPI schemas.
+
+### Milestone 2 Summary (Completed):
+- **What Changed**:
+  - Implemented `app/api/deps.py` with `get_current_user` resolving `X-API-Key` and Bearer token against the `ApiKey` table with active check, revoked check, and `last_used_at` tracking.
+  - Implemented `app/api/v1/auth.py` with `POST /v1/auth/keys` and `DELETE /v1/auth/keys/{id}` for secure developer key lifecycle.
+  - Implemented `app/api/v1/profile.py` providing Profile Vault CRUD with automated `completeness_score` calculation.
+  - Implemented `app/api/v1/documents.py` supporting document metadata upload and user-scoped listing.
+  - Implemented `app/api/v1/scholarships.py` with multi-attribute filtering (country, level, field, min_amount, deadline range) and pagination.
+  - Implemented `app/api/v1/matches.py` providing deterministic eligibility filtering, deadline urgency scoring, fit scoring, and plain-language reason lists.
+  - Registered all `/v1` routes in `app/main.py` with structured error handling for consistent error payloads (`{"code": ..., "message": ..., "request_id": ...}`).
+  - Added comprehensive test suite `tests/test_core_api.py` covering the full developer end-to-end journey (all tests passing).
+- **What is Untested**:
+  - Live S3 binary upload transfers (documents currently track `storage_key` metadata).
+  - Web session cookies (API keys and Bearer tokens verified).
+- **Assumptions**:
+  - Developers will use `X-API-Key` header with `sp_live_...` tokens.
+  - Default applicant degree level targets graduate study (`masters`) unless specified in profile history.
+
+---
+
+## 5. Milestone 3 Plan: Agents on a Queue
+
+**Goal**: Implement the core agent modules as queue-driven background jobs:
+- **Matcher**: Evaluates profile against catalog and emits ranked matches.
+- **Researcher**: Researches school & programme details, enforces sourced facts, caches for 7 days.
+- **Edge Finder**: Computes authentic alignment angles between vault facts and school priorities.
+- **Drafter**: Writes tailored drafts with source facts and word limits, enforces grounding checks.
+- **Queue Harness**: Redis / asynchronous job runner executing agent jobs from the `jobs` table with stored results.
+
+**Acceptance Criteria**: One profile produces grounded drafts for three scholarships with no unsourced claims.
+
+### Target Files:
+1. `app/jobs/queue.py`: Background job worker, task dispatch, attempt tracking, error logging.
+2. `app/agents/matcher.py`: Matcher agent job worker.
+3. `app/agents/researcher.py`: Researcher agent job with 7-day TTL fact caching and anti-injection.
+4. `app/agents/edge_finder.py`: Edge Finder agent with recorded reasoning and outcome feedback hooks.
+5. `app/agents/drafter.py`: Drafter agent with word-limit enforcement, grounding check, and source citation tagging.
+6. `tests/test_agents_queue.py`: Tests executing the queue workflow and verifying grounded drafts for 3 scholarships with zero unsourced claims.
