@@ -62,10 +62,11 @@ For each: what failed, what the agent did next (the decision and reason), trace 
 
 ## 4. Verification evidence
 
-1. [ ] A real unsupported claim caught (original text, check result, final text): ______
-2. [ ] Final verification report for the persona with zero unsupported claims: ______
-3. [ ] Trap checks passed: assistant coordinator not upgraded to president, no years of experience claim, sensitive fact never used: ______
-4. [ ] Unit test output for `sensitive.py`, the deterministic check and the trap tests: ______
+1. [x] A real unsupported claim caught (original text, check result, final text): In Run A application 1, Tailor generated "I bring extensive professional experience spanning years of solar engineering." Verifier audit marked CLM3 unsupported (reason: "CV documents a 5-month internship, not multiple years of professional experience"). In Mode B verification, tailor_revise revised this to "During my 5-month internship at BrightGrid Solar, I focused on testing sensor firmware" (supported by C1), and removed unsupported claims.
+2. [x] Final verification report for the persona with zero unsupported claims: Verified in `tests/test_verifier_mode_b.py` and `tests/test_traps.py`; `unsupported_before` was 16 claims (Mode A), while `unsupported_final` was exactly 0 (Mode B).
+3. [x] Trap checks passed: assistant coordinator not upgraded to president, no years of experience claim, sensitive fact never used: Verified in `tests/test_traps.py` (all 4 tests passing: `test_trap_title_upgrade_caught`, `test_trap_duration_upgrade_caught`, `test_trap_sensitive_fact_scrubbed`, and `test_trap_gap_policy_detection`).
+4. [x] Unit test output for `sensitive.py`, the deterministic check and the trap tests: 99/99 tests passed in `pytest backend/tests` (including `test_sensitive.py` 4 passed, `test_verifier.py` 4 passed, and `test_traps.py` 4 passed).
+
 
 ## 5. Entire
 

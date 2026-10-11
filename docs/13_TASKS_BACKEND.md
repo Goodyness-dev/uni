@@ -262,12 +262,13 @@ Use `/inject_failure` for `llm_429`, `bad_json`, `portal_500`, `captcha_wall`, `
 Commit: `test(recovery): recorded failure and recovery runs [B22]`.
 
 
-## B23. [ ] Challenger tuning with the persona traps
+## B23. [x] Challenger tuning with the persona traps
 
 Goal: make sure the traps are caught.
 Depends: B15. Time box: 45 min.
 Add regression tests in `tests/test_traps.py` using fake LLM outputs that reproduce the traps: assistant coordinator upgraded to president (must be unsupported or overturned), "years of experience" claim (unsupported), sensitive fact (removed by the scan). Then run the real pipeline and read the report. Tune only the Verifier and Challenger prompts (new versions `verifier_judge_v2` and so on) if a trap slips through, and note the change in the improvement log.
 Commit: `test(verifier): persona trap regression tests [B23]`.
+
 
 ## B24. [ ] neatlogs depth
 
