@@ -19,7 +19,7 @@ NEXT_PUBLIC_USE_MOCKS=true
 5. The latest run id is read from `GET /api/runs/latest`, so no global state is needed. After pressing Run agent, navigate to `/matches`.
 6. Dates arrive as strings (`YYYY/MM/DD` and `YYYY/MM/DD HH:MM:SS` in UTC). Parse with the helper in `lib/format.ts`.
 
-## F01. [ ] Types, API client, mocks
+## F01. [x] Types, API client, mocks
 
 Goal: the typed foundation and mock data so every screen can be built without the backend.
 Depends: S10. Time box: 45 min.

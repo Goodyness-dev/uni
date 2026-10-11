@@ -1,0 +1,54 @@
+{
+  "id": "app_1",
+  "run_id": "run_20261011_001",
+  "listing": {
+    "id": "mock_portal_masters",
+    "name": "Aurora Energy AI Scholarship",
+    "is_mock": true,
+    "provider": "Aurora Technical University (fictional demo school)",
+    "country": "UK",
+    "deadline": "2026/12/01",
+    "channel": "portal_form",
+    "ai_policy": "allowed",
+    "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+    "essay_prompt": "In 300 words, describe how your work will benefit your community.",
+    "essay_word_limit": 300
+  },
+  "status": "submitted",
+  "fit_score": 92,
+  "fit_reason": "High alignment with solar energy projects and community leadership.",
+  "failure_reason": null,
+  "dossier": null,
+  "edges": [],
+  "tailored": null,
+  "verification": {
+    "rounds": 2,
+    "claims": [],
+    "removed_claims": [],
+    "overturned_claims": [],
+    "unsupported_before": 0,
+    "unsupported_final": 0
+  },
+  "package": {
+    "cv_pdf_url": "/api/applications/app_1/files/cv",
+    "essay_url": "/api/applications/app_1/files/essay",
+    "checklist_url": "/api/applications/app_1/files/checklist"
+  },
+  "handoff": null,
+  "submission": {
+    "confirmed": true,
+    "confirmation_code": "DEMO1234",
+    "channel": "portal_form",
+    "at": "2026/10/11 09:04:50"
+  },
+  "notifications": [
+    {
+      "at": "2026/10/11 09:04:50",
+      "text": "Submitted Aurora Energy AI Scholarship. Confirmation: DEMO1234.",
+      "sent": true
+    }
+  ],
+  "timeline": [],
+  "trace_url": "https://app.neatlogs.com/traces/tr_scholarpilot_20261011_001",
+  "metrics": null
+}

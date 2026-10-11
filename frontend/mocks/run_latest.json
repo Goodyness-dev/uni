@@ -1,0 +1,25 @@
+{
+  "run_id": "run_20261011_001",
+  "mode": "B",
+  "status": "completed",
+  "started_at": "2026/10/11 09:02:11",
+  "finished_at": "2026/10/11 09:05:45",
+  "application_ids": ["app_1", "app_2", "app_3", "app_4", "app_5"],
+  "metrics": {
+    "tokens_total": 48210,
+    "cost_usd": 0.38,
+    "latency_seconds": 214.0,
+    "claims_total": 34,
+    "claims_unsupported": 2,
+    "claims_removed": 2,
+    "claims_overturned": 1,
+    "personal_refs_total": 12,
+    "personal_refs_sourced": 12,
+    "llm_calls": 18,
+    "llm_fallbacks": 1,
+    "retries": 3,
+    "recovery_decisions": 2,
+    "crustdata_credits": 0
+  },
+  "trace_url": "https://app.neatlogs.com/traces/tr_scholarpilot_20261011_001"
+}

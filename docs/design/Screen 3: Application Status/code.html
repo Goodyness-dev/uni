@@ -1,0 +1,644 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-secondary-container":"#004326","on-tertiary-container":"#3d2500","inverse-surface":"#e3e2e6","source-dossier":"#F5A25D","primary-container":"#5b8cff","error":"#ffb4ab","surface-tint":"#b2c5ff","surface-container":"#1f1f23","source-vault":"#5FD3A0","surface-container-lowest":"#0d0e11","status-success-tint":"rgba(61, 214, 140, 0.12)","source-cv-tint":"rgba(122, 162, 255, 0.12)","on-primary-container":"#002665","on-primary":"#002c72","on-surface-variant":"#c3c6d6","surface-variant":"#343538","on-tertiary":"#462b00","surface-dim":"#121316","surface":"#121318","on-primary-fixed":"#001847","text-faint":"#626877","source-dossier-tint":"rgba(245, 162, 93, 0.12)","source-cv":"#7AA2FF","status-warning-tint":"rgba(245, 165, 36, 0.12)","tertiary":"#ffb957","on-error-container":"#ffdad6","surface-bright":"#38393c","source-vault-tint":"rgba(95, 211, 160, 0.12)","surface-container-highest":"#343538","outline-variant":"#434653","secondary":"#49e095","on-surface":"#e3e2e6","secondary-fixed-dim":"#49e095","inverse-primary":"#1857c8","on-primary-fixed-variant":"#0040a0","source-transcript":"#B794F6","text-2":"#9AA0AE","secondary-fixed":"#6bfdaf","on-secondary":"#003920","tertiary-container":"#c78200","source-transcript-tint":"rgba(183, 148, 246, 0.12)","tertiary-fixed-dim":"#ffb957","brand-tint":"rgba(91, 140, 255, 0.12)","primary":"#b2c5ff","inverse-on-surface":"#303034","on-secondary-fixed":"#002110","text":"#ECEDF0","error-container":"#93000a","secondary-container":"#01bb74","surface-container-high":"#292a2d","status-danger":"#F87171","status-danger-tint":"rgba(248, 113, 113, 0.12)","border":"#262932","on-tertiary-fixed-variant":"#643f00","border-strong":"#353945","surface-2":"#181A20","background":"#121316","primary-fixed-dim":"#b2c5ff","tertiary-fixed":"#ffddb5","on-background":"#e3e2e6","on-secondary-fixed-variant":"#005230","primary-fixed":"#dae2ff","surface-container-low":"#1b1b1f","outline":"#8d909f","on-tertiary-fixed":"#2a1800","on-error":"#690005"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{gutter:"1rem","gutter-lg":"1.5rem","space-xl":"2rem",margin:"1.5rem","space-md":"1rem","space-lg":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-2xl":"3rem","margin-mobile":"1rem"},fontFamily:{"body-md":["Inter"],"headline-lg":["Inter"],"headline-md":["Inter"],"label-mono-sm":["JetBrains Mono"],"headline-lg-mobile":["Inter"],"body-lg":["Inter"],"label-mono":["JetBrains Mono"],"body-sm":["Inter"],"label-ui":["Inter"]},fontSize:{"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"headline-lg":["28px",{lineHeight:"36px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-md":["20px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"600"}],"label-mono-sm":["11px",{lineHeight:"14px",letterSpacing:"0.06em",fontWeight:"500"}],"headline-lg-mobile":["24px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}],"label-mono":["12px",{lineHeight:"16px",letterSpacing:"0.08em",fontWeight:"500"}],"body-sm":["13px",{lineHeight:"18px",fontWeight:"400"}],"label-ui":["13px",{lineHeight:"18px",fontWeight:"500"}]}}}}</script></head><body class="bg-surface-container-lowest font-body-md text-text min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-border"><div class="h-14 max-w-[1100px] mx-auto px-margin flex items-center justify-between"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md tracking-tight text-text">Uni</span><span class="px-space-xs py-0.5 rounded bg-surface-2 border border-border font-label-mono-sm text-label-mono-sm text-text-2 uppercase">Agent</span></div><nav class="flex items-center gap-space-xs" data-active-classes="bg-surface-2 text-text border border-border rounded font-label-ui text-label-ui"><a class="px-space-sm py-1 rounded text-text-2 hover:text-text hover:bg-surface-2 transition-colors font-label-ui text-label-ui" data-path="profile" href="#">Profile</a><a aria-current="page" class="px-space-sm py-1 transition-colors bg-surface-2 text-text border border-border rounded font-label-ui text-label-ui" data-path="matches" href="#">Matches</a></nav></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-2 border border-border"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span class="font-label-mono text-label-mono text-text">Idle</span></div><div class="flex items-center gap-1.5 px-space-xs py-0.5"><span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span><span class="font-label-mono-sm text-label-mono-sm text-secondary tracking-widest">LIVE</span></div><button class="px-space-sm py-1 rounded bg-surface-2 hover:bg-surface-variant border border-border hover:border-border-strong text-text-2 hover:text-text font-label-ui text-label-ui transition-colors" type="button">Load demo persona</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-14 bg-surface-container-lowest"><div class="max-w-[1100px] mx-auto px-margin"><div class="flex flex-col w-full pb-space-2xl">
+<!-- Interactive Provenance Popover Container (fixed, dynamic position) -->
+<div class="fixed hidden z-50 bg-surface-2 border border-border-strong rounded-lg p-space-md shadow-2xl max-w-sm pointer-events-auto" id="provenance-popover">
+<div class="flex items-center justify-between pb-2 mb-2 border-b border-border">
+<div class="flex items-center gap-2">
+<span class="font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded" id="popover-badge">ID</span>
+<span class="font-label-ui text-label-ui text-text" id="popover-type">Source Document</span>
+</div>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint" id="popover-meta">SHA-256 Verified</span>
+</div>
+<div class="space-y-1.5">
+<p class="font-body-sm text-body-sm text-text" id="popover-citation">Raw extracted snippet text goes here.</p>
+<div class="flex items-center justify-between pt-1 text-text-faint font-label-mono-sm text-label-mono-sm">
+<span class="truncate max-w-[200px]" id="popover-src">Doc: source.pdf (p.3)</span>
+<span id="popover-date">2025-02-12</span>
+</div>
+</div>
+</div>
+<!-- BREADCRUMB & CONTEXT HEADER -->
+<section class="flex flex-col gap-space-md pt-space-lg pb-space-lg">
+<div class="flex items-center gap-space-xs text-text-2 hover:text-text cursor-pointer transition-colors w-fit">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<a class="font-label-ui text-label-ui" href="#">Matches</a>
+<span class="text-text-faint">/</span>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">REF: NBG-MERIT-2025-09</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-start md:justify-between gap-space-md">
+<div class="space-y-2">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="px-space-xs py-0.5 rounded bg-surface-2 border border-border font-label-mono-sm text-label-mono-sm text-text-2 uppercase">Demo Listing</span>
+<div class="flex items-center gap-1.5 px-space-xs py-0.5 rounded bg-status-success-tint border border-secondary/30">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-medium uppercase">Ready</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-2 border border-border font-label-mono-sm text-label-mono-sm text-tertiary">
+            52 days left
+          </span>
+<span class="px-space-xs py-0.5 rounded bg-surface-2 border border-border font-label-mono-sm text-label-mono-sm text-text-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-text-faint">outgoing_mail</span>
+            Email application
+          </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text tracking-tight">
+          Northbridge University Global Merit Scholarship
+        </h1>
+</div>
+<div class="flex items-center gap-2 self-start md:self-auto">
+<button class="px-space-sm py-2 rounded bg-surface-2 hover:bg-surface-variant border border-border hover:border-border-strong text-text-2 hover:text-text font-label-ui text-label-ui transition-colors flex items-center gap-1.5" onclick="navigator.clipboard.writeText('https://admissions.northbridge.ac.uk/merit-2025')" type="button">
+<span class="material-symbols-outlined text-[16px]">share</span>
+          Share Link
+        </button>
+<button class="px-space-md py-2 rounded bg-text hover:bg-white text-surface-container-lowest font-label-ui text-label-ui font-semibold transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+          Export Brief
+        </button>
+</div>
+</div>
+<!-- STAGE TRACKER (6 deterministic phases) -->
+<div class="w-full bg-surface border border-border rounded-xl p-space-sm md:p-space-md mt-space-xs">
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+<!-- 1. Match -->
+<div class="flex items-center gap-2 p-2 rounded bg-surface-2/60 border border-border">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">01</div>
+<div class="font-label-ui text-label-ui text-text truncate">Match</div>
+</div>
+</div>
+<!-- 2. Research -->
+<div class="flex items-center gap-2 p-2 rounded bg-surface-2/60 border border-border">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">02</div>
+<div class="font-label-ui text-label-ui text-text truncate">Research</div>
+</div>
+</div>
+<!-- 3. Evidence -->
+<div class="flex items-center gap-2 p-2 rounded bg-surface-2/60 border border-border">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">03</div>
+<div class="font-label-ui text-label-ui text-text truncate">Evidence</div>
+</div>
+</div>
+<!-- 4. Write -->
+<div class="flex items-center gap-2 p-2 rounded bg-surface-2/60 border border-border">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">04</div>
+<div class="font-label-ui text-label-ui text-text truncate">Write</div>
+</div>
+</div>
+<!-- 5. Verify -->
+<div class="flex items-center gap-2 p-2 rounded bg-surface-2/60 border border-border">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">05</div>
+<div class="font-label-ui text-label-ui text-text truncate">Verify</div>
+</div>
+</div>
+<!-- 6. Apply (ACTIVE HIGHLIGHTED) -->
+<div class="flex items-center gap-2 p-2 rounded bg-surface-2 border-2 border-primary-container relative">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse ml-1 mr-0.5"></span>
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-primary">CURRENT</div>
+<div class="font-label-ui text-label-ui text-text font-semibold truncate">Apply</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- MAIN DUAL-COLUMN LAYOUT (60% / 40%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- ==================== LEFT COLUMN (60% -> 7 of 12 cols) ==================== -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- 1. Document Viewer Card -->
+<div class="bg-surface border border-border rounded-xl flex flex-col overflow-hidden">
+<!-- Tab Bar -->
+<div class="flex items-center justify-between border-b border-border px-space-md pt-2 bg-surface">
+<div class="flex items-center gap-1">
+<button class="px-space-md py-2.5 font-label-ui text-label-ui text-text-2 hover:text-text border-b-2 border-transparent hover:border-border-strong transition-colors" type="button">
+              CV
+            </button>
+<button class="px-space-md py-2.5 font-label-ui text-label-ui text-text font-semibold border-b-2 border-primary-container transition-colors flex items-center gap-1.5" type="button">
+<span>Essay</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+</button>
+<button class="px-space-md py-2.5 font-label-ui text-label-ui text-text-2 hover:text-text border-b-2 border-transparent hover:border-border-strong transition-colors" type="button">
+              Package
+            </button>
+</div>
+<div class="flex items-center gap-space-sm text-text-faint font-label-mono-sm text-label-mono-sm">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+              100% CITED
+            </span>
+</div>
+</div>
+<!-- Document Viewer Content Area -->
+<div class="p-space-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-space-sm border-b border-border">
+<div class="font-label-mono text-label-mono text-text-2 uppercase">Statement of Academic Intent • Draft v3.1</div>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">Model: Uni-Verifier-4.2</span>
+</div>
+<!-- Essay Body with inline SourcePills and Audit Annotations -->
+<div class="font-body-lg text-body-lg text-text leading-relaxed space-y-4">
+<!-- Sentence 1 -->
+<p class="inline">
+              My academic path in computer science has been driven by solving distributed systems challenges at scale.
+              <button class="source-pill font-label-mono text-label-mono text-source-vault bg-source-vault-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-vault bg-source-vault-tint" data-pill-id="P7" data-text="Ayo Balogun dossier section: Personal statement of direction in distributed systems &amp; concurrency engineering." data-type="Profile Vault" type="button">P7</button>
+<button class="source-pill font-label-mono text-label-mono text-source-cv bg-source-cv-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-cv bg-source-cv-tint" data-pill-id="C1" data-text="BSc Computer Science First Class Honours, University of Lagos (graduated top 2% of cohort)." data-type="CV Fact" type="button">C1</button>
+</p>
+<!-- Sentence 2 -->
+<p class="inline">
+              At the University of Lagos, I maintained First Class Honours while spearheading the ACM student chapter's algorithmic workshops.
+              <button class="source-pill font-label-mono text-label-mono text-source-cv bg-source-cv-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-cv bg-source-cv-tint" data-pill-id="C1" data-text="BSc Computer Science First Class Honours confirmed from primary student transcript &amp; CV." data-type="CV Fact" type="button">C1</button>
+<button class="source-pill font-label-mono text-label-mono text-source-transcript bg-source-transcript-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-transcript bg-source-transcript-tint" data-pill-id="T2" data-text="Coursework entry: CSC 401 Advanced Algorithms, Grade A (94/100). Validated by Registrar SEAL." data-type="Transcript" type="button">T2</button>
+</p>
+<!-- Sentence 3: FLAGGED WITH AMBER DASHED UNDERLINE -->
+<p class="inline">
+<span class="border-b-2 border-dashed border-tertiary cursor-help relative group" title="Partial match: verify exact percentage before final dispatch">
+                Our team's project reduced latency in low-bandwidth educational portals across West Africa.
+                <span class="hidden group-hover:block absolute bottom-full mb-1 left-0 z-40 bg-surface-2 border border-tertiary text-tertiary font-label-mono-sm text-label-mono-sm p-2 rounded shadow-lg whitespace-nowrap">
+                  ⚠ Partial match: verify exact percentage before final dispatch
+                </span>
+</span>
+<button class="source-pill font-label-mono text-label-mono text-source-cv bg-source-cv-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-cv bg-source-cv-tint" data-pill-id="C4" data-text="CV Bullet 4: Co-architect of caching proxy for offline classrooms; 41% latency decrease documented in thesis." data-type="CV Fact" type="button">C4</button>
+</p>
+<!-- Sentence 4 -->
+<p class="inline">
+              Northbridge's Global Merit initiative specifically seeks leaders who bridge foundational theory and practical community impact.
+              <button class="source-pill font-label-mono text-label-mono text-source-dossier bg-source-dossier-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-dossier bg-source-dossier-tint" data-pill-id="D1" data-text="Official Criterion: Northbridge Merit Committee Statement 'prioritizes leaders connecting theoretical foundations with scalable field adoption.'" data-type="Dossier Public Source" type="button">D1</button>
+<button class="source-pill font-label-mono text-label-mono text-source-dossier bg-source-dossier-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-dossier bg-source-dossier-tint" data-pill-id="D3" data-text="Programme Brief 2025: Key pillar emphasizes proven technical stewardship in emerging markets." data-type="Dossier Public Source" type="button">D3</button>
+</p>
+<!-- Sentence 5 -->
+<p class="inline">
+              Through this Master's programme, I intend to expand open-source infrastructure tools for emerging market institutions.
+              <button class="source-pill font-label-mono text-label-mono text-source-vault bg-source-vault-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-vault bg-source-vault-tint" data-pill-id="P4" data-text="Vault statement of objective: 3-year research plan focusing on fault-tolerant networking primitives for low-power edge nodes." data-type="Profile Vault" type="button">P4</button>
+<button class="source-pill font-label-mono text-label-mono text-source-dossier bg-source-dossier-tint px-1.5 py-0.5 rounded font-medium hover:brightness-125 transition-all mx-0.5 inline-flex items-center align-baseline" data-color="text-source-dossier bg-source-dossier-tint" data-pill-id="D2" data-text="Faculty alignment: Systems &amp; Infrastructure Lab under Prof. K. Morrison, seeking grant researchers." data-type="Dossier Public Source" type="button">D2</button>
+</p>
+</div>
+<!-- REMOVED CLAIMS AUDIT CONTAINER (Toggleable) -->
+<div class="hidden mt-2 p-space-md rounded bg-surface-container-lowest border border-border space-y-2" id="removed-claims-box">
+<div class="flex items-center justify-between text-text-faint font-label-mono-sm text-label-mono-sm pb-1 border-b border-border">
+<span>UNPROVEN SYNTHESIS REJECTION LOG</span>
+<span class="text-status-danger">REJECTED BY VERIFIER</span>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<span class="line-through text-text-faint font-body-sm text-body-sm">
+                Led a $50,000 venture funding round for student startups.
+              </span>
+<span class="px-space-xs py-0.5 rounded bg-status-danger-tint text-status-danger border border-status-danger/30 font-label-mono-sm text-label-mono-sm shrink-0">
+                Removed because no source supported it.
+              </span>
+</div>
+</div>
+</div>
+<!-- Controls Bar Below Essay -->
+<div class="px-space-lg py-space-md bg-surface-2/60 border-t border-border flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only" id="audit-toggle" onchange="document.getElementById('removed-claims-box').classList.toggle('hidden')" type="checkbox">
+<div class="w-8 h-4 bg-surface-container-high rounded-full border border-border relative transition-colors" id="toggle-indicator">
+<div class="w-3 h-3 bg-text-2 rounded-full absolute top-0.5 left-0.5 transition-transform" id="toggle-circle"></div>
+</div>
+<span class="font-label-ui text-label-ui text-text-2">Show removed claims</span>
+</label>
+<span class="text-text-faint">•</span>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary">0 hallucinations detected</span>
+</div>
+<div class="flex items-center gap-space-sm font-label-mono text-label-mono text-text-2">
+<span>WORDS:</span>
+<span class="text-text font-bold">412</span>
+<span class="text-text-faint">/ 500</span>
+</div>
+</div>
+</div>
+<!-- 2. Submission Card -->
+<div class="bg-surface border border-border rounded-xl p-space-lg flex flex-col gap-space-md">
+<div class="flex items-start justify-between gap-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-secondary text-[20px]">mark_email_read</span>
+<h2 class="font-headline-md text-headline-md text-text">Package ready. Submit this one yourself</h2>
+</div>
+<p class="font-body-md text-body-md text-text-2">
+              This scholarship uses direct email submission. The application package has been verified, assembled, and formatted to the scholarship committee's strict guidelines.
+            </p>
+</div>
+</div>
+<!-- Official link well -->
+<div class="bg-surface-2 border border-border rounded-lg p-space-md flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm font-label-mono text-label-mono">
+<div class="flex items-center gap-2 text-text-2 truncate">
+<span class="material-symbols-outlined text-[16px] text-text-faint">link</span>
+<span class="text-text-faint">Portal:</span>
+<a class="text-primary hover:underline truncate" href="https://admissions.northbridge.ac.uk/merit-2025" rel="noopener noreferrer" target="_blank">
+              https://admissions.northbridge.ac.uk/merit-2025
+            </a>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-container font-label-mono-sm text-label-mono-sm text-text-faint uppercase self-start sm:self-auto">
+            Direct Email Channel
+          </span>
+</div>
+<!-- Pre-submission checklist -->
+<div class="space-y-2.5 pt-1">
+<div class="flex items-center gap-2 text-text">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<span class="font-body-md text-body-md">CV formatted and verified</span>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">(Ayo_Balogun_CV_Northbridge.pdf • 142 KB)</span>
+</div>
+<div class="flex items-center gap-2 text-text">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<span class="font-body-md text-body-md">Personal Statement verified with 100% cited facts</span>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-medium">All 5 sources validated</span>
+</div>
+<div class="flex items-center gap-2 text-text">
+<span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+<span class="font-body-md text-body-md">Email recipient &amp; subject template prepared:</span>
+<code class="px-1.5 py-0.5 rounded bg-surface-2 border border-border text-text font-label-mono-sm text-label-mono-sm">scholarship-board@northbridge.ac.uk</code>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row items-center gap-space-sm pt-space-xs">
+<button class="w-full sm:w-auto px-space-lg py-2.5 rounded bg-text hover:bg-white text-surface-container-lowest font-label-ui text-label-ui font-semibold transition-colors flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">folder_zip</span>
+            Download application package (.zip)
+          </button>
+<a class="w-full sm:w-auto px-space-md py-2.5 rounded bg-surface-2 hover:bg-surface-variant border border-border hover:border-border-strong text-text font-label-ui text-label-ui font-medium transition-colors flex items-center justify-center gap-2" href="mailto:scholarship-board@northbridge.ac.uk?subject=Global%20Merit%20Scholarship%20Application%20-%20Ayo%20Balogun">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+            Open email client
+          </a>
+</div>
+</div>
+</div>
+<!-- ==================== RIGHT COLUMN (40% -> 5 of 12 cols) ==================== -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- 1. Strongest Evidence Section -->
+<div class="bg-surface border border-border rounded-xl p-space-md flex flex-col gap-space-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-text">Your strongest evidence</h2>
+<p class="font-label-mono-sm text-label-mono-sm text-text-faint mt-0.5">
+            Chosen automatically by the agent and checked by the Verifier.
+          </p>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- EdgeCard 1 -->
+<div class="bg-surface-2 border border-border rounded-lg p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1 font-label-mono-sm text-label-mono-sm text-secondary">
+<span>■■■■■</span>
+<span class="font-bold ml-1">98% AFFINITY</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface border border-border font-label-mono-sm text-label-mono-sm text-text-2">
+                Essay opening
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-text">
+              Matches Northbridge's requirement for proven technical leadership in distributed systems.
+            </p>
+<div class="flex items-center gap-2 pt-1">
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">User:</span>
+<button class="source-pill font-label-mono-sm text-label-mono-sm text-source-vault bg-source-vault-tint px-1.5 py-0.5 rounded" data-pill-id="P7" type="button">P7 Vault</button>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">Programme:</span>
+<button class="source-pill font-label-mono-sm text-label-mono-sm text-source-dossier bg-source-dossier-tint px-1.5 py-0.5 rounded" data-pill-id="D3" type="button">D3 Criterion</button>
+</div>
+</div>
+<!-- EdgeCard 2 -->
+<div class="bg-surface-2 border border-border rounded-lg p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1 font-label-mono-sm text-label-mono-sm text-secondary">
+<span>■■■■□</span>
+<span class="font-bold ml-1">88% AFFINITY</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface border border-border font-label-mono-sm text-label-mono-sm text-text-2">
+                CV bullet
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-text">
+              Directly fulfills the minimum academic threshold and coursework excellence.
+            </p>
+<div class="flex items-center gap-2 pt-1">
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">User:</span>
+<button class="source-pill font-label-mono-sm text-label-mono-sm text-source-transcript bg-source-transcript-tint px-1.5 py-0.5 rounded" data-pill-id="T2" type="button">T2 Transcript</button>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">Programme:</span>
+<button class="source-pill font-label-mono-sm text-label-mono-sm text-source-dossier bg-source-dossier-tint px-1.5 py-0.5 rounded" data-pill-id="D1" type="button">D1 Guidelines</button>
+</div>
+</div>
+<!-- EdgeCard 3 -->
+<div class="bg-surface-2 border border-border rounded-lg p-space-md flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1 font-label-mono-sm text-label-mono-sm text-secondary">
+<span>■■■■□</span>
+<span class="font-bold ml-1">82% AFFINITY</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface border border-border font-label-mono-sm text-label-mono-sm text-text-2">
+                Essay body
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-text">
+              Evidences community leadership under resource constraints.
+            </p>
+<div class="flex items-center gap-2 pt-1">
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">User:</span>
+<button class="source-pill font-label-mono-sm text-label-mono-sm text-source-vault bg-source-vault-tint px-1.5 py-0.5 rounded" data-pill-id="P4" type="button">P4 Vault</button>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">Programme:</span>
+<button class="source-pill font-label-mono-sm text-label-mono-sm text-source-dossier bg-source-dossier-tint px-1.5 py-0.5 rounded" data-pill-id="D2" type="button">D2 Faculty</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 2. Research Dossier Facts -->
+<div class="bg-surface border border-border rounded-xl p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-text">Research Dossier</h2>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">4 verified facts</span>
+</div>
+<div class="space-y-2">
+<!-- Row 1 -->
+<div class="p-space-sm bg-surface-2 rounded border border-border space-y-1">
+<div class="flex items-center justify-between text-text-faint font-label-mono-sm text-label-mono-sm">
+<span class="text-text font-medium">Selection Criteria</span>
+<span>2025-02-14</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2">Prefers candidates demonstrating hands-on open source contributions alongside academic rigor</p>
+<div class="font-label-mono-sm text-label-mono-sm text-primary truncate hover:underline cursor-pointer">northbridge.ac.uk/criteria</div>
+</div>
+<!-- Row 2 -->
+<div class="p-space-sm bg-surface-2 rounded border border-border space-y-1">
+<div class="flex items-center justify-between text-text-faint font-label-mono-sm text-label-mono-sm">
+<span class="text-text font-medium">Funding Breakdown</span>
+<span>2025-02-14</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2">Covers 100% tuition fees plus £18,500 annual living stipend</p>
+<div class="font-label-mono-sm text-label-mono-sm text-primary truncate hover:underline cursor-pointer">northbridge.ac.uk/fees</div>
+</div>
+<!-- Row 3 -->
+<div class="p-space-sm bg-surface-2 rounded border border-border space-y-1">
+<div class="flex items-center justify-between text-text-faint font-label-mono-sm text-label-mono-sm">
+<span class="text-text font-medium">Committee Focus</span>
+<span>2025-02-14</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2">Emphasis on international collaboration and sustainable technology</p>
+<div class="font-label-mono-sm text-label-mono-sm text-primary truncate hover:underline cursor-pointer">northbridge.ac.uk/merit</div>
+</div>
+<!-- Row 4 -->
+<div class="p-space-sm bg-surface-2 rounded border border-border space-y-1">
+<div class="flex items-center justify-between text-text-faint font-label-mono-sm text-label-mono-sm">
+<span class="text-text font-medium">Submission Rule</span>
+<span>2025-02-14</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2">Requires single PDF package submitted via email to registrar</p>
+<div class="font-label-mono-sm text-label-mono-sm text-primary truncate hover:underline cursor-pointer">northbridge.ac.uk/apply</div>
+</div>
+</div>
+</div>
+<!-- 3. Verification Report Card -->
+<div class="bg-surface border border-border rounded-xl p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-text">Verification Report</h2>
+<span class="px-space-xs py-0.5 rounded bg-status-success-tint text-secondary font-label-mono-sm text-label-mono-sm">PASSED</span>
+</div>
+<!-- Banner -->
+<div class="p-space-sm rounded bg-status-success-tint border border-secondary/30 flex items-start gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">verified_user</span>
+<p class="font-body-sm text-body-sm text-secondary">
+            All claims verified. Every sentence is backed by your CV, your personal file or a public source.
+          </p>
+</div>
+<!-- 4 Stat Tiles -->
+<div class="grid grid-cols-4 gap-2 text-center">
+<div class="p-2 bg-surface-2 rounded border border-border">
+<div class="font-label-mono text-label-mono text-text font-bold">18</div>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">Checked</div>
+</div>
+<div class="p-2 bg-surface-2 rounded border border-border">
+<div class="font-label-mono text-label-mono text-secondary font-bold">17</div>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">Supported</div>
+</div>
+<div class="p-2 bg-surface-2 rounded border border-border">
+<div class="font-label-mono text-label-mono text-tertiary font-bold">1</div>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">Removed</div>
+</div>
+<div class="p-2 bg-surface-2 rounded border border-border">
+<div class="font-label-mono text-label-mono text-text font-bold">0</div>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint">Unsupported</div>
+</div>
+</div>
+<!-- Claim List with Verdicts -->
+<div class="space-y-2 pt-1 font-body-sm text-body-sm">
+<div class="flex items-start gap-2 text-text">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0">check</span>
+<div class="min-w-0 flex-1">
+<span class="text-text">BSc Computer Science First Class Honours</span>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint flex items-center gap-1 mt-0.5">
+<span class="text-source-cv bg-source-cv-tint px-1 rounded">C1</span>
+<span>Supported by CV</span>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-2 text-text">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0">check</span>
+<div class="min-w-0 flex-1">
+<span class="text-text">ACM chapter student leadership (120 members)</span>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint flex items-center gap-1 mt-0.5">
+<span class="text-source-vault bg-source-vault-tint px-1 rounded">P7</span>
+<span>Supported by Personal File</span>
+</div>
+</div>
+</div>
+<div class="flex items-start gap-2 text-text">
+<span class="material-symbols-outlined text-secondary text-[18px] shrink-0">check</span>
+<div class="min-w-0 flex-1">
+<span class="text-text">Advanced Algorithms Grade A (94%)</span>
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint flex items-center gap-1 mt-0.5">
+<span class="text-source-transcript bg-source-transcript-tint px-1 rounded">T2</span>
+<span>Supported by Transcript</span>
+</div>
+</div>
+</div>
+<!-- Removed claim item -->
+<div class="flex items-start gap-2 text-text-faint">
+<span class="material-symbols-outlined text-status-danger text-[18px] shrink-0">close</span>
+<div class="min-w-0 flex-1">
+<span class="line-through">Venture funding of $50k</span>
+<div class="font-label-mono-sm text-label-mono-sm text-status-danger mt-0.5">
+                Removed because no source supported it.
+              </div>
+</div>
+</div>
+</div>
+</div>
+<!-- 4. Agent Execution Timeline -->
+<div class="bg-surface border border-border rounded-xl p-space-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-text">Agent Timeline</h2>
+<span class="font-label-mono-sm text-label-mono-sm text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            ACTIVE RUN
+          </span>
+</div>
+<div class="space-y-3 relative before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-border">
+<!-- Item 1: Confirmed -->
+<div class="flex items-start gap-3 relative pl-6">
+<span class="w-2 h-2 rounded-full bg-secondary absolute left-1 top-1.5"></span>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-mono-sm text-label-mono-sm text-secondary font-semibold">CONFIRMED</span>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">14:18:20</span>
+</div>
+<p class="font-body-sm text-body-sm text-text mt-0.5">Application package successfully compiled and verified.</p>
+</div>
+</div>
+<!-- Item 2: Fallback -->
+<div class="flex items-start gap-3 relative pl-6">
+<span class="w-2 h-2 rounded-full bg-primary absolute left-1 top-1.5"></span>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-mono-sm text-label-mono-sm text-primary font-semibold">FALLBACK</span>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">14:15:02</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2 mt-0.5">Online portal had network timeout. Switched to direct email submission package.</p>
+</div>
+</div>
+<!-- Item 3: Retry -->
+<div class="flex items-start gap-3 relative pl-6">
+<span class="w-2 h-2 rounded-full bg-tertiary absolute left-1 top-1.5"></span>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-mono-sm text-label-mono-sm text-tertiary font-semibold">RETRY</span>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">14:12:44</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2 mt-0.5">Portal error, retried 3 times before selecting fallback route.</p>
+</div>
+</div>
+<!-- Item 4: Normal -->
+<div class="flex items-start gap-3 relative pl-6">
+<span class="w-2 h-2 rounded-full bg-text-faint absolute left-1 top-1.5"></span>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-label-mono-sm text-label-mono-sm text-text-2 font-semibold">INITIALIZE</span>
+<span class="font-label-mono-sm text-label-mono-sm text-text-faint">14:10:12</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-2 mt-0.5">Research dossier created with 4 verified programme facts.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. Collapsible Notifications Sent Section -->
+<div class="bg-surface border border-border rounded-xl overflow-hidden">
+<button class="w-full p-space-md flex items-center justify-between hover:bg-surface-2/40 transition-colors" onclick="document.getElementById('notif-content').classList.toggle('hidden'); document.getElementById('notif-icon').classList.toggle('rotate-180')" type="button">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-text-2">notifications</span>
+<span class="font-headline-md text-headline-md text-text">Notifications sent (2)</span>
+</div>
+<span class="material-symbols-outlined text-text-2 transition-transform duration-200" id="notif-icon">expand_more</span>
+</button>
+<div class="p-space-md pt-0 space-y-2 border-t border-border mt-0 bg-surface" id="notif-content">
+<!-- Notification 1 -->
+<div class="p-space-sm bg-surface-2 rounded border border-border flex items-center justify-between gap-2 mt-2">
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint flex items-center gap-1.5">
+<span>Telegram</span>
+<span>•</span>
+<span>14:18:25</span>
+</div>
+<p class="font-body-sm text-body-sm text-text truncate mt-0.5">
+                "Package ready for Northbridge University Global Merit"
+              </p>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-status-success-tint text-secondary font-label-mono-sm text-label-mono-sm shrink-0">
+              ✓ Sent
+            </span>
+</div>
+<!-- Notification 2 -->
+<div class="p-space-sm bg-surface-2 rounded border border-border flex items-center justify-between gap-2">
+<div class="min-w-0">
+<div class="font-label-mono-sm text-label-mono-sm text-text-faint flex items-center gap-1.5">
+<span>Telegram</span>
+<span>•</span>
+<span>14:13:00</span>
+</div>
+<p class="font-body-sm text-body-sm text-text truncate mt-0.5">
+                "Lakeshore Institute requires CAPTCHA handoff"
+              </p>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-status-success-tint text-secondary font-label-mono-sm text-label-mono-sm shrink-0">
+              ✓ Sent
+            </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- MICRO-INTERACTIONS SCRIPT -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const popover = document.getElementById('provenance-popover');
+      const badge = document.getElementById('popover-badge');
+      const typeSpan = document.getElementById('popover-type');
+      const citationText = document.getElementById('popover-citation');
+      const auditToggle = document.getElementById('audit-toggle');
+      const toggleIndicator = document.getElementById('toggle-indicator');
+      const toggleCircle = document.getElementById('toggle-circle');
+
+      // Toggle animation sync
+      if (auditToggle) {
+        auditToggle.addEventListener('change', () => {
+          if (auditToggle.checked) {
+            toggleIndicator.classList.remove('bg-surface-container-high');
+            toggleIndicator.classList.add('bg-secondary');
+            toggleCircle.classList.add('translate-x-4', 'bg-surface-container-lowest');
+            toggleCircle.classList.remove('bg-text-2');
+          } else {
+            toggleIndicator.classList.add('bg-surface-container-high');
+            toggleIndicator.classList.remove('bg-secondary');
+            toggleCircle.classList.remove('translate-x-4', 'bg-surface-container-lowest');
+            toggleCircle.classList.add('bg-text-2');
+          }
+        });
+      }
+
+      // Source Pill Hover & Click Interactions
+      const pills = document.querySelectorAll('.source-pill');
+      pills.forEach(pill => {
+        const showPopover = (e) => {
+          const pillId = pill.dataset.pillId || pill.textContent.trim();
+          const pType = pill.dataset.type || (pillId.startsWith('C') ? 'CV Fact' : pillId.startsWith('T') ? 'Transcript' : pillId.startsWith('P') ? 'Profile Vault' : 'Dossier Source');
+          const pText = pill.dataset.text || `Verified document extract corresponding to claim token [${pillId}].`;
+
+          badge.textContent = pillId;
+          typeSpan.textContent = pType;
+          citationText.textContent = `"${pText}"`;
+
+          // Clear previous badge classes
+          badge.className = 'font-label-mono-sm text-label-mono-sm px-1.5 py-0.5 rounded ' + 
+            (pillId.startsWith('C') ? 'text-source-cv bg-source-cv-tint' :
+             pillId.startsWith('T') ? 'text-source-transcript bg-source-transcript-tint' :
+             pillId.startsWith('P') ? 'text-source-vault bg-source-vault-tint' :
+             'text-source-dossier bg-source-dossier-tint');
+
+          const rect = pill.getBoundingClientRect();
+          popover.style.top = `${rect.bottom + 8}px`;
+          popover.style.left = `${Math.min(window.innerWidth - 380, Math.max(16, rect.left - 40))}px`;
+          popover.classList.remove('hidden');
+        };
+
+        pill.addEventListener('mouseenter', showPopover);
+        pill.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showPopover(e);
+        });
+      });
+
+      // Dismiss popover on outside click
+      document.addEventListener('click', (e) => {
+        if (!popover.contains(e.target) && !e.target.classList.contains('source-pill')) {
+          popover.classList.add('hidden');
+        }
+      });
+    });
+  </script>
+</div></div></main><footer class="w-full border-t border-border bg-surface-container-lowest py-space-lg mt-space-2xl"><div class="max-w-[1100px] mx-auto px-margin flex items-center justify-between text-text-faint font-label-mono-sm text-label-mono-sm"><span>VERIFIABLE EVIDENCE PIPELINE • NO SYNTHETIC HALLUCINATIONS</span><span>STRICT FACT PROVENANCE © UNI</span></div></footer></body></html>

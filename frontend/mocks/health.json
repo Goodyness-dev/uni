@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "llm_primary": "configured",
+  "llm_fallback": "configured",
+  "telegram": "configured",
+  "neatlogs": "configured",
+  "smtp": "configured",
+  "crustdata": "missing",
+  "demo_mode": true
+}

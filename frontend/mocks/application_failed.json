@@ -1,0 +1,54 @@
+{
+  "id": "app_5",
+  "run_id": "run_20261011_001",
+  "listing": {
+    "id": "mock_email_award",
+    "name": "Harbor Bay Foundation Award",
+    "is_mock": true,
+    "provider": "Harbor Bay Foundation (fictional demo foundation)",
+    "country": "Canada",
+    "deadline": "2026/12/15",
+    "channel": "email",
+    "ai_policy": "allowed",
+    "source_url": "http://localhost:8000/portal/about/mock_email_award",
+    "essay_prompt": "In 200 words, tell us about a time you taught or helped others.",
+    "essay_word_limit": 200
+  },
+  "status": "failed",
+  "fit_score": 84,
+  "fit_reason": "Matches computer engineering field and volunteering criteria.",
+  "failure_reason": "SMTP server connection timed out after 3 retries.",
+  "dossier": null,
+  "edges": [],
+  "tailored": null,
+  "verification": null,
+  "package": null,
+  "handoff": null,
+  "submission": {
+    "confirmed": false,
+    "confirmation_code": null,
+    "channel": "email",
+    "at": null
+  },
+  "notifications": [
+    {
+      "at": "2026/10/11 09:05:10",
+      "text": "Harbor Bay Foundation Award failed at submitting: SMTP server connection timed out.",
+      "sent": true
+    }
+  ],
+  "timeline": [
+    {
+      "event_no": 9,
+      "at": "2026/10/11 09:05:10",
+      "run_id": "run_20261011_001",
+      "application_id": "app_5",
+      "agent": "applier",
+      "type": "retry",
+      "message": "SMTP connection error, retried 3 times.",
+      "data": {}
+    }
+  ],
+  "trace_url": null,
+  "metrics": null
+}
