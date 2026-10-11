@@ -218,3 +218,28 @@ This document records every architectural assumption, design decision, dependenc
    - Tests CAPTCHA / bot check detection cleanly transitioning to `needs_human` with screenshot saved.
    - Tests resuming after user resolves blocker in `needs_human`.
 
+### Milestone 5 Summary (Completed):
+- **What Changed**:
+  - Implemented `app/integrations/browser_runner.py` with Playwright browser runner integration, `BrowserSubmissionResult`, multi-step screenshot captures, and detection for CAPTCHAs, MFA, login walls, and unexpected application fees.
+  - Implemented `app/agents/submitter.py` with strict idempotency enforcement (never resubmits an already submitted application), Review mode safety check (blocks unapproved submissions), graceful handoff to `needs_human` on blockers, and `submitted` confirmation extraction.
+  - Added comprehensive test suite `tests/test_submitter.py` (4/4 passed: blocker signature detection, single submission + idempotency guarantee, clean CAPTCHA halt + resume, and Review mode approval requirement).
+- **What is Untested**:
+  - Live interaction with real external cloud CAPTCHAs (by design: our hard rules mandate halting immediately and never attempting to solve or bypass them).
+- **Assumptions**:
+  - Applications in `ready_for_review` must be approved by the student prior to calling the submitter.
+  - Screenshots are archived in local runtime storage with deterministic file hashes.
+
+---
+
+## 8. Milestone 6 Plan: Autonomy and Notifications
+
+**Goal**: Production scheduler running daily discovery/matching loop per user timezone, proactive deadline reminders (7d, 3d, 1d), Telegram digest summaries, and signed webhook delivery.
+**Acceptance Criteria**: Daily scheduler triggers matching for active users, sends deadline alerts, delivers HMAC-signed webhooks, and formats clean Telegram summaries.
+
+### Target Files:
+1. `app/services/scheduler.py`: Daily scheduler loop handling timezone offsets, matching runs, and deadline evaluations (7-day, 3-day, 1-day warnings).
+2. `app/integrations/telegram.py`: Async Telegram bot interface delivering Markdown status updates, blocker notifications, and daily summaries.
+3. `app/integrations/webhooks.py`: Async webhook dispatcher delivering HMAC-SHA256 signed event payloads to registered URLs with retry.
+4. `tests/test_autonomy_notifications.py`: Tests verifying timezone-based scheduling, deadline alert emission (7d, 3d, 1d), signed webhook dispatch, and Telegram notification formatting.
+
+

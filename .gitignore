@@ -29,3 +29,9 @@ dist/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local runtime storage & screenshots
+storage/
+screenshots/
+*.db
+
