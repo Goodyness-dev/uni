@@ -94,7 +94,29 @@ User CV / Transcript / Vault
 
 ## Getting Started
 
-### Backend Setup
+### Production Setup (Under 10 Minutes)
+```bash
+# 1. Clone repository and install dependencies
+git clone https://github.com/Goodyness-dev/uni.git
+cd uni
+pip install fastapi uvicorn pydantic pydantic-settings sqlalchemy alembic aiosqlite asyncpg redis httpx cryptography neatlogs pytest greenlet
+
+# 2. Run database migrations
+alembic upgrade head
+
+# 3. Seed demo scholarship catalog into database
+python scripts/import_catalog.py
+
+# 4. Run automated test suite
+pytest tests/test_foundation.py
+
+# 5. Boot the production API server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+# Access Swagger UI at http://localhost:8000/docs
+# Access Health check at http://localhost:8000/health
+```
+
+### Hackathon Demo Setup (Legacy)
 ```bash
 cd backend
 python -m venv .venv
@@ -102,15 +124,9 @@ python -m venv .venv
 # Windows: .venv\Scripts\activate
 # Linux/macOS: source .venv/bin/activate
 
-pip install -r requirements.txt  # or fastapi uvicorn pydantic openai neatlogs httpx pypdf reportlab jinja2 pytest
+pip install -r requirements.txt
 
-# Configure environment
-cp .env.example .env
-
-# Run automated tests (99/99 passing)
-pytest
-
-# Start backend server
+# Start demo backend server
 python run_server.py
 ```
 
