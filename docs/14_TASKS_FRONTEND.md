@@ -215,7 +215,7 @@ Style: simple, clearly a generic university site (not our app styling). Mobile f
 Acceptance: [x] all five pages render. [x] the CAPTCHA submit flow works by hand. [x] backend tests in `tests/test_portal.py` still pass.
 Commit: `feat(portal): styled portal templates [F07]`.
 
-## F08. [ ] Screen 4: Handoff (`/handoff/[id]`)
+## F08. [x] Screen 4: Handoff (`/handoff/[id]`)
 
 Goal: the 3 step CAPTCHA handoff, mobile first.
 Depends: F06 and backend B21. Time box: 60 min.
@@ -227,7 +227,7 @@ Requirements:
 3. Done calls `handoffDone(id)` then polls until the status is `submitted` (success), or stays `awaiting_user` after 10 seconds (check failed).
 4. Package summary with FileCards and the line "Checked: {unsupported_final} unsupported claims".
 5. Layout max width about 560, works at 375 pixel width.
-Acceptance: [ ] mock `application_awaiting.json` shows the waiting state. [ ] with the backend: full CAPTCHA flow ends in the success state. [ ] looks right on a phone width in browser dev tools.
+Acceptance: [x] mock `application_awaiting.json` shows the waiting state. [x] with the backend: full CAPTCHA flow ends in the success state. [x] looks right on a phone width in browser dev tools.
 Commit: `feat(frontend): handoff screen [F08]`.
 
 ## F09. [ ] Polish (Sunday evening)
