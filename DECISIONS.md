@@ -320,6 +320,27 @@ This document records every architectural assumption, design decision, dependenc
 | **M07: Hardening** | Security & Privacy | ✅ Complete | Sliding-window rate limiter, LLM daily spend caps, PII redaction audit, NDPR data export & GDPR deletion, operational runbooks |
 | **M08: Launch** | Production Packaging | ✅ Complete | Multi-stage Dockerfile, docker-compose.yml, deployment guide, production README, requirements.txt |
 
+---
+
+## 12. Multi-Provider LLM Gateway (Gemini & Claude) & Expanded Scholarship Libraries
+
+### 12.1 Dynamic LLM Provider Switching
+- **Requirement**: Support Gemini primary and make seamless provision for switching to Anthropic Claude via API key.
+- **Decision**:
+  - `app/core/config.py` now specifies `LLM_PROVIDER` (`gemini` default, `claude` supported).
+  - `app/core/llm_gateway.py` implements native Anthropic Messages API dispatch (`https://api.anthropic.com/v1/messages`) alongside Gemini / OpenAI compatibility.
+  - Adding `set_active_llm_provider("claude")` or setting `LLM_PROVIDER=claude` in `.env` toggles all agents (Matcher, Researcher, Edge Finder, Drafter) to Claude instantly.
+  - Tokens and pricing tracked dynamically across both model families.
+  - API keys reside securely in `.env` (gitignored).
+
+### 12.2 Comprehensive 60-Portal Database & Catalog Expansion
+- **Requirement**: Populate scholarship databases across Tier 1 (open browsing), Tier 2 (account required), and Tier 3 (application portals).
+- **Decision**:
+  - Created `backend/data/scholarship_portals.json` cataloging all 60 databases, aggregators, national study portals, and application services across Tiers 1, 2, and 3 with captcha risk analysis and notes.
+  - Expanded `backend/data/listings.json` with major African, Commonwealth, European, and US government/foundation scholarship programs with verified prompts, deadlines, and criteria.
+  - Verified catalog ingestion via `scripts/import_catalog.py` and 33 automated acceptance tests.
+
+
 
 
 

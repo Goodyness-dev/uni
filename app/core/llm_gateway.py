@@ -15,6 +15,9 @@ T = TypeVar("T", bound=BaseModel)
 MODEL_PRICING: Dict[str, Dict[str, float]] = {
     "gemini-2.0-flash": {"input": 0.10, "output": 0.40},
     "gemini-1.5-flash": {"input": 0.075, "output": 0.30},
+    "claude-3-5-sonnet-20241022": {"input": 3.00, "output": 15.00},
+    "claude-3-5-haiku-20241022": {"input": 0.80, "output": 4.00},
+    "claude-3-haiku-20240307": {"input": 0.25, "output": 1.25},
     "gpt-4o-mini": {"input": 0.15, "output": 0.60},
     "default": {"input": 0.10, "output": 0.40},
 }
@@ -120,15 +123,22 @@ async def call_llm(
             fallback_used=False,
         )
 
-    # Prepare model execution candidates: Primary first, Fallback second
-    models_to_try = [
-        (settings.PRIMARY_MODEL, settings.PRIMARY_API_KEY, settings.PRIMARY_BASE_URL, False),
-        (settings.FALLBACK_MODEL, settings.FALLBACK_API_KEY, settings.FALLBACK_BASE_URL, True),
-    ]
+    # Prepare model execution candidates based on active provider (Gemini or Claude)
+    active_provider = getattr(settings, "LLM_PROVIDER", "gemini").lower()
+    if active_provider == "claude":
+        models_to_try = [
+            (settings.CLAUDE_MODEL, settings.ANTHROPIC_API_KEY or settings.PRIMARY_API_KEY, "claude", False),
+            (settings.GEMINI_MODEL, settings.GEMINI_API_KEY or settings.FALLBACK_API_KEY, "gemini", True),
+        ]
+    else:  # Gemini default
+        models_to_try = [
+            (settings.GEMINI_MODEL, settings.GEMINI_API_KEY or settings.PRIMARY_API_KEY, "gemini", False),
+            (settings.CLAUDE_MODEL, settings.ANTHROPIC_API_KEY or settings.FALLBACK_API_KEY, "claude", True),
+        ]
 
     last_error: Optional[Exception] = None
 
-    for model_name, api_key, base_url, is_fallback in models_to_try:
+    for model_name, api_key, provider_type, is_fallback in models_to_try:
         # Check spending limits before executing
         est_cost = calculate_cost(model_name, 1000, 500)
         spend_tracker.check_and_record(user_id, est_cost)
@@ -136,26 +146,55 @@ async def call_llm(
         start_time = time.perf_counter()
         for attempt in range(settings.LLM_MAX_RETRIES + 1):
             try:
-                # Real provider dispatch via httpx (OpenAI-compatible / Gemini-compatible endpoint)
-                endpoint = f"{base_url.rstrip('/')}/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
-                headers = {"Authorization": f"Bearer {api_key or 'mock-key'}", "Content-Type": "application/json"}
-                payload = {
-                    "model": model_name,
-                    "temperature": temperature,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                }
-
-                if response_model:
-                    payload["response_format"] = {"type": "json_object"}
-
                 # If no real API key configured in dev/test, generate deterministic fallback structure
                 if not api_key:
                     raw_content = "{}" if response_model else "Processed response."
                     in_tokens, out_tokens = 200, 80
+                elif provider_type == "claude" or "claude" in model_name.lower():
+                    # Anthropic Claude Messages API
+                    endpoint = f"{settings.CLAUDE_BASE_URL.rstrip('/')}/messages"
+                    headers = {
+                        "x-api-key": api_key,
+                        "anthropic-version": "2023-06-01",
+                        "content-type": "application/json",
+                    }
+                    claude_prompt = user_prompt
+                    if response_model:
+                        claude_prompt += "\nIMPORTANT: Return ONLY a valid JSON object matching the requested schema."
+
+                    payload = {
+                        "model": model_name,
+                        "max_tokens": 4096,
+                        "system": system_prompt,
+                        "messages": [{"role": "user", "content": claude_prompt}],
+                        "temperature": temperature,
+                    }
+                    async with httpx.AsyncClient(timeout=settings.LLM_TIMEOUT_SECONDS) as client:
+                        resp = await client.post(endpoint, headers=headers, json=payload)
+                        resp.raise_for_status()
+                        res_json = resp.json()
+                        raw_content = res_json["content"][0]["text"]
+                        usage = res_json.get("usage", {})
+                        in_tokens = usage.get("input_tokens", 250)
+                        out_tokens = usage.get("output_tokens", 100)
                 else:
+                    # Gemini via OpenAI-compatible endpoint
+                    endpoint = f"{settings.GEMINI_BASE_URL.rstrip('/')}/chat/completions"
+                    headers = {
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    }
+                    payload = {
+                        "model": model_name,
+                        "temperature": temperature,
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                    }
+                    if response_model:
+                        payload["response_format"] = {"type": "json_object"}
+
                     async with httpx.AsyncClient(timeout=settings.LLM_TIMEOUT_SECONDS) as client:
                         resp = await client.post(endpoint, headers=headers, json=payload)
                         resp.raise_for_status()
@@ -197,3 +236,12 @@ async def call_llm(
                     time.sleep(0.2 * (2 ** attempt))
 
     raise RuntimeError(f"All LLM models failed. Last error: {last_error}")
+
+
+def set_active_llm_provider(provider: str) -> None:
+    """Dynamically switches active LLM provider between 'gemini' and 'claude' at runtime."""
+    prov = provider.lower()
+    if prov not in ("gemini", "claude", "openai"):
+        raise ValueError(f"Unsupported LLM provider: {provider}. Must be 'gemini', 'claude', or 'openai'.")
+    settings.LLM_PROVIDER = prov
+    logger.info(f"Switched active LLM provider to: {settings.LLM_PROVIDER}")

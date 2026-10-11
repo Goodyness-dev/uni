@@ -38,12 +38,25 @@ class Settings(BaseSettings):
     # Autonomy & Kill Switch
     KILL_SWITCH_ACTIVE: bool = Field(default=False, description="Global emergency stop for all submissions")
 
-    # LLM Gateway & Providers
+    # LLM Gateway & Providers (Gemini Primary, Claude Switching Support)
+    LLM_PROVIDER: str = Field(default="gemini", description="Active LLM provider: 'gemini', 'claude', or 'openai'")
+    
+    # Gemini
+    GEMINI_API_KEY: Optional[str] = Field(default=None)
+    GEMINI_MODEL: str = Field(default="gemini-2.0-flash")
+    GEMINI_BASE_URL: str = Field(default="https://generativelanguage.googleapis.com/v1beta/openai")
+
+    # Claude (Anthropic)
+    ANTHROPIC_API_KEY: Optional[str] = Field(default=None)
+    CLAUDE_MODEL: str = Field(default="claude-3-5-sonnet-20241022")
+    CLAUDE_BASE_URL: str = Field(default="https://api.anthropic.com/v1")
+
+    # Legacy & generic overrides
     PRIMARY_MODEL: str = Field(default="gemini-2.0-flash")
     PRIMARY_API_KEY: Optional[str] = Field(default=None)
     PRIMARY_BASE_URL: Optional[str] = Field(default=None)
 
-    FALLBACK_MODEL: str = Field(default="gpt-4o-mini")
+    FALLBACK_MODEL: str = Field(default="claude-3-5-sonnet-20241022")
     FALLBACK_API_KEY: Optional[str] = Field(default=None)
     FALLBACK_BASE_URL: Optional[str] = Field(default=None)
 
