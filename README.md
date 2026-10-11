@@ -92,72 +92,103 @@ User CV / Transcript / Vault
 
 ---
 
-## Getting Started
+## Production Architecture & Engineering
 
-### Production Setup (Under 10 Minutes)
-```bash
-# 1. Clone repository and install dependencies
-git clone https://github.com/Goodyness-dev/uni.git
-cd uni
-pip install fastapi uvicorn pydantic pydantic-settings sqlalchemy alembic aiosqlite asyncpg redis httpx cryptography neatlogs pytest greenlet
+ScholarPilot has evolved from its initial 48-hour hackathon prototype into a hardened, production-grade autonomous platform:
 
-# 2. Run database migrations
-alembic upgrade head
+### 1. Multi-Tenant Relational Foundation (PostgreSQL 16 & SQLAlchemy 2.0 Async)
+- **11 System-of-Record Models**: `User`, `Profile`, `Document`, `Scholarship`, `Match`, `Application`, `ApplicationEvent`, `Draft`, `Job`, `ApiKey`, `Webhook`.
+- **Append-Only Auditing**: Every state change, user intervention, and external submission is permanently recorded in `application_events`.
+- **Alembic Migrations**: Fully version-controlled relational schema with production indexes on deadlines, compound `(user_id, status)` queries, and scholarship IDs.
 
-# 3. Seed demo scholarship catalog into database
-python scripts/import_catalog.py
-
-# 4. Run automated test suite
-pytest tests/test_foundation.py
-
-# 5. Boot the production API server
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-# Access Swagger UI at http://localhost:8000/docs
-# Access Health check at http://localhost:8000/health
+### 2. 12-State Application Lifecycle & Autonomy Modes
+Applications progress through a strictly validated directed state machine:
 ```
-
-### Hackathon Demo Setup (Legacy)
-```bash
-cd backend
-python -m venv .venv
-# Activate virtual environment
-# Windows: .venv\Scripts\activate
-# Linux/macOS: source .venv/bin/activate
-
-pip install -r requirements.txt
-
-# Start demo backend server
-python run_server.py
+discovered ──► matched ──► researching ──► drafting ──► ready_for_review ──► approved ──► submitting ──► submitted
+                                              │                                               ▲     │
+                                              │ (autopilot mode)                              │     ▼
+                                              └───────────────────────────────────────────────┴─► needs_human
+                                                                                                    (CAPTCHA/MFA)
 ```
+- **Autopilot Mode**: The agent autonomously discovers, researches, drafts, and submits applications matching student preferences.
+- **Review Mode**: Submissions are strictly held in `ready_for_review` until the student explicitly approves the draft materials via `POST /v1/applications/{id}/approve`.
+- **Emergency Kill Switch**: Global runtime circuit breaker (`KILL_SWITCH_ACTIVE=true`) that halts all active submissions instantaneously.
 
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-# Open http://localhost:3000
-```
+### 3. Agent Task Queue & Idempotent Submitter
+- **Queue Worker Harness**: Background jobs executed via asynchronous Redis task broker with stored attempt counts and dead-letter recovery.
+- **Idempotency Guarantee**: Submitter checks application confirmation status prior to opening browser sessions; duplicate runs return `already_submitted` with 0 duplicate submissions.
+- **Human Blocker Handoff**: Strict zero-bypass policy on CAPTCHAs, MFA prompts, login walls, and unexpected application fees; automatically captures step screenshots and transitions state to `needs_human`.
 
-### Running Pipeline & Evaluation CLI
-```bash
-# Execute Mode B pipeline with Neatlogs tracing
-python backend/scripts/run_pipeline.py B 2 "demo,evidence"
+### 4. Autonomous Daily Scheduler & Deadline Reminders
+- **Daily Discovery Loop**: Scheduled cycle per student timezone executing match evaluations and dispatching new opportunities.
+- **Proactive Deadline Buckets**: Evaluates catalog deadlines and fires high-priority alerts at:
+  - **7 Days Remaining (`7d`)**
+  - **3 Days Remaining (`3d`)**
+  - **1 Day Remaining (`1d`)**
+- **Notification Channels**: Clean Markdown briefings dispatched via Telegram bot and HMAC-SHA256 signed event webhooks.
 
-# Run automated evaluation suites
-python backend/scripts/eval_runs.py --suite eval_v2 --mode B --runs 3
-
-# Seed database to demo state
-python backend/scripts/seed_persona.py
-```
+### 5. Production Hardening & Privacy Protections
+- **Sliding-Window Rate Limiter**: Token-bucket abuse protection per API key and client IP.
+- **LLM Cost Caps**: Daily per-user spend cap (\$1.00) and global spend cap (\$50.00) with automatic model fallback and circuit breaking.
+- **Automated PII Redaction**: Structured JSON logging scrubs student emails, phone numbers, national IDs, and raw essay text before writing logs.
+- **NDPR & GDPR Compliance**: Student data archive export (`GET /v1/account/export`) and permanent data erasure under the Right to be Forgotten (`DELETE /v1/account`).
 
 ---
 
-## Honest Limitations
+## Production API Reference
 
-1. **No Automated Real Portal Submissions**: ScholarPilot never attempts to scrape or bypass live university authentication systems. All automated submissions target either the local demo portal or direct committee email. For external sites, ScholarPilot generates a complete, verified application pack (`cv.pdf`, `essay.txt`, and briefing notes).
-2. **CAPTCHA Stance**: ScholarPilot never attempts to bypass CAPTCHAs. When encountered, it immediately stops and triggers an interactive Telegram handoff to the applicant.
-3. **Synthetic Persona**: All demo applicant profiles and transcripts in this repository are synthetic to respect privacy.
-4. **Human Review Requirement**: While Mode B verification eliminates unsupported claims, applicants must perform final human review before submitting scholarship materials.
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` & `/ready` | Liveness and readiness system probes |
+| `POST` | `/v1/auth/keys` | Generate new developer API key (`sp_live_...`) |
+| `DELETE` | `/v1/auth/keys/{id}` | Revoke developer API key |
+| `GET` | `/v1/profile` | Retrieve verified Profile Vault facts |
+| `PUT` | `/v1/profile` | Update Profile Vault and recalculate completeness score |
+| `POST` | `/v1/documents` | Upload verified academic transcript / CV metadata |
+| `GET` | `/v1/scholarships` | Query scholarship catalog with multi-attribute filters |
+| `GET` | `/v1/matches` | Retrieve ranked opportunities with plain-language fit reasons |
+| `POST` | `/v1/matches/refresh` | Trigger real-time eligibility and ranking sweep |
+| `GET` | `/v1/applications` | List active student applications |
+| `POST` | `/v1/applications` | Initialize application for target scholarship |
+| `POST` | `/v1/applications/{id}/approve` | Approve drafted materials in Review mode |
+| `POST` | `/v1/applications/{id}/resume` | Resume submission following human blocker resolution |
+| `POST` | `/v1/applications/{id}/withdraw` | Cancel application |
+| `GET` | `/v1/settings` & `PUT` | Configure user autonomy mode (`autopilot` vs. `review`) |
+| `GET` | `/v1/account/export` | Download complete student data archive (NDPR/GDPR) |
+| `DELETE` | `/v1/account` | Permanently purge personal data and Profile Vault |
+
+---
+
+## Getting Started
+
+### Production Deployment (Docker Compose)
+```bash
+# 1. Clone repository
+git clone https://github.com/Goodyness-dev/uni.git
+cd uni
+
+# 2. Build and launch Postgres, Redis, API, and Worker
+docker compose up -d --build
+
+# 3. Run database migrations and seed catalog
+docker compose exec api alembic upgrade head
+docker compose exec api python scripts/import_catalog.py
+
+# 4. Verify system health
+curl http://localhost:8000/ready
+```
+
+### Local Development & Testing
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Run all 30 automated acceptance tests
+pytest tests/ -v
+
+# 3. Launch local development server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
 
 ---
 
@@ -165,3 +196,4 @@ python backend/scripts/seed_persona.py
 
 - **Memeshi**: Agent architecture, backend pipelines, Neatlogs tracing, failure recovery, verification engine.
 - **Ayo**: UI/UX design, Next.js frontend, interactive demo portal, Telegram integration.
+

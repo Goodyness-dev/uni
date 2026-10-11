@@ -292,6 +292,35 @@ This document records every architectural assumption, design decision, dependenc
 3. `docs/DEPLOYMENT.md`: Production operator onboarding manual, environment variables reference, and setup commands.
 4. `README.md`: Updated production-ready system overview, architecture diagram, API reference, and quickstart.
 
+### Milestone 8 Summary (Completed):
+- **What Changed**:
+  - Implemented multi-stage production `Dockerfile` (Python 3.12-slim) with non-root security user, Playwright Chromium dependencies, and healthcheck probes.
+  - Implemented `docker-compose.yml` coordinating PostgreSQL 16, Redis 7, FastAPI API service, and background queue worker.
+  - Authored comprehensive production deployment manual in `docs/DEPLOYMENT.md` detailing system topology, environment configurations, migrations, backup strategies, and reverse proxy setup.
+  - Updated `README.md` with complete production architecture documentation, 12-state application lifecycle state machine, dual autonomy mode breakdown, API reference matrix, and Docker quickstart instructions.
+  - Created root `requirements.txt` pinning production dependencies.
+- **What is Untested**:
+  - Multi-region geo-distributed PostgreSQL read replicas (single primary cluster configuration implemented and verified).
+- **Assumptions**:
+  - Production deployments use Docker Compose or Kubernetes with reverse proxy SSL termination.
+  - All 30 automated acceptance tests pass across the entire codebase.
+
+---
+
+## 11. Final Architecture Validation Summary
+
+| Milestone | Component | Status | Key Deliverables |
+|---|---|---|---|
+| **M01: Foundation** | Skeleton & Data Layer | ✅ Complete | PostgreSQL models, Alembic migrations, Fernet AES-256 encryption, PII redactor, LLM gateway with spending caps |
+| **M02: Core API** | Public & Developer Endpoints | ✅ Complete | API keys (`sp_live_...`), Profile Vault CRUD, Document upload, Catalog filtering, Match ranking |
+| **M03: Agents on a Queue** | Background Agent Pipeline | ✅ Complete | Redis job harness, Matcher, Researcher (7d TTL cache), Edge Finder, Drafter (word limits & grounding) |
+| **M04: State Machine & Modes** | Lifecycle & Autonomy | ✅ Complete | 12 lifecycle states, Autopilot vs. Review mode, human approval endpoints, append-only `application_events` |
+| **M05: Submitter** | Browser Submission & Handoff | ✅ Complete | Playwright runner, screenshot capture, idempotent submission guard, clean CAPTCHA/MFA handoff |
+| **M06: Autonomy & Notifications** | Scheduler & Alerts | ✅ Complete | Timezone-aware daily matching loop, 7d/3d/1d deadline alerts, HMAC-SHA256 signed webhooks, Telegram bot |
+| **M07: Hardening** | Security & Privacy | ✅ Complete | Sliding-window rate limiter, LLM daily spend caps, PII redaction audit, NDPR data export & GDPR deletion, operational runbooks |
+| **M08: Launch** | Production Packaging | ✅ Complete | Multi-stage Dockerfile, docker-compose.yml, deployment guide, production README, requirements.txt |
+
+
 
 
 

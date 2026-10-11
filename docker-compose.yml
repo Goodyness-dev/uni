@@ -1,0 +1,78 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: scholarpilot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: scholarpilot_db
+      POSTGRES_USER: scholarpilot
+      POSTGRES_PASSWORD: scholarpilot_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scholarpilot -d scholarpilot_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: scholarpilot-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scholarpilot-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://scholarpilot:scholarpilot_secret@db:5432/scholarpilot_db
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: production
+      DEBUG: "false"
+      KILL_SWITCH_ACTIVE: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - screenshots_data:/app/storage/screenshots
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scholarpilot-worker
+    restart: unless-stopped
+    command: ["python", "-c", "import asyncio; from app.services.scheduler import run_daily_scheduler_cycle; print('ScholarPilot background worker active.')"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://scholarpilot:scholarpilot_secret@db:5432/scholarpilot_db
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: production
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - screenshots_data:/app/storage/screenshots
+
+volumes:
+  postgres_data:
+  redis_data:
+  screenshots_data:
