@@ -46,7 +46,7 @@ Acceptance:
 4. [ ] Write the result in the blanks in `03_TOOLS_SETUP.md`.
 Commit: `feat(tracing): neatlogs init and span helpers [B02]`.
 
-## B03. [ ] Models and database
+## B03. [x] Models and database
 
 Goal: all Pydantic models and the full SQLite layer.
 Depends: B01. Time box: 50 min.
@@ -58,10 +58,10 @@ Requirements:
 3. IDs: run id `run_YYYYMMDD_NNN`, application id `app_N`.
 4. The app database path is `backend/data/app.db`. Tests use a temp path through a settings override.
 Tests (`tests/test_db.py`): every allowed transition passes and a few illegal ones raise; ids increment; `consume_flag` for counted and uncounted flags; JSON fields round trip; `replace_facts` and `add_vault_fact` id assignment (`P` ids continue after the highest existing).
-Acceptance: [ ] all tests pass. [ ] `init_db()` called twice does not error.
+Acceptance: [x] all tests pass. [x] `init_db()` called twice does not error.
 Commit: `feat(db): models and sqlite layer [B03]`.
 
-## B04. [ ] The LLM wrapper (most important file)
+## B04. [x] The LLM wrapper (most important file)
 
 Goal: `call_llm` with retries, fallback, JSON repair, failure hooks, cost and neatlogs attributes.
 Depends: B02, B03. Time box: 70 min.
@@ -70,18 +70,18 @@ Create: `backend/app/llm.py`, `backend/app/schemas.py` and `backend/app/prompts.
 Requirements: follow the algorithm in the spec step by step. Both clients lazy and wrapped with neatlogs. The model ids and base URLs come from settings only. Provide a module level function `set_clients_for_tests(primary, fallback)` so tests can inject fake clients. Record events (`retry`, `llm_fallback`, `json_repair`, `failure_injected`) only when `ctx.run_id` is not empty.
 Tests (`tests/test_llm.py`) with fake clients: success; 429 then success; 429 twice then fallback success and `fallback_used` true; both fail raises `RateLimitError`; model not found goes straight to fallback; bad JSON repaired; bad JSON twice then regeneration; schema validation failure triggers repair; flag `llm_429` and `bad_json` injection consumed; token and cost math.
 Acceptance:
-1. [ ] Tests pass.
-2. [ ] A small manual script (add to `scripts/trace_hello.py` as a second call) uses `call_llm` with a trivial schema and returns parsed data against the real model. The trace shows an LLM span named `llm.hello_v1` style with attributes.
+1. [x] Tests pass.
+2. [x] A small manual script (add to `scripts/trace_hello.py` as a second call) uses `call_llm` with a trivial schema and returns parsed data against the real model. The trace shows an LLM span named `llm.hello_v1` style with attributes.
 Commit: `feat(llm): call_llm with retries, fallback and json repair [B04]`.
 
-## B05. [ ] Failure flags and the sensitive filter
+## B05. [x] Failure flags and the sensitive filter
 
 Goal: flag endpoints and `sensitive.py`.
 Depends: B03. Time box: 40 min.
 Read: `06_API_CONTRACT.md` section 8, `07_AGENTS_SPEC.md` section 1.3, `10_FAILURES_AND_RECOVERY.md` section 3.
 Create: `backend/app/failure_flags.py` (thin helpers over `db` flags: `flag_active(name)`, `consume(name, ctx)` which also records the `failure_injected` event), `backend/app/routers/flags.py`, `backend/app/sensitive.py`. Include routers in `main.py`.
 Tests: sensitive tests listed in the spec; flags endpoints (set, counted, uncounted, reading back).
-Acceptance: [ ] set `llm_429` with count 2 through `/docs`, read it back, it shows enabled.
+Acceptance: [x] set `llm_429` with count 2 through `/docs`, read it back, it shows enabled.
 Commit: `feat(safety): failure flags and sensitive filter [B05]`.
 
 ## B06. [ ] Data files: persona, listings, dossiers, portal about text

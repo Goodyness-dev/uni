@@ -1,11 +1,12 @@
-﻿from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import health
+from app.db import init_db, mark_interrupted_runs
+from app.routers import health, flags
 from app.tracing import init_tracing, shutdown_tracing
 
 
@@ -15,13 +16,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     if settings.neatlogs_configured:
         init_tracing(tags=["server"])
 
-    # Later tasks (B03 / B13): initialize db and mark interrupted runs
-    # try:
-    #     from app.db import init_db, mark_interrupted_runs
-    #     init_db()
-    #     mark_interrupted_runs()
-    # except (ImportError, AttributeError):
-    #     pass
+    init_db()
+    mark_interrupted_runs()
 
     yield
 
@@ -47,3 +43,4 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router)
+app.include_router(flags.router)
