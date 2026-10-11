@@ -595,9 +595,14 @@ def mark_notification_sent(notification_id: int) -> None:
 def add_gap(application_id: str, criterion: str, question: str) -> str:
     conn = get_connection()
     try:
-        cur = conn.execute("SELECT COUNT(*) as count FROM gaps WHERE application_id = ?", (application_id,))
-        n = cur.fetchone()["count"]
-        gap_id = f"G{n + 1}"
+        cur = conn.execute("SELECT id FROM gaps WHERE id LIKE 'G%'")
+        g_ids = [row["id"] for row in cur.fetchall()]
+        max_num = 0
+        for gid in g_ids:
+            m = re.match(r"G(\d+)", gid)
+            if m:
+                max_num = max(max_num, int(m.group(1)))
+        gap_id = f"G{max_num + 1}"
         with conn:
             conn.execute(
                 "INSERT INTO gaps (id, application_id, criterion, question, answered) VALUES (?, ?, ?, ?, 0)",
@@ -628,6 +633,24 @@ def answer_gap(gap_id: str) -> None:
     try:
         with conn:
             conn.execute("UPDATE gaps SET answered = 1 WHERE id = ?", (gap_id,))
+    finally:
+        conn.close()
+
+
+def get_gap(gap_id: str) -> dict[str, Any] | None:
+    conn = get_connection()
+    try:
+        cur = conn.execute("SELECT id, application_id, criterion, question, answered FROM gaps WHERE id = ?", (gap_id,))
+        row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            "id": row["id"],
+            "application_id": row["application_id"],
+            "criterion": row["criterion"],
+            "question": row["question"],
+            "answered": bool(row["answered"]),
+        }
     finally:
         conn.close()
 

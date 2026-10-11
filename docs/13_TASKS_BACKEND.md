@@ -109,7 +109,7 @@ Tests: with fake `call_llm`: fact ids by source, altered numbers dropped, duplic
 Acceptance: [x] via `/docs`: call `load_demo`, then `GET /api/profile/facts` shows `C`, `T`, `P` facts. [x] neatlogs shows `agent.intake` with LLM spans (real calls).
 Commit: `feat(intake): fact extraction and profile endpoints [B07]`.
 
-## B08. [ ] Scout, Matcher and matches, gaps
+## B08. [x] Scout, Matcher and matches, gaps
 
 Goal: ranked matches visible through the API.
 Depends: B07. Time box: 60 min.
@@ -117,7 +117,7 @@ Read: `07_AGENTS_SPEC.md` sections 3 and 4, `06_API_CONTRACT.md` sections 5 and 
 Create: `backend/app/agents/scout.py`, `backend/app/agents/matcher.py`, `backend/app/routers/matches.py`, `backend/app/routers/gaps.py`.
 Requirements: hard rules exactly as specified. Gap creation (max 2 per application). `GET /api/matches` reads applications of the run.
 Tests: each hard rule (with the GPA normalization example computed by hand), deadline boundary equals today passes, skipped listings carry failed rule names, fit score clamping.
-Acceptance: [ ] a temporary script or test creates a run row and runs Scout and Matcher, then `/api/matches` returns 5 entries with sensible scores. 
+Acceptance: [x] a temporary script or test creates a run row and runs Scout and Matcher, then `/api/matches` returns 5 entries with sensible scores. 
 Commit: `feat(matcher): scout, hard rules and fit scoring [B08]`.
 
 Checkpoint (Saturday 1:00 PM): Ayo can show real matches on the Matches screen. If not, stop and fix.
