@@ -53,3 +53,30 @@ export function isFinalStatus(status: AppStatus): boolean {
 export function isFinalRun(status: RunStatus): boolean {
   return status === "completed" || status === "failed" || status === "interrupted";
 }
+
+export function statusStage(status: AppStatus): number {
+  switch (status) {
+    case "found":
+    case "matched":
+    case "skipped":
+      return 1;
+    case "researched":
+      return 2;
+    case "edges_selected":
+      return 3;
+    case "tailored":
+      return 4;
+    case "verified":
+    case "ready":
+      return 5;
+    case "submitting":
+    case "awaiting_user":
+    case "submitted":
+    case "prepared":
+    case "unconfirmed":
+    case "failed":
+      return 6;
+    default:
+      return 1;
+  }
+}

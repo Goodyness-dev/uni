@@ -173,7 +173,7 @@ Commit: `feat(frontend): matches screen with live feed [F04]`.
 
 Checkpoint (Saturday 1:00 PM): F03 and F04 work on mocks and the backend B07 and B08 endpoints are ready for F05.
 
-## F05. [ ] Switch to the real backend
+## F05. [x] Switch to the real backend
 
 Goal: use the real API and fix contract mismatches.
 Depends: F03, F04 and backend B08 or later. Time box: 45 min.
@@ -182,10 +182,10 @@ Do:
 2. Run `/verify_contract` (see `12_ANTIGRAVITY_RULES.md`). Fix mismatches in `types.ts` or tell Memeshi in chat which side should change. Contract changes are a `contract:` commit.
 3. Run the real flow: Load demo persona, Run agent, Matches.
 4. Fix null handling and loading states found with real data.
-Acceptance: [ ] real matches appear for the persona. [ ] no console errors.
+Acceptance: [x] real matches appear for the persona. [x] no console errors.
 Commit: `fix(frontend): connect to real backend [F05]`.
 
-## F06. [ ] Screen 3: Application Status (`/applications/[id]`)
+## F06. [x] Screen 3: Application Status (`/applications/[id]`)
 
 Goal: the most important screen (proof of verification).
 Depends: F05 and backend B13. Time box: 120 min.
@@ -198,7 +198,7 @@ Requirements:
 4. Right column: Evidence used (selected edges only, read only, with the note), Research (dossier facts with links and dates, a warning when `degraded`), Verification report (tiles: claims checked, supported, removed, overturned, unsupported in final; list of claims with verdict icons and source pills; an Overturned by self challenge list; the green All claims verified banner only when `unsupported_final` is 0 and the report exists), Notifications sent (collapsible), Timeline (all events with recovery decision cards).
 5. Early stages (nulls) show skeletons with labels, never crash.
 6. Pass a `facts` map (from `getFacts()`) and the dossier to the SourcePill popovers.
-Acceptance: [ ] all 6 mock application variants render. [ ] with real data a verified application shows the green banner and source pills.
+Acceptance: [x] all 6 mock application variants render. [x] with real data a verified application shows the green banner and source pills.
 Commit: `feat(frontend): application status screen [F06]`.
 
 ## F07. [ ] Demo portal templates

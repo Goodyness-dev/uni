@@ -207,7 +207,7 @@ export interface Application {
     source_url: string;
     essay_prompt: string;
     essay_word_limit: number;
-  };
+  } | null;
   status: AppStatus;
   fit_score: number | null;
   fit_reason: string | null;
