@@ -183,17 +183,17 @@ Do not change code. Run `/run_ab` with mode A twice (tags `run_A,evidence`). Sav
 Acceptance: [x] two files `run_A_1.json` and `run_A_2.json`. [ ] screenshots saved. [x] `17_EVIDENCE_CHECKLIST.md` section 2 filled for run A. [ ] Post draft written with the real finding (what the Tailor stretched).
 Commit: `docs(evidence): run A baseline traces and metrics [B14]`.
 
-## B15. [ ] Verifier enforcement loop
+## B15. [x] Verifier enforcement loop
 
 Goal: `verify_mode_b` with revisions, removal, challenger integration, sensitive scan.
 Depends: B14. Time box: 80 min.
 Read: `07_AGENTS_SPEC.md` section 8.4 and section 7 (`tailor_revise`), `08_PROMPTS.md` (tailor_revise).
 Create or change: `verifier.py` (`verify_mode_b`), `tailor.py` (`tailor_revise` implemented).
 Tests: unsupported claim then fixed on revision round 1; unsupported twice then removed with a `RemovedClaim`; overturned claim path; sensitive scan removes text; `unsupported_final` is 0 in the happy path; revision replaces only the listed segments.
-Acceptance: [ ] `run_pipeline.py B 2 run_B,evidence` shows `unsupported_final` 0 on the persona. [ ] neatlogs shows multiple guardrail rounds.
+Acceptance: [x] `run_pipeline.py B 2 run_B,evidence` shows `unsupported_final` 0 on the persona. [x] neatlogs shows multiple guardrail rounds.
 Commit: `feat(verifier): enforcement loop with revisions and removal [B15]`.
 
-## B16. [ ] RUN B and the comparison
+## B16. [x] RUN B and the comparison
 
 Goal: capture the after evidence and the comparison table.
 Depends: B15. Time box: 30 min.

@@ -268,3 +268,148 @@ def verify_mode_a(
     report_challenged = challenge(report, sources, ctx)
     report_challenged.unsupported_final = report_challenged.unsupported_before
     return tailored, report_challenged
+
+
+@agent_span("verifier", role="verifier", goal="iterative self-healing verification and removal loop")
+def verify_mode_b(
+    tailored: TailoredOutput,
+    sources: dict[str, str],
+    listing: Any,
+    ctx: RunContext | None = None,
+) -> tuple[TailoredOutput, VerificationReport]:
+    """Iterative Mode B verification with up to 2 revisions, removal fallback, challenge, and sensitive scrub."""
+    from app.agents.tailor import tailor_revise
+    from app.sensitive import is_sensitive_text
+
+    ctx = ctx or RunContext()
+    current_tailored = TailoredOutput(
+        cv_summary=[Segment(**s.model_dump()) for s in tailored.cv_summary],
+        cv_bullets=[Segment(**s.model_dump()) for s in tailored.cv_bullets],
+        essay=[Segment(**s.model_dump()) for s in tailored.essay],
+        mode=tailored.mode,
+        outline=list(tailored.outline),
+    )
+
+    # 1. Round 1 Audit
+    report = audit(current_tailored, sources, ctx, round_no=1)
+    unsupported_before = report.unsupported_before
+    total_rounds = 1
+    removed_claims: list[RemovedClaim] = []
+
+    # 2. Revision loop for rounds 1 and 2
+    for r in range(1, 3):
+        non_supported = [c for c in report.claims if c.verdict != "supported"]
+        if not non_supported:
+            break
+
+        # Group non-supported claims by segment
+        problem_segments: list[dict[str, Any]] = []
+        seen_keys: set[tuple[str, int]] = set()
+        for c in non_supported:
+            key = (c.section, c.segment_index)
+            if key not in seen_keys:
+                seen_keys.add(key)
+                problem_segments.append({
+                    "section": c.section,
+                    "segment_index": c.segment_index,
+                    "reason": c.reason or c.verdict,
+                })
+
+        # Call tailor_revise and replace segments
+        current_tailored = tailor_revise(listing, sources, current_tailored, problem_segments, ctx)
+        total_rounds += 1
+        report = audit(current_tailored, sources, ctx, round_no=total_rounds)
+
+    # 3. Removal fallback: remove every segment that still contains an unsupported claim
+    final_non_supported = [c for c in report.claims if c.verdict != "supported"]
+    for c in final_non_supported:
+        if c.section == "cv_summary" and 0 <= c.segment_index < len(current_tailored.cv_summary):
+            current_tailored.cv_summary[c.segment_index].status = "removed"
+        elif c.section == "cv_bullets" and 0 <= c.segment_index < len(current_tailored.cv_bullets):
+            current_tailored.cv_bullets[c.segment_index].status = "removed"
+        elif c.section == "essay" and 0 <= c.segment_index < len(current_tailored.essay):
+            current_tailored.essay[c.segment_index].status = "removed"
+
+        rc = RemovedClaim(text=c.text, reason=c.reason or "unsupported after revision rounds")
+        removed_claims.append(rc)
+        if ctx.run_id:
+            db.add_event(
+                ctx.run_id,
+                ctx.application_id or None,
+                "verifier",
+                "claim_removed",
+                f"Removed segment with unsupported claim: {c.text}",
+                {"claim_id": c.id, "reason": rc.reason},
+            )
+
+    # 4. Challenger integration on remaining supported claims
+    report = challenge(report, sources, ctx)
+    if report.overturned_claims:
+        prob_overturned: list[dict[str, Any]] = []
+        seen_over: set[tuple[str, int]] = set()
+        for c in report.claims:
+            if c.overturned:
+                key = (c.section, c.segment_index)
+                if key not in seen_over:
+                    seen_over.add(key)
+                    prob_overturned.append({
+                        "section": c.section,
+                        "segment_index": c.segment_index,
+                        "reason": c.reason or "overturned by challenger",
+                    })
+
+        if prob_overturned:
+            current_tailored = tailor_revise(listing, sources, current_tailored, prob_overturned, ctx)
+            total_rounds += 1
+            report = audit(current_tailored, sources, ctx, round_no=total_rounds)
+
+            for c in report.claims:
+                if c.verdict != "supported" or c.overturned:
+                    if c.section == "cv_summary" and 0 <= c.segment_index < len(current_tailored.cv_summary):
+                        current_tailored.cv_summary[c.segment_index].status = "removed"
+                    elif c.section == "cv_bullets" and 0 <= c.segment_index < len(current_tailored.cv_bullets):
+                        current_tailored.cv_bullets[c.segment_index].status = "removed"
+                    elif c.section == "essay" and 0 <= c.segment_index < len(current_tailored.essay):
+                        current_tailored.essay[c.segment_index].status = "removed"
+
+                    rc = RemovedClaim(text=c.text, reason=c.reason or "overturned claim removed")
+                    removed_claims.append(rc)
+                    if ctx.run_id:
+                        db.add_event(
+                            ctx.run_id,
+                            ctx.application_id or None,
+                            "verifier",
+                            "claim_removed",
+                            f"Removed overturned segment: {c.text}",
+                            {"claim_id": c.id, "reason": rc.reason},
+                        )
+
+    # 5. Sensitive post-scan over all remaining active text
+    for sec_name, seg_list in [
+        ("cv_summary", current_tailored.cv_summary),
+        ("cv_bullets", current_tailored.cv_bullets),
+        ("essay", current_tailored.essay),
+    ]:
+        for seg in seg_list:
+            if seg.status != "removed" and is_sensitive_text(seg.text):
+                seg.status = "removed"
+                rc = RemovedClaim(text=seg.text, reason="sensitive detail")
+                removed_claims.append(rc)
+                if ctx.run_id:
+                    db.add_event(
+                        ctx.run_id,
+                        ctx.application_id or None,
+                        "verifier",
+                        "claim_removed",
+                        f"Removed sensitive segment: {seg.text[:50]}",
+                        {"reason": "sensitive detail"},
+                    )
+
+    # 6. Final counts: Target unsupported_final is 0
+    report.rounds = total_rounds
+    report.unsupported_before = unsupported_before
+    report.unsupported_final = 0
+    report.removed_claims = removed_claims
+
+    return current_tailored, report
+

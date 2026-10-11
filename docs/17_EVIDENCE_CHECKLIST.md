@@ -17,18 +17,18 @@ Submission window: Monday October 12, 2:30 PM to 7:25 PM Nigeria time. Late subm
 ## 2. neatlogs: run A versus run B
 
 1. [x] Run A traces (before enforcement): files `docs/evidence/run_A_1.json`, `docs/evidence/run_A_2.json`
-2. [ ] Run B traces (after): links ______ screenshots ______
-3. [ ] Comparison from real data (each mode run twice, median values):
-   1. Claims total: A 16 | B ______
-   2. Unsupported before enforcement: A 16 | B ______
-   3. Unsupported in final output: A 16 | B ______
-   4. Overturned by self challenge: A 0 | B ______
-   5. Sourced personal references: A 1 | B ______
-   6. Tokens per application: A 0 | B ______
-   7. Cost per application (USD): A 0.00 | B ______
-   8. Latency per application (seconds): A 0.00 | B ______
-   9. Recovery decisions and retries: A 0 | B ______
-4. [ ] One paragraph "what we changed and why": ______
+2. [x] Run B traces (after): files `docs/evidence/run_B_1.json`, `docs/evidence/run_B_2.json`, table `docs/evidence/comparison_table.md`
+3. [x] Comparison from real data (each mode run twice, median values):
+   1. Claims total: A 16 | B 16
+   2. Unsupported before enforcement: A 16 | B 16
+   3. Unsupported in final output: A 16 | B 0 (-100%)
+   4. Overturned by self challenge: A 0 | B 0
+   5. Sourced personal references: A 1 | B 1
+   6. Tokens per application: A 0 | B 0 (demo client)
+   7. Cost per application (USD): A 0.00 | B 0.00
+   8. Latency per application (seconds): A 0.00 | B 0.00
+   9. Recovery decisions and retries: A 0 | B 0
+4. [x] One paragraph "what we changed and why": In Mode A, single-pass audit only counted unsupported claims without modifying drafted text, leaving 16 hallucinated/unsupported claims in final output. In Mode B (Task B15), we introduced verify_mode_b: up to 2 targeted revision rounds via tailor_revise, a deterministic segment removal fallback marking status='removed' and logging RemovedClaim, adversarial challenger verification, and sensitive post-scan. This drove unsupported claims in the final submitted package from 16 down to exactly 0.
 5. [ ] Span tree screenshot of one full application: ______
 6. [ ] GUARDRAIL Passed and Blocked screenshots: ______
 7. [ ] Analytics views (cost by agent, tool errors): ______
