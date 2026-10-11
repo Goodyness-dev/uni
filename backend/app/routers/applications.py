@@ -108,14 +108,23 @@ def get_application_file_endpoint(app_id: str, kind: str) -> Response:
         "checklist": pkg.get("checklist_txt", f"backend/data/packages/{app_id}/checklist.txt"),
     }
 
-    file_path = Path(file_map[kind])
-    if not file_path.is_file():
-        # Fallback check relative to backend/data/packages
-        alt_path = Path("backend/data/packages") / app_id / (f"{kind}.pdf" if kind == "cv" else f"{kind}.txt")
-        if alt_path.is_file():
-            file_path = alt_path
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"File {kind} not generated yet")
+    raw_path = file_map[kind]
+    candidates = [
+        Path(raw_path),
+        Path("backend/data/packages") / raw_path,
+        Path("data/packages") / raw_path,
+        Path(__file__).resolve().parent.parent.parent / "data" / "packages" / raw_path,
+        Path("backend/data/packages") / app_id / (f"{kind}.pdf" if kind == "cv" else f"{kind}.txt"),
+        Path("data/packages") / app_id / (f"{kind}.pdf" if kind == "cv" else f"{kind}.txt"),
+    ]
+    file_path = None
+    for cand in candidates:
+        if cand.is_file():
+            file_path = cand
+            break
+
+    if not file_path:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"File {kind} not generated yet")
 
     content = file_path.read_bytes()
     media_type = "application/pdf" if kind == "cv" else "text/plain; charset=utf-8"

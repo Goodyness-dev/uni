@@ -395,7 +395,15 @@ def execute_run(run_id: str) -> None:
             run_id,
         )
 
-        # Step: package (Placeholder for B13: transitions to ready)
+        # Step: package
+        from app.agents import packager
+        package_res = run_step(
+            ctx,
+            "package",
+            lambda: packager.build_package(app_id, listing, prefs, final_tailored, ctx),
+        )
+        if package_res is not None:
+            db.update_application(app_id, package=package_res)
         db.set_status(app_id, "ready", f"Package ready for {listing.name}", agent="coordinator")
 
         # Step: apply (Placeholder for B13)

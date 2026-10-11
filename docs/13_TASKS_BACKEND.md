@@ -217,17 +217,17 @@ Tests: template wording for each template, `send_telegram` writes the notificati
 Acceptance: [x] run the pipeline and receive messages on your phone for matches, researched, verified. [x] The handoff message has Done and Open buttons (check after B21).
 Commit: `feat(notify): telegram and email notifications [B18]`.
 
-## B19. [ ] Packager
+## B19. [x] Packager
 
 Goal: CV PDF, essay file, checklist.
 Depends: B15. Time box: 45 min.
 Read: `07_AGENTS_SPEC.md` section 10.
 Create: `backend/app/agents/packager.py` and the file endpoint in `routers/applications.py`.
 Tests: files created for a sample tailored output, only supported segments included, removed segments excluded, checklist content.
-Acceptance: [ ] open the generated `cv.pdf` and read it. [ ] `GET /api/applications/{id}/files/cv` downloads it.
+Acceptance: [x] open the generated `cv.pdf` and read it. [x] `GET /api/applications/{id}/files/cv` downloads it.
 Commit: `feat(packager): cv pdf, essay and checklist [B19]`.
 
-## B20. [ ] Demo portal backend
+## B20. [x] Demo portal backend
 
 Goal: the portal routes and templates (Ayo supplies HTML styling in F07; you provide minimal working templates first).
 Depends: B03, B05. Time box: 60 min.
@@ -235,7 +235,7 @@ Read: `06_API_CONTRACT.md` section 9, `11_DEMO_PORTAL_AND_SYNTHETIC_DATA.md` sec
 Create: `backend/app/portal/routes.py` and minimal Jinja2 templates in `backend/app/portal/templates/` (`about.html`, `apply.html`, `draft.html`, `confirmation.html`, `error.html`). Serve templates with Jinja2 directly (no extra package). Include the router at the root (not under `/api`).
 Requirements: exact behaviors in the contract: idempotent draft by key, CAPTCHA element with id `captcha_challenge` when the flag is on or the listing channel is `portal_captcha`, 403 when the answer is missing or not 12, 500 when `portal_500` (counted flag), idempotent submit, injection paragraph on the about page when `injection_page` is on.
 Tests (`tests/test_portal.py`): draft idempotency, captcha required and then accepted with 12, 500 flag consumed, submit idempotent, submissions endpoint, about page contains the school text.
-Acceptance: [ ] open `http://localhost:8000/portal/about/mock_portal_masters` and `/portal/apply/mock_portal_masters` in a browser. [ ] submit the form by hand and see the confirmation code.
+Acceptance: [x] open `http://localhost:8000/portal/about/mock_portal_masters` and `/portal/apply/mock_portal_masters` in a browser. [x] submit the form by hand and see the confirmation code.
 Commit: `feat(portal): demo portal routes and templates [B20]`.
 
 ## B21. [ ] Applier, handoff and resume

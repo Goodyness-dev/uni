@@ -54,3 +54,6 @@ app.include_router(gaps.router)
 app.include_router(runs.router)
 app.include_router(applications.router)
 
+from app.portal.routes import router as portal_router
+app.include_router(portal_router)
+
