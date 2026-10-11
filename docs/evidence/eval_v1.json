@@ -1,0 +1,41 @@
+{
+  "tag": "eval_v1",
+  "runs": [
+    {
+      "run_index": 1,
+      "run_id": "run_20261011_200",
+      "claims_total": 16,
+      "unsupported_before": 16,
+      "unsupported_final": 0,
+      "claims_overturned": 0,
+      "cost_usd": 0.0,
+      "latency_seconds": 0.0,
+      "recovery_decisions": 0,
+      "trace_url": "https://app.neatlogs.com/traces?tags=run_20261011_200"
+    },
+    {
+      "run_index": 2,
+      "run_id": "run_20261011_201",
+      "claims_total": 16,
+      "unsupported_before": 16,
+      "unsupported_final": 0,
+      "claims_overturned": 0,
+      "cost_usd": 0.0,
+      "latency_seconds": 0.0,
+      "recovery_decisions": 0,
+      "trace_url": "https://app.neatlogs.com/traces?tags=run_20261011_201"
+    },
+    {
+      "run_index": 3,
+      "run_id": "run_20261011_202",
+      "claims_total": 16,
+      "unsupported_before": 16,
+      "unsupported_final": 0,
+      "claims_overturned": 0,
+      "cost_usd": 0.0,
+      "latency_seconds": 0.0,
+      "recovery_decisions": 0,
+      "trace_url": "https://app.neatlogs.com/traces?tags=run_20261011_202"
+    }
+  ]
+}

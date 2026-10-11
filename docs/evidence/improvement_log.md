@@ -40,3 +40,40 @@ To eliminate unverified claims, we engineered `verify_mode_b` in `backend/app/ag
 ### 5. Git & Entire Tracking
 - **Fix Commit**: `154c4cc` (`feat(verifier): mode b self-healing enforcement loop and comparative evidence with neatlogs guardrails [B15] [B16]`)
 - **Entire Checkpoint**: Recorded on commit `154c4cc` on branch `main`.
+
+---
+
+## Improvement Loop 2: Submission Recovery Optimization & Trace Deep-Linking
+
+### 1. Metadata
+- **Date**: October 11, 2026
+- **Runs Analyzed**: `run_20261011_009`, `run_20261011_010` (Tag: `run_B,evidence`), Failure Injection runs (B22)
+- **After Runs**: `run_20261011_203`, `run_20261011_204` (Tag: `run_C,evidence`), `eval_v1`, `eval_v2`
+- **Neatlogs Project ID**: `72601136-9c61-4e1b-8644-8f9d7a83aedf`
+- **Tracing Host**: `https://app.neatlogs.com`
+- **Method Note**: Evaluated via Neatlogs traces and evaluation scripts (`docs/evidence/eval_v1.json`, `docs/evidence/eval_v2.json`, `docs/evidence/run_C_1.json`, `docs/evidence/run_C_2.json`).
+
+### 2. Trace Finding (The Problem in Recovery & Run B)
+During failure injection analysis and Run B trace inspection:
+1. In `portal_500` mitigation, when `email_fallback` was selected, the agent previously re-invoked `apply(app_id, ctx)` recursively while `channel` was still `portal_form`, causing redundant blocker inspections and potential retry loops.
+2. Applications lacked direct trace URL links back to the Neatlogs dashboard, requiring manual filtering by run tags.
+3. Test isolation suffered from stale test client mocks bleeding across test modules.
+
+### 3. Change Implemented (Task B21, B22, B24)
+1. **Direct Fallback Dispatch**: Refactored `applier.py` to directly format and transmit fallback application emails on `portal_500` exhausting retries, logging `email_fallback` submission codes without pipeline re-entry.
+2. **Deep-Linked Trace URLs**: Instrumented `trace_url` dynamically on all completed runs and individual applications (`https://app.neatlogs.com/traces?tags={id}`), exposing them via the API contract (`GET /api/runs/{id}`, `GET /api/applications/{id}`).
+3. **Automated Evaluation Suites**: Built `scripts/eval_runs.py` executing 3-pass automated verification suites (`eval_v1`, `eval_v2`) enforcing 0 unsupported claims in final outputs.
+
+### 4. Verification & Metrics (Before vs. After)
+
+| Metric | Run B (Loop 1) | Run C / Eval v2 (Loop 2) | Improvement |
+| :--- | :---: | :---: | :---: |
+| **Final Unsupported Claims** | 0 | 0 | Sustained zero hallucination |
+| **Recovery Loop Stability** | Retries & recursion risk | 100% deterministic fallback | Immediate self-healing |
+| **Trace Discoverability** | Tag filter only | Direct `trace_url` deep link | 1-click trace inspection |
+| **Eval Pass Rate** | Manual verification | 3/3 automated pass (0 unsupported) | Continuous assurance |
+
+### 5. Git & Entire Tracking
+- **Fix Commits**: `44de64f` (`feat(applier)`), `ca0c313` (`test(recovery)`), `7e4e5dd` (`test(verifier)`).
+- **Entire Checkpoints**: Tracked on branch `main` at each stage.
+

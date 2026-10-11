@@ -1,0 +1,72 @@
+{
+  "run_id": "run_20261011_203",
+  "mode": "C",
+  "tags": [
+    "run_C",
+    "evidence"
+  ],
+  "metrics": {
+    "tokens_total": 0,
+    "cost_usd": 0.0,
+    "latency_seconds": 0.0,
+    "claims_total": 16,
+    "claims_unsupported": 16,
+    "claims_removed": 16,
+    "claims_overturned": 0,
+    "personal_refs_total": 1,
+    "personal_refs_sourced": 1,
+    "llm_calls": 0,
+    "llm_fallbacks": 0,
+    "retries": 0,
+    "recovery_decisions": 0,
+    "crustdata_credits": 0
+  },
+  "applications": [
+    {
+      "id": "app_235",
+      "listing_id": "real_one",
+      "status": "prepared",
+      "unsupported_before": 11,
+      "unsupported_final": 0,
+      "claims_removed": 11,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_236",
+      "listing_id": "real_two",
+      "status": "matched",
+      "unsupported_before": 0,
+      "unsupported_final": 0,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_237",
+      "listing_id": "mock_portal_masters",
+      "status": "matched",
+      "unsupported_before": 0,
+      "unsupported_final": 0,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_238",
+      "listing_id": "mock_captcha_award",
+      "status": "submitting",
+      "unsupported_before": 5,
+      "unsupported_final": 0,
+      "claims_removed": 5,
+      "claims_overturned": 0
+    },
+    {
+      "id": "app_239",
+      "listing_id": "mock_email_award",
+      "status": "matched",
+      "unsupported_before": 0,
+      "unsupported_final": 0,
+      "claims_removed": 0,
+      "claims_overturned": 0
+    }
+  ],
+  "trace_url": "https://app.neatlogs.com/traces?tags=run_20261011_203"
+}

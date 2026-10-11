@@ -418,13 +418,16 @@ def execute_run(run_id: str) -> None:
                 db.set_status(app_id, "prepared", f"Package prepared for {listing.name}", agent="coordinator")
             else:
                 db.set_status(app_id, "submitting", f"Submitting application for {listing.name}", agent="coordinator")
-                db.set_status(app_id, apply_outcome, f"Application {apply_outcome} for {listing.name}", agent="coordinator")
+        app_trace_url = f"{settings.neatlogs_dashboard_url.rstrip('/')}/traces?tags={app_id}"
+        db.update_application(app_id, trace_url=app_trace_url)
 
     # 4. Finalize run and compute metrics
     metrics = compute_metrics(run_id)
-    db.finish_run(run_id, "completed", metrics=metrics.model_dump())
+    trace_url = f"{settings.neatlogs_dashboard_url.rstrip('/')}/traces?tags={run_id}"
+    db.finish_run(run_id, "completed", metrics=metrics.model_dump(), trace_url=trace_url)
     db.add_event(run_id, None, agent="coordinator", type_="run_completed", message=f"Run {run_id} completed successfully")
     notify.retry_unsent()
+
 
 
 def start_run_thread(run_id: str) -> threading.Thread:

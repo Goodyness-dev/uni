@@ -270,7 +270,7 @@ Add regression tests in `tests/test_traps.py` using fake LLM outputs that reprod
 Commit: `test(verifier): persona trap regression tests [B23]`.
 
 
-## B24. [ ] neatlogs depth
+## B24. [x] neatlogs depth
 
 Goal: everything in `09_NEATLOGS_SPEC.md` sections 6 to 10.
 Depends: B16, B22. Time box: 120 min across the evening.
