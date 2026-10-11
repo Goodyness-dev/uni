@@ -1,0 +1,55 @@
+{
+  "events": [
+    {
+      "event_no": 1,
+      "at": "2026/10/11 09:02:11",
+      "run_id": "run_20261011_001",
+      "application_id": null,
+      "agent": "coordinator",
+      "type": "run_started",
+      "message": "Pipeline run started in mode B for Tobi Adeyemi",
+      "data": { "mode": "B", "top_n": 2 }
+    },
+    {
+      "event_no": 2,
+      "at": "2026/10/11 09:02:15",
+      "run_id": "run_20261011_001",
+      "application_id": null,
+      "agent": "scout",
+      "type": "step_completed",
+      "message": "Scout loaded 5 candidate scholarship listings from database",
+      "data": { "total_listings": 5 }
+    },
+    {
+      "event_no": 3,
+      "at": "2026/10/11 09:02:22",
+      "run_id": "run_20261011_001",
+      "application_id": null,
+      "agent": "matcher",
+      "type": "step_completed",
+      "message": "Screened 5 scholarships; shortlisted 4 matching profiles, 1 skipped",
+      "data": { "matched": 4, "skipped": 1 }
+    },
+    {
+      "event_no": 4,
+      "at": "2026/10/11 09:02:30",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "researcher",
+      "type": "step_completed",
+      "message": "Researcher found 5 sourced facts about Aurora Energy AI Scholarship",
+      "data": { "facts_count": 5, "cached": true }
+    },
+    {
+      "event_no": 5,
+      "at": "2026/10/11 09:02:45",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "edge_finder",
+      "type": "step_completed",
+      "message": "Edge Finder chose 3 pieces of evidence for Aurora application",
+      "data": { "selected_edges": 3 }
+    }
+  ],
+  "last_event_no": 5
+}

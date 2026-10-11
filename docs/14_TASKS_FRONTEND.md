@@ -19,7 +19,7 @@ NEXT_PUBLIC_USE_MOCKS=true
 5. The latest run id is read from `GET /api/runs/latest`, so no global state is needed. After pressing Run agent, navigate to `/matches`.
 6. Dates arrive as strings (`YYYY/MM/DD` and `YYYY/MM/DD HH:MM:SS` in UTC). Parse with the helper in `lib/format.ts`.
 
-## F01. [ ] Types, API client, mocks
+## F01. [x] Types, API client, mocks
 
 Goal: the typed foundation and mock data so every screen can be built without the backend.
 Depends: S10. Time box: 45 min.
@@ -119,7 +119,7 @@ Tests: type check passes (`npm run build` or the TypeScript check). A tiny scrip
 Acceptance: [ ] build passes. [ ] `api.getMatches()` in mock mode returns 5 matches.
 Commit: `feat(frontend): types, api client and mocks [F01]`.
 
-## F02. [ ] Layout and shared components
+## F02. [x] Layout and shared components
 
 Goal: app shell and every shared component from `15_DESIGN_BRIEF.md` section 10, with a temporary styleguide route.
 Depends: F01. Time box: 90 min.
@@ -134,10 +134,10 @@ Requirements:
 2. `TimelineItem` gives `recovery_decision` events a distinct card showing `data.trigger`, `data.chosen` and `data.reason`.
 3. Never render raw null or undefined.
 4. Tailwind utility classes only.
-Acceptance: [ ] `/styleguide` shows every component and state (loading, empty, error, each status). [ ] type check passes.
+Acceptance: [x] `/styleguide` shows every component and state (loading, empty, error, each status). [x] type check passes.
 Commit: `feat(frontend): layout and shared components [F02]`.
 
-## F03. [ ] Screen 1: Upload and Profile (`/`)
+## F03. [x] Screen 1: Upload and Profile (`/`)
 
 Goal: collect documents, preferences and the Vault, call intake, show editable facts, start a run.
 Depends: F02. Time box: 90 min.
@@ -151,10 +151,10 @@ Requirements:
 5. Submit calls `intake(req)`. Show the loading state, errors via `ErrorBanner`, warnings from the response.
 6. Parsed facts card: grouped by source, id pill, category, text. Inline edit saves on blur with `patchFact`. Sensitive facts show a lock icon and tooltip. Counts at the top.
 7. Sticky bottom bar with `Run agent` (disabled until facts exist). It calls `startRun("B", 2, false)` by default, with a small Advanced control (visible in demo mode) that lets you choose mode A, B, Z and top_n 2 to 5. On success route to `/matches`. On 409 show "A run is already in progress" with a link to `/matches`.
-Acceptance (mock mode and then real after F05): [ ] Load demo persona fills everything. [ ] Facts list shows grouped facts. [ ] Run agent navigates to Matches.
+Acceptance (mock mode and then real after F05): [x] Load demo persona fills everything. [x] Facts list shows grouped facts. [x] Run agent navigates to Matches.
 Commit: `feat(frontend): upload and profile screen [F03]`.
 
-## F04. [ ] Screen 2: Matches (`/matches`)
+## F04. [x] Screen 2: Matches (`/matches`)
 
 Goal: ranked matches and the live agent feed.
 Depends: F02. Time box: 90 min.
@@ -168,7 +168,7 @@ Requirements:
 5. Top: StageTracker for the run (Match, Research, Evidence, Write, Verify, Apply) derived from the statuses of applications, plus a Run metrics strip (StatTile for tokens, cost, time, claims checked, removed, overturned, recovery decisions) shown when `metrics` is not null, and a View trace button when `trace_url` is not null.
 6. Gaps card at the bottom from `getGaps()` with a text field and Save (`answerGap`).
 7. Interrupted run banner with a Resume button (`resumeRun`).
-Acceptance: [ ] mock mode shows the full layout. [ ] polling stops when the run is final (verify with a console log in development, remove it).
+Acceptance: [x] mock mode shows the full layout. [x] polling stops when the run is final (verify with a console log in development, remove it).
 Commit: `feat(frontend): matches screen with live feed [F04]`.
 
 Checkpoint (Saturday 1:00 PM): F03 and F04 work on mocks and the backend B07 and B08 endpoints are ready for F05.

@@ -1,0 +1,37 @@
+{
+  "id": "app_4",
+  "run_id": "run_20261011_001",
+  "listing": {
+    "id": "real_one",
+    "name": "Commonwealth Master's Scholarship",
+    "is_mock": false,
+    "provider": "Commonwealth Scholarship Commission",
+    "country": "UK",
+    "deadline": "2026/11/03",
+    "channel": "package_only",
+    "ai_policy": "unknown",
+    "source_url": "https://cscuk.fcdo.gov.uk/apply/masters-scholarships/",
+    "essay_prompt": "Describe your plan of study and community impact.",
+    "essay_word_limit": 500
+  },
+  "status": "matched",
+  "fit_score": 88,
+  "fit_reason": "Direct match for Nigerian engineering graduate with First Class equivalent.",
+  "failure_reason": null,
+  "dossier": null,
+  "edges": [],
+  "tailored": null,
+  "verification": null,
+  "package": null,
+  "handoff": null,
+  "submission": {
+    "confirmed": false,
+    "confirmation_code": null,
+    "channel": "package_only",
+    "at": null
+  },
+  "notifications": [],
+  "timeline": [],
+  "trace_url": null,
+  "metrics": null
+}

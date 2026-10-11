@@ -1,0 +1,61 @@
+{
+  "events": [
+    {
+      "event_no": 6,
+      "at": "2026/10/11 09:03:10",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "tailor",
+      "type": "step_completed",
+      "message": "Tailor drafted customized CV and essay citing 8 provenance tokens",
+      "data": { "words": 285 }
+    },
+    {
+      "event_no": 7,
+      "at": "2026/10/11 09:03:35",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "verifier",
+      "type": "claim_removed",
+      "message": "Verifier removed 1 unsupported claim from Aurora Energy draft",
+      "data": { "claim_id": "CL_04", "reason": "No source supported venture funding" }
+    },
+    {
+      "event_no": 8,
+      "at": "2026/10/11 09:04:15",
+      "run_id": "run_20261011_001",
+      "application_id": "app_2",
+      "agent": "applier",
+      "type": "recovery_decision",
+      "message": "Portal CAPTCHA challenge detected on Northlight form. Switched to manual user handoff.",
+      "data": {
+        "trigger": "captcha_wall",
+        "options": ["solve_captcha", "handoff_user", "fail"],
+        "chosen": "handoff_user",
+        "reason": "Security policy forbids bypassing external CAPTCHA challenges.",
+        "outcome": "awaiting_user"
+      }
+    },
+    {
+      "event_no": 9,
+      "at": "2026/10/11 09:04:50",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "applier",
+      "type": "submission_confirmed",
+      "message": "Submission confirmed for Aurora Energy AI Scholarship. Code: DEMO1234",
+      "data": { "confirmation_code": "DEMO1234", "channel": "portal_form" }
+    },
+    {
+      "event_no": 10,
+      "at": "2026/10/11 09:05:45",
+      "run_id": "run_20261011_001",
+      "application_id": null,
+      "agent": "coordinator",
+      "type": "run_completed",
+      "message": "Pipeline run completed: 1 submitted, 1 awaiting user, 1 ready, 1 skipped",
+      "data": { "successful": 3, "failed": 0 }
+    }
+  ],
+  "last_event_no": 10
+}

@@ -1,0 +1,272 @@
+{
+  "id": "app_1",
+  "run_id": "run_20261011_001",
+  "listing": {
+    "id": "mock_portal_masters",
+    "name": "Aurora Energy AI Scholarship",
+    "is_mock": true,
+    "provider": "Aurora Technical University (fictional demo school)",
+    "country": "UK",
+    "deadline": "2026/12/01",
+    "channel": "portal_form",
+    "ai_policy": "allowed",
+    "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+    "essay_prompt": "In 300 words, describe how your work will benefit your community.",
+    "essay_word_limit": 300
+  },
+  "status": "ready",
+  "fit_score": 92,
+  "fit_reason": "High alignment with solar energy projects and community leadership.",
+  "failure_reason": null,
+  "dossier": {
+    "listing_id": "mock_portal_masters",
+    "facts": [
+      {
+        "id": "D1",
+        "topic": "program_focus",
+        "text": "The Energy AI programme applies machine learning to solar and smart grid systems.",
+        "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+        "snippet": "applying machine learning to solar and smart grid systems",
+        "retrieved_at": "2026/10/10 14:20:00"
+      },
+      {
+        "id": "D2",
+        "topic": "values",
+        "text": "The university values community impact, hands on projects and leadership shown through action.",
+        "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+        "snippet": "We value community impact, hands on projects and leadership shown through action",
+        "retrieved_at": "2026/10/10 14:20:00"
+      },
+      {
+        "id": "D3",
+        "topic": "research_areas",
+        "text": "The programme director researches low cost forecasting for small scale solar systems.",
+        "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+        "snippet": "researches low cost forecasting for small scale solar systems",
+        "retrieved_at": "2026/10/10 14:20:00"
+      },
+      {
+        "id": "D4",
+        "topic": "recent_news",
+        "text": "The programme opened a community energy lab in 2025 that partners with local schools.",
+        "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+        "snippet": "opened a community energy lab in 2025 that partners with local schools",
+        "retrieved_at": "2026/10/10 14:20:00"
+      },
+      {
+        "id": "D5",
+        "topic": "values",
+        "text": "The university trains engineers who build practical technology for their communities.",
+        "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+        "snippet": "build practical technology for their communities",
+        "retrieved_at": "2026/10/10 14:20:00"
+      }
+    ],
+    "degraded": false
+  },
+  "edges": [
+    {
+      "id": "E1",
+      "profile_fact_ids": ["P2"],
+      "dossier_fact_ids": ["D2", "D4"],
+      "reason": "Teaching Python to 40 students over 200 hours aligns directly with community impact and school partnerships.",
+      "use_in": "essay_body",
+      "strength": 0.98,
+      "selected": true
+    },
+    {
+      "id": "E2",
+      "profile_fact_ids": ["C6", "T9"],
+      "dossier_fact_ids": ["D1", "D3"],
+      "reason": "SunTrack solar panel monitoring project matches low-cost solar forecasting research under Prof. Mara Quill.",
+      "use_in": "essay_opening",
+      "strength": 0.94,
+      "selected": true
+    },
+    {
+      "id": "E3",
+      "profile_fact_ids": ["P5", "C8"],
+      "dossier_fact_ids": ["D2"],
+      "reason": "Assistant coordinator role and organizing the 120-person hackathon demonstrates leadership shown through action.",
+      "use_in": "cv_bullet",
+      "strength": 0.88,
+      "selected": true
+    }
+  ],
+  "tailored": {
+    "cv_summary": [
+      {
+        "text": "Computer engineering graduate specializing in renewable energy monitoring and embedded systems.",
+        "source_ids": ["C1", "C6"],
+        "status": "supported"
+      },
+      {
+        "text": "Proven community leadership in technical education and hackathon organization.",
+        "source_ids": ["P2", "C8"],
+        "status": "supported"
+      }
+    ],
+    "cv_bullets": [
+      {
+        "text": "Designed and tested SunTrack solar monitoring prototype on 3 rooftop panels using ESP32 wireless sensors.",
+        "source_ids": ["C6", "T9"],
+        "status": "supported"
+      },
+      {
+        "text": "Mentored 40 secondary school students in foundational Python programming across 200 volunteer hours.",
+        "source_ids": ["P2"],
+        "status": "supported"
+      },
+      {
+        "text": "Assistant coordinator of FSU Tech Club; organized campus hackathon with 120 participants.",
+        "source_ids": ["P5", "C8"],
+        "status": "supported"
+      }
+    ],
+    "essay": [
+      {
+        "text": "My goal is to design reliable, low-cost solar energy monitoring systems for small businesses across Nigeria.",
+        "source_ids": ["P9", "D1"],
+        "status": "supported"
+      },
+      {
+        "text": "During my final year project at FSU, I developed SunTrack, an ESP32 monitoring system tested on rooftop installations.",
+        "source_ids": ["C6", "T9"],
+        "status": "supported"
+      },
+      {
+        "text": "Beyond technical design, practical technology must uplift local communities.",
+        "source_ids": ["D5"],
+        "status": "supported"
+      },
+      {
+        "text": "Over two years, I volunteered 200 hours teaching Python to 40 secondary students, guiding eight to a state science fair.",
+        "source_ids": ["P2", "P3"],
+        "status": "supported"
+      },
+      {
+        "text": "Joining Aurora's Energy AI Master's and learning from Prof. Mara Quill will equip me to expand smart grid tools in West Africa.",
+        "source_ids": ["D3", "P10"],
+        "status": "supported"
+      }
+    ],
+    "mode": "full",
+    "outline": []
+  },
+  "verification": {
+    "rounds": 2,
+    "claims": [
+      {
+        "id": "CL1",
+        "text": "Specializing in renewable energy monitoring and embedded systems.",
+        "segment_index": 0,
+        "section": "cv_summary",
+        "source_ids": ["C6", "T9"],
+        "verdict": "supported",
+        "reason": "Directly supported by SunTrack final year project Grade A.",
+        "deterministic_pass": true,
+        "llm_pass": true,
+        "challenged": false,
+        "overturned": false
+      },
+      {
+        "id": "CL2",
+        "text": "Mentored 40 secondary school students in foundational Python programming across 200 volunteer hours.",
+        "segment_index": 1,
+        "section": "cv_bullets",
+        "source_ids": ["P2"],
+        "verdict": "supported",
+        "reason": "Verified from Profile Vault volunteering record with exact figures 40 and 200.",
+        "deterministic_pass": true,
+        "llm_pass": true,
+        "challenged": false,
+        "overturned": false
+      },
+      {
+        "id": "CL3",
+        "text": "Over two years, volunteered 200 hours teaching Python to 40 secondary students.",
+        "segment_index": 3,
+        "section": "essay",
+        "source_ids": ["P2", "P3"],
+        "verdict": "supported",
+        "reason": "Exact match to verified Profile Vault numbers.",
+        "deterministic_pass": true,
+        "llm_pass": true,
+        "challenged": false,
+        "overturned": false
+      }
+    ],
+    "removed_claims": [
+      {
+        "text": "Led venture funding of $50,000 for student startups.",
+        "reason": "Removed because no source supported it."
+      }
+    ],
+    "overturned_claims": [
+      {
+        "text": "Served as lead coordinator of FSU Tech Club.",
+        "reason": "Overturned by self challenge: role was assistant coordinator, not lead coordinator."
+      }
+    ],
+    "unsupported_before": 2,
+    "unsupported_final": 0
+  },
+  "package": {
+    "cv_pdf_url": "/api/applications/app_1/files/cv",
+    "essay_url": "/api/applications/app_1/files/essay",
+    "checklist_url": "/api/applications/app_1/files/checklist"
+  },
+  "handoff": null,
+  "submission": {
+    "confirmed": false,
+    "confirmation_code": null,
+    "channel": "portal_form",
+    "at": null
+  },
+  "notifications": [
+    {
+      "at": "2026/10/11 09:04:50",
+      "text": "Verified Aurora Energy AI Scholarship: 3 claims supported, 1 removed, 1 overturned by self challenge.",
+      "sent": true
+    }
+  ],
+  "timeline": [
+    {
+      "event_no": 4,
+      "at": "2026/10/11 09:02:30",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "researcher",
+      "type": "step_completed",
+      "message": "Researcher found 5 sourced facts about Aurora Energy AI Scholarship",
+      "data": { "facts_count": 5 }
+    },
+    {
+      "event_no": 7,
+      "at": "2026/10/11 09:03:35",
+      "run_id": "run_20261011_001",
+      "application_id": "app_1",
+      "agent": "verifier",
+      "type": "claim_removed",
+      "message": "Verifier removed 1 unsupported claim from Aurora Energy draft",
+      "data": { "claim_id": "CL_04", "reason": "No source supported venture funding" }
+    }
+  ],
+  "trace_url": "https://app.neatlogs.com/traces/tr_scholarpilot_20261011_001",
+  "metrics": {
+    "tokens_total": 12400,
+    "cost_usd": 0.09,
+    "latency_seconds": 45.2,
+    "claims_total": 5,
+    "claims_unsupported": 2,
+    "claims_removed": 1,
+    "claims_overturned": 1,
+    "personal_refs_total": 4,
+    "personal_refs_sourced": 4,
+    "llm_calls": 5,
+    "llm_fallbacks": 0,
+    "retries": 0,
+    "recovery_decisions": 0,
+    "crustdata_credits": 0
+  }
+}

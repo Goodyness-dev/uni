@@ -1,0 +1,48 @@
+{
+  "applications": [
+    {
+      "id": "app_1",
+      "listing_id": "mock_portal_masters",
+      "name": "Aurora Energy AI Scholarship",
+      "is_mock": true,
+      "status": "ready",
+      "channel": "portal_form",
+      "fit_score": 92,
+      "deadline": "2026/12/01",
+      "updated_at": "2026/10/11 09:04:50"
+    },
+    {
+      "id": "app_2",
+      "listing_id": "mock_captcha_award",
+      "name": "Northlight Graduate Award",
+      "is_mock": true,
+      "status": "awaiting_user",
+      "channel": "portal_captcha",
+      "fit_score": 78,
+      "deadline": "2026/11/20",
+      "updated_at": "2026/10/11 09:04:15"
+    },
+    {
+      "id": "app_3",
+      "listing_id": "mock_email_award",
+      "name": "Harbor Bay Foundation Award",
+      "is_mock": true,
+      "status": "researched",
+      "channel": "email",
+      "fit_score": 84,
+      "deadline": "2026/12/15",
+      "updated_at": "2026/10/11 09:03:00"
+    },
+    {
+      "id": "app_4",
+      "listing_id": "real_one",
+      "name": "Commonwealth Master's Scholarship",
+      "is_mock": false,
+      "status": "matched",
+      "channel": "package_only",
+      "fit_score": 88,
+      "deadline": "2026/11/03",
+      "updated_at": "2026/10/11 09:02:22"
+    }
+  ]
+}

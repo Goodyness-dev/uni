@@ -1,0 +1,11 @@
+{
+  "gaps": [
+    {
+      "id": "G1",
+      "application_id": "app_2",
+      "criterion": "public_policy",
+      "question": "The Northlight Graduate Award values engagement with public policy. Do you have any civic, student government, or community policy experience to add?",
+      "answered": false
+    }
+  ]
+}
