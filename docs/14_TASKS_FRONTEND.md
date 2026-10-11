@@ -137,7 +137,7 @@ Requirements:
 Acceptance: [x] `/styleguide` shows every component and state (loading, empty, error, each status). [x] type check passes.
 Commit: `feat(frontend): layout and shared components [F02]`.
 
-## F03. [ ] Screen 1: Upload and Profile (`/`)
+## F03. [x] Screen 1: Upload and Profile (`/`)
 
 Goal: collect documents, preferences and the Vault, call intake, show editable facts, start a run.
 Depends: F02. Time box: 90 min.
@@ -151,7 +151,7 @@ Requirements:
 5. Submit calls `intake(req)`. Show the loading state, errors via `ErrorBanner`, warnings from the response.
 6. Parsed facts card: grouped by source, id pill, category, text. Inline edit saves on blur with `patchFact`. Sensitive facts show a lock icon and tooltip. Counts at the top.
 7. Sticky bottom bar with `Run agent` (disabled until facts exist). It calls `startRun("B", 2, false)` by default, with a small Advanced control (visible in demo mode) that lets you choose mode A, B, Z and top_n 2 to 5. On success route to `/matches`. On 409 show "A run is already in progress" with a link to `/matches`.
-Acceptance (mock mode and then real after F05): [ ] Load demo persona fills everything. [ ] Facts list shows grouped facts. [ ] Run agent navigates to Matches.
+Acceptance (mock mode and then real after F05): [x] Load demo persona fills everything. [x] Facts list shows grouped facts. [x] Run agent navigates to Matches.
 Commit: `feat(frontend): upload and profile screen [F03]`.
 
 ## F04. [ ] Screen 2: Matches (`/matches`)
