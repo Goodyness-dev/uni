@@ -1,5 +1,8 @@
 # PRODUCTION_UPGRADE.md
 
+> Pack v2 note: this file is for AFTER the hackathon only. File references to older names (PROJECT.md, ARCHITECTURE.md, DATA_SPEC.md) map to files 01, 04, 05 and 06 of this pack.
+
+
 How to move ScholarPilot from the hackathon demo to a real product: add Playwright browser automation, then support real scholarship sites safely, then harden everything for real users.
 
 Start this file ONLY after the hackathon submission is posted and the demo version meets its definition of done in `PROJECT.md`. Do not start any of this during the 48 hours. Hackathon scope stays small.

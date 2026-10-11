@@ -1,5 +1,8 @@
 # TOOLS_RESEARCH.md
 
+> Pack v2 note: reference only. The working instructions are in `03_TOOLS_SETUP.md` and `09_NEATLOGS_SPEC.md`. Older file names mentioned here map to the v2 files.
+
+
 Research on neatlogs, Entire, cfo.ai and Crustdata, and exactly how ScholarPilot should use each one. Researched on Saturday October 10, 2026 from the official docs, the PyPI page, the GitHub repos and the neatHack page.
 
 How to read this file: facts below come from those sources. Anything marked VERIFY could not be confirmed and must be tested in the first hour. Exact command lines that contain dashes are not copied here. Copy them from the named doc page instead, so nothing is mistyped.

@@ -1,5 +1,8 @@
 # FAILURE_PLAYBOOK.md
 
+> Pack v2 note: reference only. The working rules are in `10_FAILURES_AND_RECOVERY.md`. Older file names mentioned here map to the v2 files.
+
+
 Every failure we are likely to hit while building and running ScholarPilot, how it shows up in neatlogs, and how to fix and prevent it. Built from the neatlogs docs (Traces, Detections, Investigate, Fixes, Analytics, Evals, Session Replay, Comments, Tools and MCPs, SDK Doctor) and from our own architecture.
 
 Read it with `NEATLOGS_DEEP_USE.md` (the upgrades) and `ARCHITECTURE.md` section 8 (recovery rules).

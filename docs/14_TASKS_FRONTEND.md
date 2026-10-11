@@ -12,7 +12,7 @@ NEXT_PUBLIC_USE_MOCKS=true
 
 ## Fixed technical decisions
 
-1. Next.js app router, TypeScript strict, Tailwind. No extra libraries (no axios, no swr, no state library, no component library). Icons: if you want icons install only `lucide-react`, nothing else.
+1. Next.js app router, TypeScript strict, Tailwind. No extra libraries (no axios, no swr, no state library, no component library). Icons: if you want icons, install only the lucide icon package for React, nothing else.
 2. Routes: `/` (Upload and Profile), `/matches`, `/applications/[id]`, `/handoff/[id]`.
 3. All data access through `frontend/lib/api.ts`. Pages never call `fetch` directly.
 4. Client components for any page that polls (`"use client"` at the top).
