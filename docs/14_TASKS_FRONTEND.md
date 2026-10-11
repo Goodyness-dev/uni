@@ -119,7 +119,7 @@ Tests: type check passes (`npm run build` or the TypeScript check). A tiny scrip
 Acceptance: [ ] build passes. [ ] `api.getMatches()` in mock mode returns 5 matches.
 Commit: `feat(frontend): types, api client and mocks [F01]`.
 
-## F02. [ ] Layout and shared components
+## F02. [x] Layout and shared components
 
 Goal: app shell and every shared component from `15_DESIGN_BRIEF.md` section 10, with a temporary styleguide route.
 Depends: F01. Time box: 90 min.
@@ -134,7 +134,7 @@ Requirements:
 2. `TimelineItem` gives `recovery_decision` events a distinct card showing `data.trigger`, `data.chosen` and `data.reason`.
 3. Never render raw null or undefined.
 4. Tailwind utility classes only.
-Acceptance: [ ] `/styleguide` shows every component and state (loading, empty, error, each status). [ ] type check passes.
+Acceptance: [x] `/styleguide` shows every component and state (loading, empty, error, each status). [x] type check passes.
 Commit: `feat(frontend): layout and shared components [F02]`.
 
 ## F03. [ ] Screen 1: Upload and Profile (`/`)

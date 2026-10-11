@@ -328,3 +328,27 @@ export async function setFlags(
 export function fileUrl(appId: string, kind: "cv" | "essay" | "checklist"): string {
   return `${API_BASE}/api/applications/${encodeURIComponent(appId)}/files/${kind}`;
 }
+
+export const api = {
+  getHealth,
+  loadDemo,
+  intake,
+  getFacts,
+  patchFact,
+  addFact,
+  startRun,
+  getLatestRun,
+  getRun,
+  getRunEvents,
+  resumeRun,
+  getMatches,
+  getApplications,
+  getApplication,
+  handoffDone,
+  getGaps,
+  answerGap,
+  getFlags,
+  setFlags,
+  fileUrl,
+};
+
