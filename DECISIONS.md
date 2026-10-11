@@ -242,4 +242,30 @@ This document records every architectural assumption, design decision, dependenc
 3. `app/integrations/webhooks.py`: Async webhook dispatcher delivering HMAC-SHA256 signed event payloads to registered URLs with retry.
 4. `tests/test_autonomy_notifications.py`: Tests verifying timezone-based scheduling, deadline alert emission (7d, 3d, 1d), signed webhook dispatch, and Telegram notification formatting.
 
+### Milestone 6 Summary (Completed):
+- **What Changed**:
+  - Implemented `app/integrations/webhooks.py` with HMAC-SHA256 signature generation (`sign_webhook_payload`), exponential backoff retry for transient network drops, and failure counter increments.
+  - Implemented `app/integrations/telegram.py` with markdown alert formatters for human verification blockers, submission confirmations, deadline warnings, and daily briefing digests.
+  - Implemented `app/services/scheduler.py` executing autonomous discovery/matching loop across active users, proactive deadline monitoring classifying opportunities into 7-day, 3-day, and 1-day urgency buckets, and automated webhook/Telegram notification dispatch.
+  - Added comprehensive test suite `tests/test_autonomy_notifications.py` (4/4 passed: markdown alert formatting, deadline classification into 7d/3d/1d buckets, HMAC webhook signature verification, and daily scheduler cycle).
+- **What is Untested**:
+  - Direct live Telegram Bot API network roundtrips with real Telegram bot tokens (mocked and tested via dispatcher harness).
+- **Assumptions**:
+  - Active users receive daily matching and deadline alerts in their local morning hours.
+  - Webhooks retry up to 3 times before recording an incremental failure.
+
+---
+
+## 9. Milestone 7 Plan: Hardening
+
+**Goal**: Production resilience and privacy controls: rate limits, daily cost cap enforcement, PII redaction audit, student account data export (`GET /v1/account/export`), GDPR/NDPR account deletion (`DELETE /v1/account`), and operational runbooks.
+**Acceptance Criteria**: Cost caps reject excess calls, sensitive PII is strictly scrubbed from logs, account export returns a complete JSON vault archive, and account deletion purges user profile/credentials cleanly.
+
+### Target Files:
+1. `app/api/v1/account.py`: `GET /v1/account/export` (downloads complete student data archive) and `DELETE /v1/account` (purges user account, documents, and vault records).
+2. `app/core/rate_limiter.py`: In-memory / Redis sliding window token bucket rate limiter for public and authenticated API endpoints.
+3. `docs/RUNBOOKS.md`: Operational incident response runbooks (kill switch activation, rate limit spikes, failed submissions, CAPTCHA surges).
+4. `tests/test_hardening.py`: Tests verifying rate limiting rejection (HTTP 429), cost cap cutoff, PII log scrubbing, data export schema, and account deletion purge.
+
+
 
