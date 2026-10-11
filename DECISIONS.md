@@ -267,5 +267,31 @@ This document records every architectural assumption, design decision, dependenc
 3. `docs/RUNBOOKS.md`: Operational incident response runbooks (kill switch activation, rate limit spikes, failed submissions, CAPTCHA surges).
 4. `tests/test_hardening.py`: Tests verifying rate limiting rejection (HTTP 429), cost cap cutoff, PII log scrubbing, data export schema, and account deletion purge.
 
+### Milestone 7 Summary (Completed):
+- **What Changed**:
+  - Implemented `app/core/rate_limiter.py` providing sliding-window token bucket limiter for endpoint DDoS and brute-force mitigation.
+  - Implemented `app/api/v1/account.py` supporting `GET /v1/account/export` (complete JSON archive of Profile Vault, documents, applications, and drafts) and `DELETE /v1/account` (permanent purge of profile and personal data under NDPR/GDPR Right to be Forgotten).
+  - Mounted account routes in `app/api/v1/router.py`.
+  - Authored comprehensive operational runbooks in `docs/RUNBOOKS.md` (Kill Switch, LLM Cost Cap Breaches, CAPTCHA Surges, Key Rollovers, NDPR Erasure).
+  - Added comprehensive test suite `tests/test_hardening.py` (4/4 passed: sliding window rate limit rejection, LLM cost cap enforcement, PII redaction audit, full data export, and permanent GDPR deletion).
+- **What is Untested**:
+  - Direct Redis-backed sliding window clustering across multi-region edge nodes (in-memory token bucket verified).
+- **Assumptions**:
+  - Account deletion preserves anonymized audit IDs for fraud prevention while removing all student personal details.
+
+---
+
+## 10. Milestone 8 Plan: Launch
+
+**Goal**: Full production launch readiness: multi-stage production Dockerfile, `docker-compose.prod.yml` coordinating FastAPI, PostgreSQL, Redis, and Playwright worker, database migration on boot, and comprehensive deployment documentation.
+**Acceptance Criteria**: Containers build and orchestrate cleanly, health probes pass, and complete onboarding documentation enables zero-friction operator setup.
+
+### Target Files:
+1. `Dockerfile`: Production multi-stage Python 3.12 container installing dependencies, Playwright browser binaries, and non-root runtime user.
+2. `docker-compose.yml`: Production composition orchestrating `db` (Postgres 16), `redis` (Redis 7), `api` (Uvicorn web service), and `worker` (queue processor).
+3. `docs/DEPLOYMENT.md`: Production operator onboarding manual, environment variables reference, and setup commands.
+4. `README.md`: Updated production-ready system overview, architecture diagram, API reference, and quickstart.
+
+
 
 
