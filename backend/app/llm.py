@@ -69,7 +69,22 @@ class _DemoCompletions:
         user_msg = next((m.get("content", "") for m in messages if m.get("role") == "user"), "")
         content = "{}"
 
-        if "convert a personal document" in sys_msg.lower() or "intake" in sys_msg.lower():
+        if "repair" in sys_msg.lower():
+            if "fit_score" in user_msg.lower() or "fit_reason" in user_msg.lower():
+                content = json.dumps({
+                    "fit_score": 87,
+                    "fit_reason": "Applicant qualifications in computer engineering and solar IoT align closely with programme focus.",
+                    "strongest_fact_ids": ["C1"],
+                    "missing_criteria": []
+                })
+            else:
+                content = user_msg.strip()
+                if not content.endswith("}"):
+                    if '"' in content and content.count('"') % 2 != 0:
+                        content += '"'
+                    content += "}"
+        elif "convert a personal document" in sys_msg.lower() or "intake" in sys_msg.lower():
+
             lines = [line.strip() for line in user_msg.splitlines() if line.strip() and not line.startswith("Section:") and len(line.strip()) > 5]
             facts = []
             for line in lines[:10]:
@@ -212,7 +227,10 @@ def get_fallback_client() -> Any:
                 timeout=10.0,
             )
             _fallback_client = wrap_client(raw)
+        elif settings.demo_mode:
+            _fallback_client = _DemoClient()
     return _fallback_client
+
 
 
 def strip_fences(text: str) -> str:

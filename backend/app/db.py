@@ -670,7 +670,18 @@ def get_flags() -> dict[str, dict[str, Any]]:
         conn.close()
 
 
+def clear_flags() -> None:
+    """Disables all failure flags and resets their remaining counters."""
+    conn = get_connection()
+    try:
+        with conn:
+            conn.execute("UPDATE failure_flags SET enabled = 0, remaining = 0")
+    finally:
+        conn.close()
+
+
 def set_flag(name: str, enabled: bool, count: int = 0) -> None:
+
     conn = get_connection()
     try:
         with conn:

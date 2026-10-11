@@ -102,7 +102,17 @@ def fetch_live(listing: Listing, ctx: RunContext) -> list[DossierFact]:
     """Fetches institution page text live, defends injections, and extracts facts."""
     flags = db.get_flags().get("flags", {})
     if flags.get("research_down"):
+        if ctx.run_id:
+            db.add_event(
+                ctx.run_id,
+                ctx.application_id or None,
+                agent="researcher",
+                type_="failure_injected",
+                message="Injected failure: research_down",
+                data={"flag": "research_down"},
+            )
         raise ResearchError("simulated")
+
 
     if listing.is_mock:
         url = f"{settings.public_base_url}/portal/about/{listing.id}"
@@ -195,9 +205,18 @@ def build_dossier(
                     ctx.run_id,
                     ctx.application_id or None,
                     "researcher",
+                    "recovery_decision",
+                    "Recovery chosen: use_cache because live source failed, a cached dossier with source URLs exists",
+                    {"trigger": "research_unreachable", "options": ["use_cache", "degrade_dossier"], "chosen": "use_cache"},
+                )
+                db.add_event(
+                    ctx.run_id,
+                    ctx.application_id or None,
+                    "researcher",
                     "research_used_cache",
                     "Falling back to cached dossier",
                 )
+
 
     cached = _load_cached_dossier(listing.id)
     if cached is not None:

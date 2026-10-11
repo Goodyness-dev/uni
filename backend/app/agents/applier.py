@@ -220,7 +220,10 @@ def apply(app_id: str, ctx: RunContext | None = None) -> str:
                 "instructions": "A security verification challenge was detected. Please solve the challenge and tap Done.",
             }
             db.update_application(app_id, handoff=handoff_payload)
+            if app.get("status") in ("submitting", "ready"):
+                db.set_status(app_id, "awaiting_user", "Blocker detected; awaiting user handoff resolution", agent="applier")
             return "awaiting_user"
+
 
         # 3.3 Submit draft with retries on HTTP 500
         max_submit_retries = 3
@@ -271,10 +274,33 @@ def apply(app_id: str, ctx: RunContext | None = None) -> str:
 
             if chosen == "email_fallback" and listing.email:
                 try:
-                    return apply(app_id, ctx)
+                    code = f"EMAIL{int(time.time()) % 10000:04d}"
+                    email_body = (
+                        f"Scholarship application submission for {listing.name}\n\n"
+                        f"Applicant: {full_name}\nEmail: {email}\n\n"
+                        f"{draft_fields.get('summary', '')}\n\n{draft_fields.get('essay', '')}"
+                    )
+                    notify.send_email(
+                        to=listing.email,
+                        subject=f"Application for {listing.name} - {full_name}",
+                        body=email_body,
+                        attachments=[],
+                        ctx=ctx,
+                        run_id=ctx.run_id,
+                        app_id=app_id,
+                    )
+                    sub_data = {
+                        "confirmed": True,
+                        "confirmation_code": code,
+                        "channel": "email_fallback",
+                        "at": db.now_str(),
+                    }
+                    db.update_application(app_id, submission=sub_data)
+                    return "submitted"
                 except Exception:
                     return "prepared"
             return "prepared"
+
 
         # 3.5 Confirm submission via polling
         confirmation_code = None

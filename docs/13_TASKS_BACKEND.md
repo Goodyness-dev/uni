@@ -254,12 +254,13 @@ Acceptance:
 Commit: `feat(applier): channels, blockers, handoff and resume [B21]`.
 
 
-## B22. [ ] Failure injection runs and recovery decisions
+## B22. [x] Failure injection runs and recovery decisions
 
 Goal: evidence for every recovery.
 Depends: B21. Time box: 60 min.
 Use `/inject_failure` for `llm_429`, `bad_json`, `portal_500`, `captcha_wall`, `research_down`, `smtp_fail`, `injection_page`. For each: confirm the events (`failure_injected`, `recovery_decision`), confirm the neatlogs trace shows the failed call and the recovery with its reason, take a screenshot, and write the entry in `17_EVIDENCE_CHECKLIST.md` section 3. Fix any recovery that does not behave as the matrix in `10_FAILURES_AND_RECOVERY.md` says.
 Commit: `test(recovery): recorded failure and recovery runs [B22]`.
+
 
 ## B23. [ ] Challenger tuning with the persona traps
 

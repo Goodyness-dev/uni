@@ -48,6 +48,9 @@ def setup_test_db(tmp_path, monkeypatch):
     monkeypatch.setenv("DEMO_MODE", "true")
     db.init_db()
     set_clients_for_tests(FakeClient(), FakeClient())
+    yield
+    set_clients_for_tests(None, None)
+
 
 
 def test_profile_intake_validation():

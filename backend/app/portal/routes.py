@@ -123,14 +123,21 @@ def create_draft_endpoint(req: DraftRequest) -> dict[str, str]:
 
 @router.post("/api/submit")
 def submit_draft_endpoint(req: SubmitRequest) -> dict[str, str]:
-    # 1. Check transient failure injection
-    if db.consume_flag("portal_500"):
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": "server_error"})
-
-    # 2. Check draft existence
+    # 1. Check draft existence
     draft = db.get_draft(req.draft_id)
     if not draft:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Draft {req.draft_id} not found")
+
+    # 2. Check transient failure injection
+    if db.consume_flag("portal_500"):
+        app_rows = db.list_applications()
+        active_app = next((a for a in app_rows if a.get("listing_id") == draft.get("listing_id")), None)
+        run_id = active_app["run_id"] if active_app else (app_rows[0]["run_id"] if app_rows else None)
+        app_id = active_app["id"] if active_app else None
+        if run_id:
+            db.add_event(run_id, app_id, agent="portal", type_="failure_injected", message="Injected failure: portal_500", data={"flag": "portal_500"})
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"error": "server_error"})
+
 
     # 3. Idempotent check: if already submitted, return existing confirmation code
     if draft.get("submitted") and draft.get("confirmation_code"):
