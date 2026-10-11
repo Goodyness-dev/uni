@@ -277,7 +277,7 @@ Depends: B16, B22. Time box: 120 min across the evening.
 Do, in order: create the 15 detections (`10_FAILURES_AND_RECOVERY.md` section 6), add `trace_url` to runs and applications (contract change, tell Ayo), the evaluation script, improvement loop 2 and run C, voting and comments, Investigate threads, Analytics screenshots, Session Replay of the handoff.
 Commit: several, prefix `feat(neatlogs)` or `docs(evidence)`, ids `[B24]`.
 
-## B25. [ ] Final clean run and backup recording (Monday morning)
+## B25. [x] Final clean run and backup recording (Monday morning)
 
 Run the full demo path on the persona in mode B. Record a backup screen recording of the whole runtime section. Fix only bugs. Seed the database to a known state for the demo.
 Commit: `chore(release): final clean run and demo seed [B25]`.
