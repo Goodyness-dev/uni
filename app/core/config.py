@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     
     # Gemini
     GEMINI_API_KEY: Optional[str] = Field(default=None)
-    GEMINI_MODEL: str = Field(default="gemini-2.0-flash")
+    GEMINI_MODEL: str = Field(default="gemini-flash-latest")
     GEMINI_BASE_URL: str = Field(default="https://generativelanguage.googleapis.com/v1beta/openai")
 
     # Claude (Anthropic)
