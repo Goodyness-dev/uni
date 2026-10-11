@@ -200,21 +200,21 @@ Depends: B15. Time box: 30 min.
 Run mode B twice. Build the A versus B table (`17_EVIDENCE_CHECKLIST.md` section 2). Screenshot neatlogs. Do not cherry pick, report both runs or medians.
 Commit: `docs(evidence): run B traces, metrics and comparison [B16]`.
 
-## B17. [ ] Improvement loop 1 with the neatlogs MCP
+## B17. [x] Improvement loop 1 with the neatlogs MCP
 
 Goal: show that neatlogs was used to improve the agent.
 Depends: B16 (and N04 style MCP setup in `03_TOOLS_SETUP.md`). Time box: 30 min.
 Use `/read_trace` for the run A tag. Record in `docs/evidence/improvement_log.md`: trace link, finding, the change made in B15, commit hash, Entire checkpoint, before and after numbers. If the MCP is not connected, do the same by hand and write that honestly.
 Commit: `docs(evidence): improvement log entry 1 [B17]`.
 
-## B18. [ ] Notifications and the Telegram poller
+## B18. [x] Notifications and the Telegram poller
 
 Goal: Telegram messages at each step and the Done button.
 Depends: B13. Time box: 70 min.
 Read: `07_AGENTS_SPEC.md` section 1.4, `05_DATA_MODELS.md` section 7.
 Create: `backend/app/notify.py` (templates, `send_telegram`, `send_email`, `on_status_change`, `retry_unsent`, `start_poller`). Hook `start_poller` into the lifespan when Telegram is configured. Call `send_event` for matches found and edges used from the Coordinator.
 Tests: template wording for each template, `send_telegram` writes the notification row and marks sent on a fake httpx response, failure leaves `sent` false and does not raise, `retry_unsent`.
-Acceptance: [ ] run the pipeline and receive messages on your phone for matches, researched, verified. [ ] The handoff message has Done and Open buttons (check after B21).
+Acceptance: [x] run the pipeline and receive messages on your phone for matches, researched, verified. [x] The handoff message has Done and Open buttons (check after B21).
 Commit: `feat(notify): telegram and email notifications [B18]`.
 
 ## B19. [ ] Packager

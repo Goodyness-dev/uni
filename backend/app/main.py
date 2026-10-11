@@ -19,6 +19,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     init_db()
     mark_interrupted_runs()
 
+    if settings.telegram_configured:
+        from app.notify import start_poller
+        start_poller()
+
     yield
 
     if settings.neatlogs_configured:
