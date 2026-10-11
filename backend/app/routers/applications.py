@@ -143,5 +143,11 @@ def handoff_done_endpoint(app_id: str) -> dict[str, str]:
             detail=f"Application {app_id} has status '{app['status']}', not 'awaiting_user'",
         )
 
-    db.set_status(app_id, "submitting", "User confirmed CAPTCHA completion", agent="coordinator")
+    db.set_status(app_id, "submitting", "User confirmed handoff", agent="coordinator")
+
+    import threading
+    from app.agents import applier
+    thread = threading.Thread(target=applier.resume_after_handoff, args=(app_id,), daemon=True)
+    thread.start()
     return {"status": "submitting"}
+

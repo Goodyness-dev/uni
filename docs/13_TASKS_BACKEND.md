@@ -238,7 +238,7 @@ Tests (`tests/test_portal.py`): draft idempotency, captcha required and then acc
 Acceptance: [x] open `http://localhost:8000/portal/about/mock_portal_masters` and `/portal/apply/mock_portal_masters` in a browser. [x] submit the form by hand and see the confirmation code.
 Commit: `feat(portal): demo portal routes and templates [B20]`.
 
-## B21. [ ] Applier, handoff and resume
+## B21. [x] Applier, handoff and resume
 
 Goal: the main agentic layer.
 Depends: B18, B19, B20. Time box: 100 min.
@@ -247,11 +247,12 @@ Create: `backend/app/agents/applier.py`, the handoff endpoint in `routers/applic
 Requirements: channel handling exactly as specified, blocker detection from HTML, idempotency, recovery decisions, `resume_after_handoff`, status mapping, Telegram handoff message with buttons.
 Tests: blocker detection on three HTML fixtures (captcha element, recaptcha iframe, password input, clean page), portal 500 retries then fallback decision, 403 treated as blocker, confirmation polling, idempotent submit, `resume_after_handoff` true and false cases, email path with a fake SMTP.
 Acceptance:
-1. [ ] Mock portal listing without CAPTCHA: status `submitted` with a confirmation code.
-2. [ ] `portal_captcha` listing: status `awaiting_user`, Telegram message arrives, solve the challenge on the draft page, press the Done button in Telegram, status becomes `submitted`.
-3. [ ] Email listing: message arrives in the demo inbox.
-4. [ ] Real listings end as `prepared`.
+1. [x] Mock portal listing without CAPTCHA: status `submitted` with a confirmation code.
+2. [x] `portal_captcha` listing: status `awaiting_user`, Telegram message arrives, solve the challenge on the draft page, press the Done button in Telegram, status becomes `submitted`.
+3. [x] Email listing: message arrives in the demo inbox.
+4. [x] Real listings end as `prepared`.
 Commit: `feat(applier): channels, blockers, handoff and resume [B21]`.
+
 
 ## B22. [ ] Failure injection runs and recovery decisions
 

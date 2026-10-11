@@ -406,7 +406,19 @@ def execute_run(run_id: str) -> None:
             db.update_application(app_id, package=package_res)
         db.set_status(app_id, "ready", f"Package ready for {listing.name}", agent="coordinator")
 
-        # Step: apply (Placeholder for B13)
+        # Step: apply
+        from app.agents import applier
+        apply_outcome = run_step(
+            ctx,
+            "apply",
+            lambda: applier.apply(app_id, ctx),
+        )
+        if apply_outcome:
+            if apply_outcome == "prepared":
+                db.set_status(app_id, "prepared", f"Package prepared for {listing.name}", agent="coordinator")
+            else:
+                db.set_status(app_id, "submitting", f"Submitting application for {listing.name}", agent="coordinator")
+                db.set_status(app_id, apply_outcome, f"Application {apply_outcome} for {listing.name}", agent="coordinator")
 
     # 4. Finalize run and compute metrics
     metrics = compute_metrics(run_id)

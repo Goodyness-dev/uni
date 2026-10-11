@@ -160,9 +160,11 @@ def test_poll_telegram_once():
         conn.execute("UPDATE applications SET status = 'awaiting_user' WHERE id = ?", (app_id,))
     conn.close()
 
-    fake_get_resp = MagicMock()
-    fake_get_resp.status_code = 200
-    fake_get_resp.json.return_value = {
+    db.update_application(app_id, handoff={"draft_id": "draft_telegram_123"})
+
+    telegram_resp = MagicMock()
+    telegram_resp.status_code = 200
+    telegram_resp.json.return_value = {
         "result": [
             {
                 "update_id": 105,
@@ -174,15 +176,29 @@ def test_poll_telegram_once():
         ]
     }
 
+    portal_resp = MagicMock()
+    portal_resp.status_code = 200
+    portal_resp.json.return_value = {
+        "submitted": True,
+        "confirmation_code": "CONF-TG-123",
+    }
+
+    def fake_get(url, *args, **kwargs):
+        if "getUpdates" in url:
+            return telegram_resp
+        return portal_resp
+
     fake_post_resp = MagicMock()
     fake_post_resp.status_code = 200
 
-    with patch("httpx.get", return_value=fake_get_resp):
+    with patch("httpx.get", side_effect=fake_get):
         with patch("httpx.post", return_value=fake_post_resp) as mock_post:
             notify.poll_telegram_once()
             assert db.get_last_update_id() == 105
 
-            # Application status should be transitioned to submitting
+            # Application status should be transitioned to submitted via resume_after_handoff
             updated_app = db.get_application(app_id)
-            assert updated_app["status"] == "submitting"
+            assert updated_app["status"] == "submitted"
+            assert updated_app["submission"]["confirmation_code"] == "CONF-TG-123"
             assert mock_post.called
+
