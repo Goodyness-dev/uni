@@ -1,4 +1,4 @@
-﻿from dataclasses import dataclass, field
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -14,22 +14,27 @@ class ScholarPilotError(Exception):
     pass
 
 
-class RateLimitError(ScholarPilotError):
+class LLMError(ScholarPilotError):
+    """Base exception for all LLM errors."""
+    pass
+
+
+class RateLimitError(LLMError):
     """Raised when an LLM provider returns a 429 rate limit or quota exceeded."""
     pass
 
 
-class TimeoutError_(ScholarPilotError):
+class TimeoutError_(LLMError):
     """Raised on LLM provider timeout or 5xx connection failure."""
     pass
 
 
-class ModelNotFoundError(ScholarPilotError):
+class ModelNotFoundError(LLMError):
     """Raised when the specified model ID is rejected by the provider."""
     pass
 
 
-class BadJSONError(ScholarPilotError):
+class BadJSONError(LLMError):
     """Raised when LLM output cannot be parsed or repaired into valid JSON matching schema."""
     pass
 

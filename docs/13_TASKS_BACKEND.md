@@ -143,17 +143,17 @@ Tests: invalid ids dropped, threshold 0.6 and max 3, sensitive facts absent from
 Acceptance: [x] a script prints the selected edges for the persona and `mock_portal_masters`; edges cite real fact ids and the reasons read honestly. Add `P7` style evidence check by eye.
 Commit: `feat(edges): edge finder with validation and selection [B10]`.
 
-## B11. [ ] Tailor baseline
+## B11. [x] Tailor baseline
 
 Goal: tailored output with source ids, no verification yet.
 Depends: B10. Time box: 60 min.
 Read: `07_AGENTS_SPEC.md` section 7, `08_PROMPTS.md` (tailor).
 Create: `backend/app/agents/tailor.py` with `build_sources`, `tailor_full`, `tailor_revise` (revise can be a stub raising `NotImplementedError` until B15; implement it now if time allows).
 Tests: segments with unknown source ids dropped, word limit enforcement path, `build_sources` includes edge facts and core facts only.
-Acceptance: [ ] a script prints the tailored CV summary, bullets and essay with source ids for the persona. Read it. Note anything that looks invented (this is run A material, do NOT fix the prompt to hide it).
+Acceptance: [x] a script prints the tailored CV summary, bullets and essay with source ids for the persona. Read it. Note anything that looks invented (this is run A material, do NOT fix the prompt to hide it).
 Commit: `feat(tailor): baseline tailored output with sources [B11]`.
 
-## B12. [ ] Verifier audit and challenger (measurement only)
+## B12. [x] Verifier audit and challenger (measurement only)
 
 Goal: audit, deterministic check, challenge, mode A entry point.
 Depends: B11. Time box: 90 min.
@@ -161,7 +161,7 @@ Read: `07_AGENTS_SPEC.md` sections 8.1 to 8.4, `08_PROMPTS.md` (verifier, challe
 Create: `backend/app/agents/verifier.py` with `deterministic_check`, `audit`, `challenge`, `verify_mode_a` (leave `verify_mode_b` raising `NotImplementedError`).
 Requirements: GUARDRAIL spans with `passed` set. Number word normalization. Batch size 10.
 Tests: deterministic cases (number mismatch, missing source ids, number words, proper noun check), verdict combination table, mode A leaves text unchanged, challenge marks overturned.
-Acceptance: [ ] run `audit` on the tailored output from B11. The report lists claims with verdicts. In neatlogs the GUARDRAIL span shows Passed or Blocked.
+Acceptance: [x] run `audit` on the tailored output from B11. The report lists claims with verdicts. In neatlogs the GUARDRAIL span shows Passed or Blocked.
 Commit: `feat(verifier): audit and challenger measurement [B12]`.
 
 ## B13. [ ] Coordinator v1, run endpoints, pipeline script, metrics
