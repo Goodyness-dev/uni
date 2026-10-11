@@ -201,7 +201,7 @@ Requirements:
 Acceptance: [x] all 6 mock application variants render. [x] with real data a verified application shows the green banner and source pills.
 Commit: `feat(frontend): application status screen [F06]`.
 
-## F07. [ ] Demo portal templates
+## F07. [x] Demo portal templates
 
 Goal: styled portal pages (Memeshi provided working minimal templates in B20).
 Depends: B20. Time box: 60 min. You edit only `backend/app/portal/templates/`.
@@ -212,7 +212,7 @@ Required HTML contract (do not change ids, names or text marked exact):
 4. `draft.html` includes a script that posts `{"draft_id": ..., "captcha_answer": ...}` to `/portal/api/submit` and shows: success block with the confirmation code in large text and the line `This is a demo portal`, an inline message `Please solve the challenge.` on 403, and `Something went wrong. Try again.` on 500.
 5. `confirmation.html` and `error.html` as in `11_DEMO_PORTAL_AND_SYNTHETIC_DATA.md` section 5.2.
 Style: simple, clearly a generic university site (not our app styling). Mobile friendly.
-Acceptance: [ ] all five pages render. [ ] the CAPTCHA submit flow works by hand. [ ] backend tests in `tests/test_portal.py` still pass.
+Acceptance: [x] all five pages render. [x] the CAPTCHA submit flow works by hand. [x] backend tests in `tests/test_portal.py` still pass.
 Commit: `feat(portal): styled portal templates [F07]`.
 
 ## F08. [ ] Screen 4: Handoff (`/handoff/[id]`)

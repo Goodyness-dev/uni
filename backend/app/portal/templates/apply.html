@@ -2,70 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Apply - {{ listing.name }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply - {{ listing.name }} - DEMO PORTAL</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #1e293b; }
-    header { border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 24px; font-weight: bold; color: #64748b; font-size: 0.875rem; }
-    h1 { font-size: 1.875rem; margin-bottom: 8px; color: #0f172a; }
-    .sub { color: #64748b; margin-bottom: 24px; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; }
-    input[type="text"], input[type="email"], textarea { width: 100%; box-sizing: border-box; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; }
-    textarea { min-height: 120px; }
-    #captcha_challenge { background: #fef3c7; border: 1px solid #f59e0b; padding: 16px; border-radius: 8px; margin: 24px 0; }
-    button { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; }
-    button:hover { background: #1d4ed8; }
-    #msg { margin-top: 16px; font-weight: bold; }
+    :root {
+      --primary: #1e3a8a;
+      --primary-hover: #1d4ed8;
+      --primary-dark: #172554;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --danger: #dc2626;
+      --warning-bg: #fef3c7;
+      --warning-border: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+    header.univ-header {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .header-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+    .portal-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .container {
+      max-width: 720px;
+      margin: 36px auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 36px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    h1 {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      font-size: 1.85rem;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+    .sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 22px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      color: #334155;
+    }
+    input[type="text"], input[type="email"], textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background: #ffffff;
+      transition: border-color 0.15s ease;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .file-input {
+      padding: 8px 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    #captcha_challenge {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      padding: 18px 20px;
+      border-radius: 8px;
+      margin: 26px 0;
+    }
+    #captcha_challenge label {
+      color: #92400e;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+    #captcha_challenge input {
+      border: 1px solid #d97706;
+      background: #ffffff;
+      max-width: 220px;
+    }
+    #submit_button {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      width: 100%;
+    }
+    #submit_button:hover {
+      background: var(--primary-hover);
+    }
+    #msg {
+      margin-top: 18px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
-  <header>DEMO PORTAL</header>
-  <h1>{{ listing.name }}</h1>
-  <p class="sub">Official Application Portal (Demonstration)</p>
+  <header class="univ-header">
+    <div class="header-logo">
+      <span>DEMO PORTAL</span>
+    </div>
+    <span class="portal-tag">Admissions & Awards</span>
+  </header>
 
-  <form id="applyForm">
-    <div class="form-group">
-      <label for="full_name">Full Name</label>
-      <input type="text" id="full_name" name="full_name" required />
+  <main class="container">
+    <div class="card">
+      <h1>{{ listing.name }}</h1>
+      <p class="sub">Official Scholarship Application Form (Demonstration)</p>
+
+      <form id="applyForm">
+        <div class="form-group">
+          <label for="full_name">Full Name *</label>
+          <input type="text" id="full_name" name="full_name" required placeholder="e.g. Jane Doe" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" required placeholder="applicant@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="summary">Candidate Summary</label>
+          <textarea id="summary" name="summary" placeholder="Brief academic and background summary..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="essay">Personal Statement / Essay</label>
+          <textarea id="essay" name="essay" placeholder="Address the prompt..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="cv_file">Curriculum Vitae (PDF Attachment)</label>
+          <input type="file" id="cv_file" name="cv_file" class="file-input" />
+        </div>
+
+        {% if challenge_active %}
+        <div id="captcha_challenge">
+          <label for="captcha_answer">Security Verification: What is 7 plus 5?</label>
+          <input type="text" id="captcha_answer" name="captcha_answer" placeholder="Enter answer..." />
+        </div>
+        {% endif %}
+
+        <button type="button" id="submit_button" onclick="handleDirectSubmit()">Submit Application</button>
+        <div id="msg"></div>
+      </form>
     </div>
 
-    <div class="form-group">
-      <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" required />
-    </div>
-
-    <div class="form-group">
-      <label for="summary">Candidate Summary</label>
-      <textarea id="summary" name="summary"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="essay">Statement / Essay</label>
-      <textarea id="essay" name="essay"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="cv_file">Curriculum Vitae (PDF)</label>
-      <input type="file" id="cv_file" name="cv_file" />
-    </div>
-
-    {% if challenge_active %}
-    <div id="captcha_challenge">
-      <label for="captcha_answer">Security Verification: What is 7 plus 5?</label>
-      <input type="text" id="captcha_answer" name="captcha_answer" placeholder="Enter number..." />
-    </div>
-    {% endif %}
-
-    <button type="button" onclick="handleDirectSubmit()">Submit Application</button>
-    <div id="msg"></div>
-  </form>
+    <footer>
+      &copy; 2026 Academic Scholarship Consortium. This is a demo portal for automated system verification.
+    </footer>
+  </main>
 
   <script>
     async function handleDirectSubmit() {
       const msg = document.getElementById('msg');
-      msg.innerText = "Submitting...";
+      const submitBtn = document.getElementById('submit_button');
+      msg.innerText = "Submitting application...";
       msg.style.color = "#475569";
-      
+      submitBtn.disabled = true;
+
       const payload = {
         listing_id: "{{ listing.id }}",
         idempotency_key: "manual_" + Date.now(),
@@ -84,7 +235,7 @@
           body: JSON.stringify(payload)
         });
         const dData = await dRes.json();
-        
+
         let captchaAns = "";
         const cElem = document.getElementById('captcha_answer');
         if (cElem) captchaAns = cElem.value;
@@ -102,15 +253,22 @@
           const sData = await sRes.json();
           window.location.href = '/portal/confirm/' + sData.confirmation_code;
         } else if (sRes.status === 403) {
-          msg.innerText = "Security verification failed. Please solve the challenge correctly.";
+          msg.innerText = "Security verification failed. Please solve the challenge.";
           msg.style.color = "#dc2626";
+          submitBtn.disabled = false;
+        } else if (sRes.status === 500) {
+          msg.innerText = "Something went wrong. Try again.";
+          msg.style.color = "#dc2626";
+          submitBtn.disabled = false;
         } else {
-          msg.innerText = "Submission error (" + sRes.status + "). Please try again.";
+          msg.innerText = "Submission error: " + sRes.status;
           msg.style.color = "#dc2626";
+          submitBtn.disabled = false;
         }
       } catch (err) {
         msg.innerText = "Network error: " + err;
         msg.style.color = "#dc2626";
+        submitBtn.disabled = false;
       }
     }
   </script>

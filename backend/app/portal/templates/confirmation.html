@@ -2,23 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Application Received</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Received - DEMO PORTAL</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; text-align: center; color: #1e293b; }
-    header { font-weight: bold; color: #64748b; font-size: 0.875rem; margin-bottom: 24px; }
-    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 40px 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-    h1 { color: #0f172a; margin-bottom: 12px; font-size: 1.75rem; }
-    .code { font-family: monospace; font-size: 2.25rem; font-weight: 800; color: #16a34a; background: #dcfce7; padding: 12px 24px; border-radius: 8px; display: inline-block; margin: 24px 0; letter-spacing: 0.1em; }
-    .demo-notice { color: #64748b; font-size: 0.95rem; margin-top: 20px; font-weight: 500; }
+    :root {
+      --primary: #1e3a8a;
+      --primary-dark: #172554;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --success: #16a34a;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+    header.univ-header {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .header-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+    .portal-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 44px 32px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .success-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      color: #0f172a;
+      margin-bottom: 12px;
+      font-size: 1.85rem;
+    }
+    p {
+      color: #475569;
+      font-size: 1rem;
+    }
+    .code {
+      font-family: monospace;
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--success);
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      padding: 14px 28px;
+      border-radius: 8px;
+      display: inline-block;
+      margin: 24px 0;
+      letter-spacing: 0.1em;
+    }
+    .demo-notice {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 20px;
+      font-weight: 500;
+    }
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
-  <header>DEMO PORTAL</header>
-  <div class="card">
-    <h1>Application received</h1>
-    <p>Your application has been successfully submitted and confirmed.</p>
-    <div class="code">{{ confirmation_code }}</div>
-    <p class="demo-notice">This is a demo portal</p>
-  </div>
+  <header class="univ-header">
+    <div class="header-logo">
+      <span>DEMO PORTAL</span>
+    </div>
+    <span class="portal-tag">Official Submission Receipt</span>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="success-icon">✓</div>
+      <h1>Application received</h1>
+      <p>Your application has been successfully submitted and confirmed by the portal.</p>
+      <div class="code">{{ confirmation_code }}</div>
+      <p class="demo-notice">This is a demo portal</p>
+    </div>
+
+    <footer>
+      &copy; 2026 Academic Scholarship Consortium. This is a demo portal for testing and evaluation purposes.
+    </footer>
+  </main>
 </body>
 </html>

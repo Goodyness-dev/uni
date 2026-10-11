@@ -2,20 +2,101 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Portal Error</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Error - DEMO PORTAL</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 60px auto; padding: 0 20px; text-align: center; color: #1e293b; }
-    header { font-weight: bold; color: #64748b; font-size: 0.875rem; margin-bottom: 24px; }
-    .card { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 40px 24px; }
-    h1 { color: #dc2626; margin-bottom: 12px; font-size: 1.75rem; }
-    p { color: #475569; font-size: 1.05rem; }
+    :root {
+      --primary: #1e3a8a;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+    header.univ-header {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .header-logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+    .portal-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255,255,255,0.2);
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 0 20px;
+      text-align: center;
+    }
+    .card {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: 12px;
+      padding: 40px 24px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .error-icon {
+      font-size: 2.25rem;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      color: var(--danger);
+      margin-bottom: 12px;
+      font-size: 1.75rem;
+    }
+    p {
+      color: #475569;
+      font-size: 1rem;
+    }
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
-  <header>DEMO PORTAL</header>
-  <div class="card">
-    <h1>{{ error_title or "Error" }}</h1>
-    <p>{{ message or "The requested resource could not be found." }}</p>
-  </div>
+  <header class="univ-header">
+    <div class="header-logo">
+      <span>DEMO PORTAL</span>
+    </div>
+    <span class="portal-tag">System Notice</span>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="error-icon">⚠️</div>
+      <h1>{{ error_title or "Error" }}</h1>
+      <p>{{ message or "The requested portal resource could not be found or processed." }}</p>
+    </div>
+
+    <footer>
+      &copy; 2026 Academic Scholarship Consortium. This is a demo portal for testing and evaluation purposes.
+    </footer>
+  </main>
 </body>
 </html>
