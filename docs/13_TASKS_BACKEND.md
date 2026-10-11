@@ -122,7 +122,7 @@ Commit: `feat(matcher): scout, hard rules and fit scoring [B08]`.
 
 Checkpoint (Saturday 1:00 PM): Ayo can show real matches on the Matches screen. If not, stop and fix.
 
-## B09. [ ] Researcher (cache, live from our own portal, recovery)
+## B09. [x] Researcher (cache, live from our own portal, recovery)
 
 Goal: dossiers from cache, with live fetch for mock listings, injection safety and the research recovery.
 Depends: B04, B06. Time box: 70 min.
@@ -130,17 +130,17 @@ Read: `07_AGENTS_SPEC.md` section 5, `08_PROMPTS.md` (researcher), `10_FAILURES_
 Create: `backend/app/agents/researcher.py`.
 Requirements: exactly the order in the spec. `fetch_page_text` strips HTML with regex (no HTML parser package). Injection scan and delimiters. Snippet verification. `research_down` flag.
 Tests: cache load; no cache gives degraded dossier; invented snippet dropped; injection line dropped and event recorded; `research_down` on gives cache plus a recovery decision; HTML strip function.
-Acceptance: [ ] a script calls `build_dossier` for `mock_portal_masters` with the cache (works now) and for live after B20 exists (re test later).
+Acceptance: [x] a script calls `build_dossier` for `mock_portal_masters` with the cache (works now) and for live after B20 exists (re test later).
 Commit: `feat(researcher): sourced dossiers with cache and recovery [B09]`.
 
-## B10. [ ] Edge Finder
+## B10. [x] Edge Finder
 
 Goal: automatic selection of the strongest edges.
 Depends: B09, B05. Time box: 50 min.
 Read: `07_AGENTS_SPEC.md` section 6, `08_PROMPTS.md` (edge).
 Create: `backend/app/agents/edge_finder.py`.
 Tests: invalid ids dropped, threshold 0.6 and max 3, sensitive facts absent from the built prompt text, degraded dossier rule, gaps returned.
-Acceptance: [ ] a script prints the selected edges for the persona and `mock_portal_masters`; edges cite real fact ids and the reasons read honestly. Add `P7` style evidence check by eye.
+Acceptance: [x] a script prints the selected edges for the persona and `mock_portal_masters`; edges cite real fact ids and the reasons read honestly. Add `P7` style evidence check by eye.
 Commit: `feat(edges): edge finder with validation and selection [B10]`.
 
 ## B11. [ ] Tailor baseline
