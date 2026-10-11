@@ -1,0 +1,10 @@
+﻿fastapi
+uvicorn
+pydantic
+openai
+neatlogs
+httpx
+pypdf
+reportlab
+jinja2
+pytest
