@@ -1,0 +1,46 @@
+{
+  "listing_id": "mock_portal_masters",
+  "retrieved_at": "2026/10/10 14:20:00",
+  "facts": [
+    {
+      "id": "D1",
+      "topic": "program_focus",
+      "text": "The Energy AI programme applies machine learning to solar and smart grid systems.",
+      "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+      "snippet": "applying machine learning to solar and smart grid systems",
+      "retrieved_at": "2026/10/10 14:20:00"
+    },
+    {
+      "id": "D2",
+      "topic": "values",
+      "text": "The university values community impact, hands on projects and leadership shown through action.",
+      "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+      "snippet": "We value community impact, hands on projects and leadership shown through action",
+      "retrieved_at": "2026/10/10 14:20:00"
+    },
+    {
+      "id": "D3",
+      "topic": "research_areas",
+      "text": "The programme director researches low cost forecasting for small scale solar systems.",
+      "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+      "snippet": "researches low cost forecasting for small scale solar systems",
+      "retrieved_at": "2026/10/10 14:20:00"
+    },
+    {
+      "id": "D4",
+      "topic": "recent_news",
+      "text": "The programme opened a community energy lab in 2025 that partners with local schools.",
+      "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+      "snippet": "opened a community energy lab in 2025 that partners with local schools",
+      "retrieved_at": "2026/10/10 14:20:00"
+    },
+    {
+      "id": "D5",
+      "topic": "values",
+      "text": "The university trains engineers who build practical technology for their communities.",
+      "source_url": "http://localhost:8000/portal/about/mock_portal_masters",
+      "snippet": "build practical technology for their communities",
+      "retrieved_at": "2026/10/10 14:20:00"
+    }
+  ]
+}

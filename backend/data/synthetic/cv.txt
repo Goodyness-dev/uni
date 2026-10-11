@@ -1,0 +1,31 @@
+﻿Tobi Adeyemi
+tobi.adeyemi@example.com
+
+EDUCATION
+BSc Computer Engineering, Fictional State University (FSU), Nigeria, 2020 to 2025.
+CGPA 4.30 out of 5.00, Second Class Upper.
+Dean's list for 2 sessions.
+
+EXPERIENCE
+Embedded Systems Intern, BrightGrid Solar, 5 months in 2024.
+Wrote data logging firmware for a solar sensor board.
+Tested the firmware on 12 sensor boards.
+
+PROJECTS
+SunTrack: a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors. Tested on 3 rooftop panels. Final year project.
+SunTrack dashboard: a Python web dashboard that shows panel output over time.
+Organized the FSU campus hackathon with 120 participants.
+
+ACTIVITIES
+Member, FSU Tech Club, 2021 to 2025.
+Played for the FSU university football team for 4 years.
+
+CERTIFICATIONS
+Python for Data Science online course certificate, 2023.
+Embedded Systems Fundamentals certificate, 2022.
+
+SKILLS
+Python, C, SQL, Git, ESP32, Arduino.
+
+LANGUAGES
+English, Yoruba.

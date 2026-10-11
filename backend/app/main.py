@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.db import init_db, mark_interrupted_runs
-from app.routers import health, flags
+from app.routers import health, flags, profile
 from app.tracing import init_tracing, shutdown_tracing
 
 
@@ -44,3 +44,4 @@ app.add_middleware(
 # Include routers
 app.include_router(health.router)
 app.include_router(flags.router)
+app.include_router(profile.router)

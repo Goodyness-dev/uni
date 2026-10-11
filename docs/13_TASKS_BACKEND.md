@@ -84,7 +84,7 @@ Tests: sensitive tests listed in the spec; flags endpoints (set, counted, uncoun
 Acceptance: [x] set `llm_429` with count 2 through `/docs`, read it back, it shows enabled.
 Commit: `feat(safety): failure flags and sensitive filter [B05]`.
 
-## B06. [ ] Data files: persona, listings, dossiers, portal about text
+## B06. [x] Data files: persona, listings, dossiers, portal about text
 
 Goal: all demo data in place. This is mostly human work with Antigravity helping format.
 Depends: B03. Time box: 90 min (spread over the morning).
@@ -95,10 +95,10 @@ Requirements:
 2. The persona must contain the 4 traps from `11_...` section 2.
 3. A test loads `listings.json` through the `Listing` model and asserts exactly 5 listings, 3 mock, and that no field contains the word REPLACE (this test is expected to fail until you fill the 2 real entries, mark it as a final check).
 Tests: `tests/test_data.py` (listings validate, persona files exist, traps present: the vault text contains `assistant coordinator`, the CV does not contain `president`).
-Acceptance: [ ] test passes. [ ] you re read the persona and confirm it is fictional.
+Acceptance: [x] test passes. [x] you re read the persona and confirm it is fictional.
 Commit: `feat(data): synthetic persona, listings and dossiers [B06]`.
 
-## B07. [ ] Intake and profile endpoints
+## B07. [x] Intake and profile endpoints
 
 Goal: facts from documents, profile endpoints, demo loader.
 Depends: B04, B05, B06. Time box: 70 min.
@@ -106,7 +106,7 @@ Read: `07_AGENTS_SPEC.md` section 2, `06_API_CONTRACT.md` section 3, `08_PROMPTS
 Create: `backend/app/agents/intake.py`, `backend/app/routers/profile.py`.
 Requirements: all steps in the spec including the number check and sensitive marking. `POST /api/profile/load_demo` reads `data/synthetic` and calls the same intake (404 when `DEMO_MODE` is false).
 Tests: with fake `call_llm`: fact ids by source, altered numbers dropped, duplicates removed, sensitive keyword marking, PDF base64 path (generate a tiny PDF in the test with `reportlab`), endpoint shapes.
-Acceptance: [ ] via `/docs`: call `load_demo`, then `GET /api/profile/facts` shows `C`, `T`, `P` facts. [ ] neatlogs shows `agent.intake` with LLM spans (real calls).
+Acceptance: [x] via `/docs`: call `load_demo`, then `GET /api/profile/facts` shows `C`, `T`, `P` facts. [x] neatlogs shows `agent.intake` with LLM spans (real calls).
 Commit: `feat(intake): fact extraction and profile endpoints [B07]`.
 
 ## B08. [ ] Scout, Matcher and matches, gaps

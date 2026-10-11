@@ -1,0 +1,13 @@
+{
+  "full_name": "Tobi Adeyemi",
+  "email": "tobi.adeyemi@example.com",
+  "level": "masters",
+  "fields": ["computer engineering", "artificial intelligence", "energy systems"],
+  "countries": ["UK", "Germany", "Canada"],
+  "funding": "full",
+  "start_year": 2027,
+  "nationality": "Nigeria",
+  "gpa": 4.3,
+  "gpa_scale": 5.0,
+  "sensitive_consent": false
+}

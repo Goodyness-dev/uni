@@ -1,0 +1,13 @@
+﻿Fictional State University, Department of Computer Engineering
+Transcript summary for Tobi Adeyemi
+CGPA 4.30 out of 5.00
+
+Digital Electronics: A
+Embedded Systems: A
+Data Structures and Algorithms: A
+Power Systems: A
+Machine Learning: B
+Control Systems: B
+Engineering Mathematics: B
+Communication Systems: C
+Final Year Project (SunTrack solar monitoring): A

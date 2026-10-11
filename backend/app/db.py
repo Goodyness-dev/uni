@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import re
 import sqlite3
@@ -173,9 +173,15 @@ def replace_facts(facts: list[dict[str, Any]]) -> None:
             conn.execute("DELETE FROM facts")
             now = now_str()
             for f in facts:
+                if hasattr(f, "model_dump"):
+                    fd = f.model_dump()
+                elif isinstance(f, dict):
+                    fd = f
+                else:
+                    fd = dict(f)
                 conn.execute(
                     "INSERT INTO facts (id, source, category, text, sensitive, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-                    (f["id"], f["source"], f["category"], f["text"], 1 if f.get("sensitive") else 0, now)
+                    (fd["id"], fd["source"], fd["category"], fd["text"], 1 if fd.get("sensitive") else 0, now)
                 )
     finally:
         conn.close()
@@ -197,6 +203,9 @@ def list_facts() -> list[dict[str, Any]]:
         ]
     finally:
         conn.close()
+
+
+get_facts = list_facts
 
 
 def get_fact(fact_id: str) -> dict[str, Any] | None:
@@ -249,13 +258,14 @@ def add_vault_fact(category: str, text: str) -> dict[str, Any]:
         conn.close()
 
 
-def set_preferences(prefs: dict[str, Any]) -> None:
+def set_preferences(prefs: Any) -> None:
     conn = get_connection()
     try:
+        dumped = prefs.model_dump() if hasattr(prefs, "model_dump") else prefs
         with conn:
             conn.execute(
                 "INSERT INTO preferences (id, json) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET json = excluded.json",
-                (json.dumps(prefs),)
+                (json.dumps(dumped),)
             )
     finally:
         conn.close()
