@@ -1,5 +1,7 @@
 # ScholarPilot live agent demo
 
+The latest planning instructions are tagged `planner_v2`; drafting still uses the managed production prompt and unchanged independent verification gates. The DEMO4898 historical run predates that tag correction and recorded revised planner instructions under the earlier v1 tag; its saved trace is not rewritten.
+
 Start the configured workstation with:
 
 ```powershell

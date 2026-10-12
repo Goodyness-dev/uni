@@ -33,7 +33,8 @@ class Decisions(BaseModel):
 
 async def invoke(system: str, payload: dict[str, Any], schema: type[BaseModel], owner: str, usage: list[dict[str, Any]]) -> BaseModel:
     name = "planner" if schema.__name__ == "AgentDecision" else "edge" if schema.__name__ == "SelectedEvidence" else "challenger" if "Challenger" in system else "verifier_judge" if schema is Decisions else "tailor_revise" if "Revise" in system else "tailor"
-    with trace_block("llm_" + name + "_v1", "CHAIN", prompt_version=name + "_v1") as span:
+    version = "planner_v2" if name == "planner" else name + "_v1"
+    with trace_block("llm_" + version, "CHAIN", prompt_version=version) as span:
         result = await llm_gateway.call_llm(system + "\nRequired JSON schema: " + json.dumps(schema.model_json_schema()), json.dumps(payload), schema, user_id=owner)
         set_attrs(span, model=result.model_used, tokens_in=result.input_tokens, tokens_out=result.output_tokens,
             cost_usd=result.cost_usd, fallback_used=result.fallback_used)

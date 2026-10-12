@@ -119,10 +119,10 @@ export function MatchCard({ match, batchFinished = false }: MatchCardProps) {
         <div>
           {isAwaitingUser ? (
             <Link
-              href={`/handoff/${match.application_id}`}
+              href={useV1 ? `/applications/${match.application_id}` : `/handoff/${match.application_id}`}
               className="h-9 px-4 rounded-lg bg-[#ECEDF0] text-[#121316] hover:bg-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
             >
-              <span>Complete handoff</span>
+              <span>{useV1 ? "View next steps" : "Complete handoff"}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           ) : canView ? (
