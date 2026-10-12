@@ -507,7 +507,7 @@ yes
 
 populate the json file with thse , and lest run a full test 
 
-sk-L16uEC7jcA8Ci2wQYN3AnA
+[REDACTED_PRIVATE_VALUE]
 
 this is clause api key , lets test with gemini for now then we switch to claude later , so make provsiong for us switching to claue
 
