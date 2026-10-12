@@ -1,0 +1,716 @@
+[
+  {
+    "case": "literal-degree",
+    "trace_id": "51be3fa040153531c49e1d03b075e1e4",
+    "actual_supported": true,
+    "expected_supported": true,
+    "neatlogs_evaluations": {
+      "status": "available",
+      "trace_id": "51be3fa040153531c49e1d03b075e1e4",
+      "span_id": null,
+      "count": 1,
+      "total": 1,
+      "truncated": false,
+      "next_offset": null,
+      "evaluations": [
+        {
+          "evaluation_id": "bdb1e6c0-5d6f-4fa5-9285-9e316a93d7bc",
+          "name": "ScholarPilot source-grounded six-case evaluation",
+          "type": "human",
+          "form": {
+            "name": "ScholarPilot source-grounded six-case evaluation Form",
+            "questions": [
+              {
+                "id": "766578c9-94d3-4381-88ea-6613a886544c",
+                "text": "Score factuality ONLY: is the supported true/false verdict correct against the original claim and provided sources? Return pass or fail with the case ID and source-based reason. Reject invented causation, GPA changes, and future goals stated as completed work; accept faithful paraphrases. Ignore JSON or display formatting: Neatlogs renders structured JSON as readable text. If sources are absent return insufficient_evidence.",
+                "answer_type": "short_answer",
+                "spec_key": null,
+                "required": true,
+                "options": {}
+              }
+            ]
+          },
+          "responses": [
+            {
+              "response_id": "286bdcbf-0875-4e0a-88b4-e7bda999785f",
+              "evaluator_kind": "ai",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_label": "ScholarPilot fictional factuality auditor",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "item_id": "6ba60449-bb59-401c-a743-07fa52ead9d3",
+              "span_id": null,
+              "submitted_at": "2026-10-12T13:30:26.700Z",
+              "answers": [
+                {
+                  "question_id": "766578c9-94d3-4381-88ea-6613a886544c",
+                  "spec_key": null,
+                  "value": "pass"
+                }
+              ],
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The claim 'I earned a BSc in Computer Engineering in 2025' is identical to the provided source text, making the supported verdict of true correct.",
+                    "evidence_refs": []
+                  }
+                ]
+              },
+              "verdict_run_id": "dae5d1b5-2eb0-5db1-ba5e-cf2287cd6ec3",
+              "verdict_relationship": "latest_run_for_item_and_definition"
+            }
+          ],
+          "response_counts": {
+            "human": 0,
+            "ai": 1,
+            "returned": 1,
+            "total": 1,
+            "truncated": false,
+            "page": 1,
+            "next_page": null
+          },
+          "run_counts": {
+            "returned": 1,
+            "total": 1,
+            "offset": 0,
+            "next_offset": null,
+            "truncated": false
+          },
+          "runs": [
+            {
+              "run_id": "dae5d1b5-2eb0-5db1-ba5e-cf2287cd6ec3",
+              "item_id": "6ba60449-bb59-401c-a743-07fa52ead9d3",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "trace_id": "51be3fa040153531c49e1d03b075e1e4",
+              "span_id": null,
+              "created_at": "2026-10-12T13:30:26.701Z",
+              "started_at": null,
+              "completed_at": "2026-10-12T13:30:26.700Z",
+              "updated_at": "2026-10-12T13:30:26.701Z",
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The claim 'I earned a BSc in Computer Engineering in 2025' is identical to the provided source text, making the supported verdict of true correct.",
+                    "reasoning_truncated": false,
+                    "evidence_refs": [],
+                    "evidence_refs_truncated": false
+                  }
+                ]
+              },
+              "reasoning": "The agent correctly verified that the claim is a verbatim match to the source text provided in the input.",
+              "reasoning_truncated": false
+            }
+          ]
+        }
+      ],
+      "complete": true
+    }
+  },
+  {
+    "case": "gpa-inflated",
+    "trace_id": "5daa2f3a9cce60d0025ce0c31834e4e4",
+    "actual_supported": false,
+    "expected_supported": false,
+    "neatlogs_evaluations": {
+      "status": "available",
+      "trace_id": "5daa2f3a9cce60d0025ce0c31834e4e4",
+      "span_id": null,
+      "count": 1,
+      "total": 1,
+      "truncated": false,
+      "next_offset": null,
+      "evaluations": [
+        {
+          "evaluation_id": "bdb1e6c0-5d6f-4fa5-9285-9e316a93d7bc",
+          "name": "ScholarPilot source-grounded six-case evaluation",
+          "type": "human",
+          "form": {
+            "name": "ScholarPilot source-grounded six-case evaluation Form",
+            "questions": [
+              {
+                "id": "766578c9-94d3-4381-88ea-6613a886544c",
+                "text": "Score factuality ONLY: is the supported true/false verdict correct against the original claim and provided sources? Return pass or fail with the case ID and source-based reason. Reject invented causation, GPA changes, and future goals stated as completed work; accept faithful paraphrases. Ignore JSON or display formatting: Neatlogs renders structured JSON as readable text. If sources are absent return insufficient_evidence.",
+                "answer_type": "short_answer",
+                "spec_key": null,
+                "required": true,
+                "options": {}
+              }
+            ]
+          },
+          "responses": [
+            {
+              "response_id": "6cab3b27-6b28-444d-8b25-2e4cad00f01f",
+              "evaluator_kind": "ai",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_label": "ScholarPilot fictional factuality auditor",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "item_id": "a5bdd7c6-a8e1-4cd4-9da9-67589d13383f",
+              "span_id": null,
+              "submitted_at": "2026-10-12T13:30:28.215Z",
+              "answers": [
+                {
+                  "question_id": "766578c9-94d3-4381-88ea-6613a886544c",
+                  "spec_key": null,
+                  "value": "pass"
+                }
+              ],
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim (4.90) contradicts the source (4.30) and accurately labeled the decision as false due to a changed quantity.",
+                    "evidence_refs": []
+                  }
+                ]
+              },
+              "verdict_run_id": "34e04cc3-b3aa-524f-8d66-63a82a56ef9a",
+              "verdict_relationship": "latest_run_for_item_and_definition"
+            }
+          ],
+          "response_counts": {
+            "human": 0,
+            "ai": 1,
+            "returned": 1,
+            "total": 1,
+            "truncated": false,
+            "page": 1,
+            "next_page": null
+          },
+          "run_counts": {
+            "returned": 1,
+            "total": 1,
+            "offset": 0,
+            "next_offset": null,
+            "truncated": false
+          },
+          "runs": [
+            {
+              "run_id": "34e04cc3-b3aa-524f-8d66-63a82a56ef9a",
+              "item_id": "a5bdd7c6-a8e1-4cd4-9da9-67589d13383f",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "trace_id": "5daa2f3a9cce60d0025ce0c31834e4e4",
+              "span_id": null,
+              "created_at": "2026-10-12T13:30:28.215Z",
+              "started_at": null,
+              "completed_at": "2026-10-12T13:30:28.215Z",
+              "updated_at": "2026-10-12T13:30:28.215Z",
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim (4.90) contradicts the source (4.30) and accurately labeled the decision as false due to a changed quantity.",
+                    "reasoning_truncated": false,
+                    "evidence_refs": [],
+                    "evidence_refs_truncated": false
+                  }
+                ]
+              },
+              "reasoning": "The agent correctly evaluated the factuality of the claim against the provided source, identifying the discrepancy in GPA values.",
+              "reasoning_truncated": false
+            }
+          ]
+        }
+      ],
+      "complete": true
+    }
+  },
+  {
+    "case": "false-causation",
+    "trace_id": "7aa00d7195e42d26c43dd82ddb77a517",
+    "actual_supported": false,
+    "expected_supported": false,
+    "neatlogs_evaluations": {
+      "status": "available",
+      "trace_id": "7aa00d7195e42d26c43dd82ddb77a517",
+      "span_id": null,
+      "count": 1,
+      "total": 1,
+      "truncated": false,
+      "next_offset": null,
+      "evaluations": [
+        {
+          "evaluation_id": "bdb1e6c0-5d6f-4fa5-9285-9e316a93d7bc",
+          "name": "ScholarPilot source-grounded six-case evaluation",
+          "type": "human",
+          "form": {
+            "name": "ScholarPilot source-grounded six-case evaluation Form",
+            "questions": [
+              {
+                "id": "766578c9-94d3-4381-88ea-6613a886544c",
+                "text": "Score factuality ONLY: is the supported true/false verdict correct against the original claim and provided sources? Return pass or fail with the case ID and source-based reason. Reject invented causation, GPA changes, and future goals stated as completed work; accept faithful paraphrases. Ignore JSON or display formatting: Neatlogs renders structured JSON as readable text. If sources are absent return insufficient_evidence.",
+                "answer_type": "short_answer",
+                "spec_key": null,
+                "required": true,
+                "options": {}
+              }
+            ]
+          },
+          "responses": [
+            {
+              "response_id": "3d1cac0e-cbb5-48a0-95e4-82478667ad07",
+              "evaluator_kind": "ai",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_label": "ScholarPilot fictional factuality auditor",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "item_id": "d98b6dc1-06b3-46c9-b4bb-f29e028a832e",
+              "span_id": null,
+              "submitted_at": "2026-10-12T13:30:26.573Z",
+              "answers": [
+                {
+                  "question_id": "766578c9-94d3-4381-88ea-6613a886544c",
+                  "spec_key": null,
+                  "value": "pass"
+                }
+              ],
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim of causation ('resulted in') is not supported by the source, which only establishes a temporal sequence ('later entered').",
+                    "evidence_refs": []
+                  }
+                ]
+              },
+              "verdict_run_id": "14dd8670-c16c-555d-bedb-fc25ffa6d116",
+              "verdict_relationship": "latest_run_for_item_and_definition"
+            }
+          ],
+          "response_counts": {
+            "human": 0,
+            "ai": 1,
+            "returned": 1,
+            "total": 1,
+            "truncated": false,
+            "page": 1,
+            "next_page": null
+          },
+          "run_counts": {
+            "returned": 1,
+            "total": 1,
+            "offset": 0,
+            "next_offset": null,
+            "truncated": false
+          },
+          "runs": [
+            {
+              "run_id": "14dd8670-c16c-555d-bedb-fc25ffa6d116",
+              "item_id": "d98b6dc1-06b3-46c9-b4bb-f29e028a832e",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "trace_id": "7aa00d7195e42d26c43dd82ddb77a517",
+              "span_id": null,
+              "created_at": "2026-10-12T13:30:26.574Z",
+              "started_at": null,
+              "completed_at": "2026-10-12T13:30:26.573Z",
+              "updated_at": "2026-10-12T13:30:26.574Z",
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim of causation ('resulted in') is not supported by the source, which only establishes a temporal sequence ('later entered').",
+                    "reasoning_truncated": false,
+                    "evidence_refs": [],
+                    "evidence_refs_truncated": false
+                  }
+                ]
+              },
+              "reasoning": "The agent correctly applied the rubric regarding false causation by rejecting the claim that teaching caused the students to enter the science fair based on the provided source.",
+              "reasoning_truncated": false
+            }
+          ]
+        }
+      ],
+      "complete": true
+    }
+  },
+  {
+    "case": "future-accomplishment",
+    "trace_id": "433418cb603892f83674d724b59ae4b6",
+    "actual_supported": false,
+    "expected_supported": false,
+    "neatlogs_evaluations": {
+      "status": "available",
+      "trace_id": "433418cb603892f83674d724b59ae4b6",
+      "span_id": null,
+      "count": 1,
+      "total": 1,
+      "truncated": false,
+      "next_offset": null,
+      "evaluations": [
+        {
+          "evaluation_id": "bdb1e6c0-5d6f-4fa5-9285-9e316a93d7bc",
+          "name": "ScholarPilot source-grounded six-case evaluation",
+          "type": "human",
+          "form": {
+            "name": "ScholarPilot source-grounded six-case evaluation Form",
+            "questions": [
+              {
+                "id": "766578c9-94d3-4381-88ea-6613a886544c",
+                "text": "Score factuality ONLY: is the supported true/false verdict correct against the original claim and provided sources? Return pass or fail with the case ID and source-based reason. Reject invented causation, GPA changes, and future goals stated as completed work; accept faithful paraphrases. Ignore JSON or display formatting: Neatlogs renders structured JSON as readable text. If sources are absent return insufficient_evidence.",
+                "answer_type": "short_answer",
+                "spec_key": null,
+                "required": true,
+                "options": {}
+              }
+            ]
+          },
+          "responses": [
+            {
+              "response_id": "d8df210a-1e18-4e7d-a83a-a498b2ce07ad",
+              "evaluator_kind": "ai",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_label": "ScholarPilot fictional factuality auditor",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "item_id": "7bc01873-5275-4bbf-a939-9941055f1205",
+              "span_id": null,
+              "submitted_at": "2026-10-12T13:30:28.074Z",
+              "answers": [
+                {
+                  "question_id": "766578c9-94d3-4381-88ea-6613a886544c",
+                  "spec_key": null,
+                  "value": "pass"
+                }
+              ],
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim 'I built' is unsupported by the source 'I want to build', as it incorrectly converts an aspiration into a completed accomplishment.",
+                    "evidence_refs": []
+                  }
+                ]
+              },
+              "verdict_run_id": "a13a3579-cfb2-5b04-a227-ba84a07765d2",
+              "verdict_relationship": "latest_run_for_item_and_definition"
+            }
+          ],
+          "response_counts": {
+            "human": 0,
+            "ai": 1,
+            "returned": 1,
+            "total": 1,
+            "truncated": false,
+            "page": 1,
+            "next_page": null
+          },
+          "run_counts": {
+            "returned": 1,
+            "total": 1,
+            "offset": 0,
+            "next_offset": null,
+            "truncated": false
+          },
+          "runs": [
+            {
+              "run_id": "a13a3579-cfb2-5b04-a227-ba84a07765d2",
+              "item_id": "7bc01873-5275-4bbf-a939-9941055f1205",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "trace_id": "433418cb603892f83674d724b59ae4b6",
+              "span_id": null,
+              "created_at": "2026-10-12T13:30:28.074Z",
+              "started_at": null,
+              "completed_at": "2026-10-12T13:30:28.074Z",
+              "updated_at": "2026-10-12T13:30:28.074Z",
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim 'I built' is unsupported by the source 'I want to build', as it incorrectly converts an aspiration into a completed accomplishment.",
+                    "reasoning_truncated": false,
+                    "evidence_refs": [],
+                    "evidence_refs_truncated": false
+                  }
+                ]
+              },
+              "reasoning": "The agent accurately evaluated the factuality of the claim against the provided source, correctly identifying the mismatch between future intent and past accomplishment.",
+              "reasoning_truncated": false
+            }
+          ]
+        }
+      ],
+      "complete": true
+    }
+  },
+  {
+    "case": "future-mixed-sources",
+    "trace_id": "035989897d3f52ff835a771bfc4de220",
+    "actual_supported": false,
+    "expected_supported": false,
+    "neatlogs_evaluations": {
+      "status": "available",
+      "trace_id": "035989897d3f52ff835a771bfc4de220",
+      "span_id": null,
+      "count": 1,
+      "total": 1,
+      "truncated": false,
+      "next_offset": null,
+      "evaluations": [
+        {
+          "evaluation_id": "bdb1e6c0-5d6f-4fa5-9285-9e316a93d7bc",
+          "name": "ScholarPilot source-grounded six-case evaluation",
+          "type": "human",
+          "form": {
+            "name": "ScholarPilot source-grounded six-case evaluation Form",
+            "questions": [
+              {
+                "id": "766578c9-94d3-4381-88ea-6613a886544c",
+                "text": "Score factuality ONLY: is the supported true/false verdict correct against the original claim and provided sources? Return pass or fail with the case ID and source-based reason. Reject invented causation, GPA changes, and future goals stated as completed work; accept faithful paraphrases. Ignore JSON or display formatting: Neatlogs renders structured JSON as readable text. If sources are absent return insufficient_evidence.",
+                "answer_type": "short_answer",
+                "spec_key": null,
+                "required": true,
+                "options": {}
+              }
+            ]
+          },
+          "responses": [
+            {
+              "response_id": "bbbe9f2e-02dc-4242-b882-f50018cd5e91",
+              "evaluator_kind": "ai",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_label": "ScholarPilot fictional factuality auditor",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "item_id": "9757b2ce-ad6b-4aba-9600-f4066043b6fb",
+              "span_id": null,
+              "submitted_at": "2026-10-12T13:30:26.689Z",
+              "answers": [
+                {
+                  "question_id": "766578c9-94d3-4381-88ea-6613a886544c",
+                  "spec_key": null,
+                  "value": "pass"
+                }
+              ],
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim 'I built solar forecasting systems' is unsupported because the source text only expresses an aspiration ('I want to build'). The agent's verdict of 'false' is accurate based on the provided rubric.",
+                    "evidence_refs": []
+                  }
+                ]
+              },
+              "verdict_run_id": "6a7c5a5c-014a-5237-96a3-3903f66e9e4e",
+              "verdict_relationship": "latest_run_for_item_and_definition"
+            }
+          ],
+          "response_counts": {
+            "human": 0,
+            "ai": 1,
+            "returned": 1,
+            "total": 1,
+            "truncated": false,
+            "page": 1,
+            "next_page": null
+          },
+          "run_counts": {
+            "returned": 1,
+            "total": 1,
+            "offset": 0,
+            "next_offset": null,
+            "truncated": false
+          },
+          "runs": [
+            {
+              "run_id": "6a7c5a5c-014a-5237-96a3-3903f66e9e4e",
+              "item_id": "9757b2ce-ad6b-4aba-9600-f4066043b6fb",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "trace_id": "035989897d3f52ff835a771bfc4de220",
+              "span_id": null,
+              "created_at": "2026-10-12T13:30:26.689Z",
+              "started_at": null,
+              "completed_at": "2026-10-12T13:30:26.689Z",
+              "updated_at": "2026-10-12T13:30:26.689Z",
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The agent correctly identified that the claim 'I built solar forecasting systems' is unsupported because the source text only expresses an aspiration ('I want to build'). The agent's verdict of 'false' is accurate based on the provided rubric.",
+                    "reasoning_truncated": false,
+                    "evidence_refs": [],
+                    "evidence_refs_truncated": false
+                  }
+                ]
+              },
+              "reasoning": "The agent correctly evaluated the claim against the provided source, identifying the discrepancy between an aspiration and a completed action.",
+              "reasoning_truncated": false
+            }
+          ]
+        }
+      ],
+      "complete": true
+    }
+  },
+  {
+    "case": "goal-paraphrase",
+    "trace_id": "5ea24e17ed33bdffb59877d958f4d4ef",
+    "actual_supported": true,
+    "expected_supported": true,
+    "neatlogs_evaluations": {
+      "status": "available",
+      "trace_id": "5ea24e17ed33bdffb59877d958f4d4ef",
+      "span_id": null,
+      "count": 1,
+      "total": 1,
+      "truncated": false,
+      "next_offset": null,
+      "evaluations": [
+        {
+          "evaluation_id": "bdb1e6c0-5d6f-4fa5-9285-9e316a93d7bc",
+          "name": "ScholarPilot source-grounded six-case evaluation",
+          "type": "human",
+          "form": {
+            "name": "ScholarPilot source-grounded six-case evaluation Form",
+            "questions": [
+              {
+                "id": "766578c9-94d3-4381-88ea-6613a886544c",
+                "text": "Score factuality ONLY: is the supported true/false verdict correct against the original claim and provided sources? Return pass or fail with the case ID and source-based reason. Reject invented causation, GPA changes, and future goals stated as completed work; accept faithful paraphrases. Ignore JSON or display formatting: Neatlogs renders structured JSON as readable text. If sources are absent return insufficient_evidence.",
+                "answer_type": "short_answer",
+                "spec_key": null,
+                "required": true,
+                "options": {}
+              }
+            ]
+          },
+          "responses": [
+            {
+              "response_id": "992ec65f-c48d-4273-93fc-b4571115cc46",
+              "evaluator_kind": "ai",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_label": "ScholarPilot fictional factuality auditor",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "item_id": "e233f1d5-8e11-4549-9976-3ece1764dbc0",
+              "span_id": null,
+              "submitted_at": "2026-10-12T13:30:28.072Z",
+              "answers": [
+                {
+                  "question_id": "766578c9-94d3-4381-88ea-6613a886544c",
+                  "spec_key": null,
+                  "value": "pass"
+                }
+              ],
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The claim 'My goal is to study energy systems' is a faithful paraphrase of the source 'I want to study energy systems', correctly identifying the intent as a goal.",
+                    "evidence_refs": []
+                  }
+                ]
+              },
+              "verdict_run_id": "cb3033fc-c7a5-5869-917e-5e5844747416",
+              "verdict_relationship": "latest_run_for_item_and_definition"
+            }
+          ],
+          "response_counts": {
+            "human": 0,
+            "ai": 1,
+            "returned": 1,
+            "total": 1,
+            "truncated": false,
+            "page": 1,
+            "next_page": null
+          },
+          "run_counts": {
+            "returned": 1,
+            "total": 1,
+            "offset": 0,
+            "next_offset": null,
+            "truncated": false
+          },
+          "runs": [
+            {
+              "run_id": "cb3033fc-c7a5-5869-917e-5e5844747416",
+              "item_id": "e233f1d5-8e11-4549-9976-3ece1764dbc0",
+              "evaluator_definition_id": "7568264f-a9a4-462c-ac33-9c97c5d64388",
+              "evaluator_model": null,
+              "evaluator_provider": null,
+              "trace_id": "5ea24e17ed33bdffb59877d958f4d4ef",
+              "span_id": null,
+              "created_at": "2026-10-12T13:30:28.073Z",
+              "started_at": null,
+              "completed_at": "2026-10-12T13:30:28.072Z",
+              "updated_at": "2026-10-12T13:30:28.073Z",
+              "verdict": {
+                "status": "succeeded",
+                "error": null,
+                "overall_score": 1,
+                "fields": [
+                  {
+                    "key": "766578c9-94d3-4381-88ea-6613a886544c",
+                    "score": null,
+                    "reasoning": "The claim 'My goal is to study energy systems' is a faithful paraphrase of the source 'I want to study energy systems', correctly identifying the intent as a goal.",
+                    "reasoning_truncated": false,
+                    "evidence_refs": [],
+                    "evidence_refs_truncated": false
+                  }
+                ]
+              },
+              "reasoning": "The agent correctly identified that the claim is supported by the source text and provided a valid justification for the paraphrase.",
+              "reasoning_truncated": false
+            }
+          ]
+        }
+      ],
+      "complete": true
+    }
+  }
+]
