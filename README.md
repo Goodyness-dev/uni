@@ -80,3 +80,7 @@ Run `backend/.venv/Scripts/python.exe scripts/local_demo.py start --agent` to en
 The improved fictional application completed with receipt **DEMO1584**. Neatlogs finalized trace `7aeb442a172e5c5179639b86fa39f867`: **112 spans, 11 LLM calls, 33,537 tokens, 116.568 seconds**, estimated model cost **$0.0246933**. Replay was exercised on this actual trace. The earlier draft remained unsubmitted after manual review found unsupported causal wording; regression checks and stricter judges were added before the new run. This pair is an improvement example, not an accuracy benchmark.
 
 See [Neatlogs agent demo](docs/NEATLOGS_AGENT_DEMO.md) and [live evidence](docs/evidence/agent_after_source_review_20261012.json). Investigate loaded the real traces but its summary lost connection after a pagination loop; no completed investigation or AI evaluation is claimed. Production deployment, real applicant safety and model reliability remain unverified.
+
+### Neatlogs improvement loop
+
+Managed drafting prompts are fetched by the production label; version 2 was compared on fictional sources, promoted and used by a subsequent real model call, with AWS runtime readback. Real Neatlogs Evals were launched with linked fictional traces. The first batch also exposed false format judgments from readable trace rendering, so it is not claimed as factuality accuracy. An actual Fixes suggestion was reviewed through MCP; its proposed weaker verification was rejected. Native coding-agent dispatch is not complete. See [measured results and limits](docs/NEATLOGS_IMPROVEMENT_PLAN.md).

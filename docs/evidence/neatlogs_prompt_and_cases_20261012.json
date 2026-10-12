@@ -1,0 +1,362 @@
+{
+  "fictional": true,
+  "cases": [
+    {
+      "id": "literal-degree",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "trace_id": "2bc5a2835e25eee3d852a53a0abf8cd0",
+      "usage": [
+        {
+          "tokens_in": 239,
+          "tokens_out": 31,
+          "cost_usd": 0.000149,
+          "latency_seconds": 4.6011,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    },
+    {
+      "id": "gpa-inflated",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "440edea9384f741218d6c17d8fedcf30",
+      "usage": [
+        {
+          "tokens_in": 247,
+          "tokens_out": 69,
+          "cost_usd": 0.000247,
+          "latency_seconds": 1.4324,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    },
+    {
+      "id": "false-causation",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "33549b4300bbb7d78900bc95d441bfbf",
+      "usage": [
+        {
+          "tokens_in": 236,
+          "tokens_out": 53,
+          "cost_usd": 0.000203,
+          "latency_seconds": 1.8503,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    },
+    {
+      "id": "future-accomplishment",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "e0a06148163b088a5deddb4ed8570e44",
+      "usage": [
+        {
+          "tokens_in": 226,
+          "tokens_out": 50,
+          "cost_usd": 0.000193,
+          "latency_seconds": 1.2181,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    },
+    {
+      "id": "future-mixed-sources",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "edb9f9d227d384ea118db2f627d96ada",
+      "usage": [
+        {
+          "tokens_in": 239,
+          "tokens_out": 57,
+          "cost_usd": 0.000214,
+          "latency_seconds": 1.5155,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    },
+    {
+      "id": "goal-paraphrase",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "trace_id": "0f766c2802878a8acfbc21c05a0c0f44",
+      "usage": [
+        {
+          "tokens_in": 228,
+          "tokens_out": 43,
+          "cost_usd": 0.000176,
+          "latency_seconds": 1.2407,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "version": 1,
+      "trace_id": "3296ececcb2dd0cf9516da0c3fa3a433",
+      "segments": [
+        {
+          "id": "s1",
+          "text": "I earned a BSc in Computer Engineering in 2025.",
+          "source_ids": [
+            "C1"
+          ],
+          "section": "cv_summary"
+        },
+        {
+          "id": "s2",
+          "text": "I want to study energy systems.",
+          "source_ids": [
+            "P1"
+          ],
+          "section": "essay"
+        },
+        {
+          "id": "s3",
+          "text": "Eight of my students later entered a state science fair.",
+          "source_ids": [
+            "P2"
+          ],
+          "section": "cv_bullets"
+        }
+      ],
+      "claims": [
+        {
+          "id": "s1",
+          "text": "I earned a BSc in Computer Engineering in 2025.",
+          "section": "cv_summary",
+          "segment_index": 0,
+          "source_ids": [
+            "C1"
+          ],
+          "verdict": "supported",
+          "reason": "The source C1 states exactly 'I earned a BSc in Computer Engineering in 2025.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        },
+        {
+          "id": "s2",
+          "text": "I want to study energy systems.",
+          "section": "essay",
+          "segment_index": 1,
+          "source_ids": [
+            "P1"
+          ],
+          "verdict": "supported",
+          "reason": "The source P1 states exactly 'I want to study energy systems.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        },
+        {
+          "id": "s3",
+          "text": "Eight of my students later entered a state science fair.",
+          "section": "cv_bullets",
+          "segment_index": 2,
+          "source_ids": [
+            "P2"
+          ],
+          "verdict": "supported",
+          "reason": "The source P2 states exactly 'Eight of my students later entered a state science fair.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        }
+      ],
+      "essay_words": 6,
+      "unsupported": 0,
+      "usage": [
+        {
+          "tokens_in": 580,
+          "tokens_out": 118,
+          "cost_usd": 0.000469,
+          "latency_seconds": 1.351,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        },
+        {
+          "tokens_in": 457,
+          "tokens_out": 80,
+          "cost_usd": 0.000337,
+          "latency_seconds": 1.1807,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        },
+        {
+          "tokens_in": 450,
+          "tokens_out": 136,
+          "cost_usd": 0.000475,
+          "latency_seconds": 1.8685,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    },
+    {
+      "version": 2,
+      "trace_id": "318cc70988d2b44326882d339e5cd3c5",
+      "segments": [
+        {
+          "id": "s1",
+          "text": "I earned a BSc in Computer Engineering in 2025.",
+          "source_ids": [
+            "C1"
+          ],
+          "section": "essay"
+        },
+        {
+          "id": "s2",
+          "text": "I want to study energy systems.",
+          "source_ids": [
+            "P1"
+          ],
+          "section": "essay"
+        },
+        {
+          "id": "s3",
+          "text": "I earned a BSc in Computer Engineering in 2025.",
+          "source_ids": [
+            "C1"
+          ],
+          "section": "cv_summary"
+        },
+        {
+          "id": "s4",
+          "text": "Eight of my students later entered a state science fair.",
+          "source_ids": [
+            "P2"
+          ],
+          "section": "cv_bullets"
+        }
+      ],
+      "claims": [
+        {
+          "id": "s1",
+          "text": "I earned a BSc in Computer Engineering in 2025.",
+          "section": "essay",
+          "segment_index": 0,
+          "source_ids": [
+            "C1"
+          ],
+          "verdict": "supported",
+          "reason": "The source C1 explicitly states 'I earned a BSc in Computer Engineering in 2025.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        },
+        {
+          "id": "s2",
+          "text": "I want to study energy systems.",
+          "section": "essay",
+          "segment_index": 1,
+          "source_ids": [
+            "P1"
+          ],
+          "verdict": "supported",
+          "reason": "The source P1 explicitly states 'I want to study energy systems.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        },
+        {
+          "id": "s3",
+          "text": "I earned a BSc in Computer Engineering in 2025.",
+          "section": "cv_summary",
+          "segment_index": 2,
+          "source_ids": [
+            "C1"
+          ],
+          "verdict": "supported",
+          "reason": "The source C1 explicitly states 'I earned a BSc in Computer Engineering in 2025.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        },
+        {
+          "id": "s4",
+          "text": "Eight of my students later entered a state science fair.",
+          "section": "cv_bullets",
+          "segment_index": 3,
+          "source_ids": [
+            "P2"
+          ],
+          "verdict": "supported",
+          "reason": "The source P2 explicitly states 'Eight of my students later entered a state science fair.'",
+          "deterministic_pass": true,
+          "llm_pass": true,
+          "challenged": true,
+          "overturned": false
+        }
+      ],
+      "essay_words": 15,
+      "unsupported": 0,
+      "usage": [
+        {
+          "tokens_in": 604,
+          "tokens_out": 158,
+          "cost_usd": 0.000576,
+          "latency_seconds": 1.3314,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        },
+        {
+          "tokens_in": 497,
+          "tokens_out": 97,
+          "cost_usd": 0.000392,
+          "latency_seconds": 1.395,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        },
+        {
+          "tokens_in": 490,
+          "tokens_out": 183,
+          "cost_usd": 0.000605,
+          "latency_seconds": 1.4872,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ]
+    }
+  ],
+  "promotion": {
+    "source": "neatlogs",
+    "name": "scholarpilot-drafting",
+    "version": 2,
+    "label": "production",
+    "digest": "d7e74750ef6deab15ae220c4f113e53753a24d460be8b1c77885e5cd1188f9ff",
+    "trace_id": "49f59e1ca619637855dc76dfbd93e6f1",
+    "actual_segments": 4,
+    "usage": [
+      {
+        "tokens_in": 593,
+        "tokens_out": 223,
+        "cost_usd": 0.000735,
+        "latency_seconds": 1.3543,
+        "fallback_used": false,
+        "model": "gemini-3.5-flash-lite"
+      }
+    ],
+    "rollback_version": 1
+  }
+}

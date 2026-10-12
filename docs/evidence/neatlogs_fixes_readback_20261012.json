@@ -1,0 +1,18 @@
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"total\":0,\"triage_cards\":[]}"
+      }
+    ]
+  },
+  {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"total\":1,\"triage_cards\":[{\"triage_id\":\"05bbb6f2-1f03-4ff4-8d20-70f25e86f135\",\"title\":\"Fix guardrail aggregation logic in verification_round to respect verified claims\",\"root_cause\":\"The guardrail `verification_round` is aggressively marking all claims as unsupported even when individual claims are successfully verified by the `deterministic_claim_check` tool. This causes the workflow to block valid applications, leading to silent failures where the application process is aborted.\",\"status\":\"open\",\"severity\":\"critical\",\"category\":\"config\",\"triage_label\":\"silent_degradation\",\"workflow_name\":\"scholarpilot\",\"source\":\"auto_triggered\",\"thread_id\":\"c19e8752-0cbf-4289-91b6-4e649d87e4aa\",\"linked_trace_ids\":[\"6870d38a52f20750cb1ff2693076be90\",\"6ffe0d00bea4026a7ccbe86f62f5afc9\",\"f129f0a2853c16b0a94ce302c2dac1ff\",\"42f77f5d44299ca645f9d33c3bfc2c3a\",\"c1522dfae62081fd949efa716d1cba08\",\"0f85fa0bbf5ec5ee46806f8f6326a5df\",\"409987074e5067f4f3648fdd584b1b96\",\"1c1148b371124e183e2e789bed2633b8\",\"cbd18e7844adc3edff153cacfa6cb785\",\"a00331eabb1b7eaf34f824886f233e64\"],\"confidence\":0.6899999976158142,\"created_at\":\"2026-10-12T06:40:00.372288Z\"}]}"
+      }
+    ]
+  }
+]

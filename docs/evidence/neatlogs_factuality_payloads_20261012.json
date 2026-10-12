@@ -1,0 +1,188 @@
+{
+  "fictional": true,
+  "cases": [
+    {
+      "id": "literal-degree",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "trace_id": "51be3fa040153531c49e1d03b075e1e4",
+      "usage": [
+        {
+          "tokens_in": 239,
+          "tokens_out": 31,
+          "cost_usd": 0.000149,
+          "latency_seconds": 4.0018,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ],
+      "sources": [
+        "I earned a BSc in Computer Engineering in 2025."
+      ],
+      "claim": "I earned a BSc in Computer Engineering in 2025.",
+      "decisions": {
+        "decisions": [
+          {
+            "id": "literal-degree",
+            "supported": true,
+            "reason": "The claim exactly matches the provided source text."
+          }
+        ]
+      }
+    },
+    {
+      "id": "gpa-inflated",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "5daa2f3a9cce60d0025ce0c31834e4e4",
+      "usage": [
+        {
+          "tokens_in": 247,
+          "tokens_out": 57,
+          "cost_usd": 0.000217,
+          "latency_seconds": 1.5265,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ],
+      "sources": [
+        "My CGPA is 4.30 out of 5.00."
+      ],
+      "claim": "My CGPA is 4.90 out of 5.00.",
+      "decisions": {
+        "decisions": [
+          {
+            "id": "gpa-inflated",
+            "supported": false,
+            "reason": "The claim states a CGPA of 4.90, but the source states a CGPA of 4.30, which is a changed quantity."
+          }
+        ]
+      }
+    },
+    {
+      "id": "false-causation",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "7aa00d7195e42d26c43dd82ddb77a517",
+      "usage": [
+        {
+          "tokens_in": 236,
+          "tokens_out": 50,
+          "cost_usd": 0.000196,
+          "latency_seconds": 1.1124,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ],
+      "sources": [
+        "Eight of my students later entered a state science fair."
+      ],
+      "claim": "My teaching resulted in eight students entering a state science fair.",
+      "decisions": {
+        "decisions": [
+          {
+            "id": "false-causation",
+            "supported": false,
+            "reason": "The source states that the students later entered a state science fair, but does not state that the teaching resulted in them entering it."
+          }
+        ]
+      }
+    },
+    {
+      "id": "future-accomplishment",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "433418cb603892f83674d724b59ae4b6",
+      "usage": [
+        {
+          "tokens_in": 226,
+          "tokens_out": 51,
+          "cost_usd": 0.000195,
+          "latency_seconds": 1.4697,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ],
+      "sources": [
+        "I want to build solar forecasting systems."
+      ],
+      "claim": "I built solar forecasting systems.",
+      "decisions": {
+        "decisions": [
+          {
+            "id": "future-accomplishment",
+            "supported": false,
+            "reason": "The source states an aspiration ('I want to build'), but the claim states a completed accomplishment ('I built'), which constitutes a completed aspiration."
+          }
+        ]
+      }
+    },
+    {
+      "id": "future-mixed-sources",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "trace_id": "035989897d3f52ff835a771bfc4de220",
+      "usage": [
+        {
+          "tokens_in": 239,
+          "tokens_out": 57,
+          "cost_usd": 0.000214,
+          "latency_seconds": 1.4721,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ],
+      "sources": [
+        "I want to build solar forecasting systems.",
+        "I earned a BSc in 2025."
+      ],
+      "claim": "I built solar forecasting systems.",
+      "decisions": {
+        "decisions": [
+          {
+            "id": "future-mixed-sources",
+            "supported": false,
+            "reason": "The source states 'I want to build solar forecasting systems.', which represents an aspiration, whereas the claim states 'I built', reflecting a completed action (completed aspirations)."
+          }
+        ]
+      }
+    },
+    {
+      "id": "goal-paraphrase",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "trace_id": "5ea24e17ed33bdffb59877d958f4d4ef",
+      "usage": [
+        {
+          "tokens_in": 228,
+          "tokens_out": 43,
+          "cost_usd": 0.000176,
+          "latency_seconds": 1.1057,
+          "fallback_used": false,
+          "model": "gemini-3.5-flash-lite"
+        }
+      ],
+      "sources": [
+        "I want to study energy systems."
+      ],
+      "claim": "My goal is to study energy systems.",
+      "decisions": {
+        "decisions": [
+          {
+            "id": "goal-paraphrase",
+            "supported": true,
+            "reason": "The claim accurately paraphrases the source statement where the subject expresses the desire to study energy systems."
+          }
+        ]
+      }
+    }
+  ],
+  "comparisons": [],
+  "promotion": null
+}

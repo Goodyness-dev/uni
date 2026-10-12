@@ -349,3 +349,12 @@ Scope, files/signatures/tests/spans: AGENT_EXPANSION_PLAN.md. Implement the five
 - [x] User-completed verified onboarding, cloud workflow and restart checks; external limits remain explicit in AWS_LOCAL_OPERATIONS.md.
 
 Validation: 137 root tests, 99 backend quick-check tests, frontend types/lint. Verified OIDC profile count: 1. Actual cloud demo receipt DEMO8273 and package digests survived database/cache/worker restart. Evidence: evidence/verified_onboarding_20261012.json and evidence/cloud_restart_20261012.json. Real scholarship portals remain read-only with applicant handoff.
+
+## NEATLOGS_IMPROVEMENT_V1. [ ] User-requested sponsor improvement loop
+
+Approved scope and implementation order: NEATLOGS_IMPROVEMENT_PLAN.md. Launch real factuality Evals, version/validate/promote drafting prompts, and investigate/dispatch a real fix to a connected supported coding agent. Record external setup blockers and actual evidence.
+
+- [x] Managed prompt versions, live candidate comparison, production promotion, subsequent actual model run and AWS readback.
+- [x] Real Neatlogs Evals launch/readback, with first-batch false format judgments recorded honestly.
+- [x] MCP review of actual Fixes suggestion; preserve independent gates and add diagnostic counts/regressions.
+- [ ] Native coding-agent dispatch: credentials unavailable; investigation connection failures remain explicit.
