@@ -84,6 +84,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 const v1 = createV1(request);
 
+export async function savePreferences(preferences: IntakeRequest["preferences"]): Promise<void> {
+  if (useV1) await v1.savePreferences(preferences);
+}
+
 export async function getHealth(): Promise<HealthResponse> {
   if (useV1) { return request<HealthResponse>("/health"); }
   if (USE_MOCKS) {

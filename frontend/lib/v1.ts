@@ -18,7 +18,24 @@ const states: Record<string, AppStatus> = { discovered: "found", matched: "match
 const status = (value: string): AppStatus => states[value] ?? "unconfirmed";
 const demo = (url: string): boolean => { try { const parsed = new URL(url); return ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname) && parsed.pathname.startsWith("/portal/"); } catch { return false; } };
 
-export function createV1(request: Requester) {
+export function createV1(send: Requester) {
+  const reads = new Map<string, { until: number; value: Promise<unknown> }>();
+  const request: Requester = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+    if ((options.method ?? "GET") !== "GET") {
+      reads.clear();
+      return send<T>(path, options);
+    }
+    const prior = reads.get(path);
+    if (prior && prior.until > Date.now()) return prior.value as Promise<T>;
+    for (const [key, entry] of reads) if (entry.until <= Date.now()) reads.delete(key);
+    const value = send<T>(path, options);
+    reads.set(path, { until: Date.now() + 1200, value });
+    try { return await value; }
+    catch (error) { reads.delete(path); throw error; }
+  };
+  async function savePreferences(p: Preferences): Promise<void> {
+    await request("/v1/profile", { method: "PUT", body: JSON.stringify({ personal_details: { full_name: p.full_name, nationalities: [p.nationality], target_level: p.level, preferences: p }, grades: { gpa: p.gpa, gpa_scale: p.gpa_scale }, target_countries: p.countries.map(country => country === "United Kingdom" ? "UK" : country), target_fields_of_study: p.fields }) });
+  }
   async function getFacts(): Promise<{ facts: Fact[]; preferences: Preferences | null }> {
     const profile = await request<Profile>("/v1/profile");
     return { facts: [...(profile.personal_details._pending_facts ?? []), ...(profile.personal_details._verified_facts ?? [])].filter(fact => !fact.sensitive), preferences: profile.personal_details.preferences ?? null };
@@ -26,7 +43,7 @@ export function createV1(request: Requester) {
   async function intake(input: IntakeRequest): Promise<IntakeResponse> {
     const p = input.preferences;
     if (!input.cv_text?.trim() && !input.cv_pdf_base64) throw new Error("Provide a CV source before processing documents.");
-    await request("/v1/profile", { method: "PUT", body: JSON.stringify({ personal_details: { full_name: p.full_name, nationalities: [p.nationality], target_level: p.level, preferences: p }, grades: { gpa: p.gpa, gpa_scale: p.gpa_scale }, target_countries: p.countries.map(country => country === "United Kingdom" ? "UK" : country), target_fields_of_study: p.fields }) });
+    await savePreferences(p);
     const encode = (text: string): string => { const bytes = new TextEncoder().encode(text); let binary = ""; for (const byte of bytes) binary += String.fromCharCode(byte); return btoa(binary); };
     const uploads = [
       { type: "cv", filename: input.cv_pdf_base64 ? "cv.pdf" : "cv.txt", content_base64: input.cv_pdf_base64 || (input.cv_text ? encode(input.cv_text) : "") },
@@ -77,8 +94,14 @@ export function createV1(request: Requester) {
   }
   async function getApplications(runId?: string): Promise<{ applications: ApplicationSummary[] }> {
     const rows = await nativeApplications(runId);
-    const details = await Promise.all(rows.map(row => getApplication(row.id)));
-    return { applications: details.map((detail, index) => ({ id: detail.id, listing_id: rows[index].scholarship_id, name: detail.listing?.name ?? rows[index].scholarship_title ?? "", is_mock: detail.listing?.is_mock ?? false, status: detail.status, channel: detail.listing?.channel ?? "package_only", fit_score: detail.fit_score, deadline: detail.listing?.deadline ?? "", updated_at: rows[index].created_at })) };
+    const details = await Promise.all(rows.map(row => request<NativeApplication>(`/v1/applications/${row.id}`)));
+    return { applications: details.map(detail => {
+      const listing = detail.listing;
+      const ownedDemo = !!listing && demo(listing.source_url);
+      const manual = !ownedDemo || !["allowed", "disclose"].includes(listing?.ai_policy ?? "unknown");
+      const matched = detail.events?.find(event => event.event_type === "status_changed_matched");
+      return { id: detail.id, listing_id: detail.scholarship_id, name: listing?.name ?? detail.scholarship_title ?? "", is_mock: ownedDemo, status: manual && ["ready_for_review", "approved"].includes(detail.status) ? "prepared" : status(detail.status), channel: manual ? "package_only" : "portal_form", fit_score: typeof matched?.payload.fit_score === "number" ? matched.payload.fit_score : null, deadline: listing?.deadline ?? "", updated_at: detail.created_at };
+    }) };
   }
   async function getMatches(runId?: string): Promise<{ matches: Match[] }> {
     const rows = await nativeApplications(runId);
@@ -86,5 +109,5 @@ export function createV1(request: Requester) {
     const details = await Promise.all(rows.map(row => request<NativeApplication>(`/v1/applications/${row.id}`)));
     return { matches: details.flatMap(row => { const match = matches.find(m => m.scholarship_id === row.scholarship_id); const listing = row.listing; if (!match || !listing) return []; return [{ application_id: row.id, listing_id: row.scholarship_id, name: listing.name, is_mock: demo(listing.source_url), country: listing.country, level: listing.level ?? "", deadline: listing.deadline, channel: demo(listing.source_url) ? "portal_form" as const : "package_only" as const, fit_score: match.fit_score, fit_reason: match.reasons.join("; "), status: status(row.status), hard_rule_results: { country: null, level: null, gpa: null, field: null, deadline: null, nationality: null }, failed_rules: [] }]; }) };
   }
-  return { intake, getFacts, reviewPendingEvidence, getApplication, getApplications, getMatches };
+  return { intake, savePreferences, getFacts, reviewPendingEvidence, getApplication, getApplications, getMatches };
 }

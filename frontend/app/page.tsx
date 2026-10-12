@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Fact, Preferences, IntakeRequest } from "../lib/types";
-import { api, ApiError } from "../lib/api";
+import { api, ApiError, savePreferences } from "../lib/api";
 import { useV1 } from "../lib/v1";
 import { DocumentsCard } from "../components/profile/DocumentsCard";
 import { PreferencesCard } from "../components/profile/PreferencesCard";
@@ -155,6 +155,7 @@ export default function ProfilePage() {
         cv_text: cvText.trim() || undefined,
         cv_pdf_base64: cvPdfBase64 || undefined,
         transcript_text: transcriptText.trim() || undefined,
+        transcript_pdf_base64: transcriptPdfBase64 || undefined,
         preferences,
         vault_sections: vaultSections,
         vault_text: vaultText.trim() || undefined,
@@ -164,6 +165,7 @@ export default function ProfilePage() {
       setFacts(res.facts);
       setCounts(res.counts);
       setToastMessage(`Parsed ${res.facts.length} atomic provenance facts.`);
+      requestAnimationFrame(() => document.getElementById("source-facts")?.scrollIntoView({ behavior: "smooth", block: "start" }));
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Failed to parse documents");
     } finally {
@@ -188,6 +190,15 @@ export default function ProfilePage() {
       setErrorMsg(null);
       setConflictWarning(null);
 
+      if (useV1) {
+        if (!preferences.full_name.trim() || !preferences.nationality.trim() || !preferences.fields.length || !preferences.countries.length || preferences.gpa <= 0 || preferences.gpa > preferences.gpa_scale) {
+          throw new Error("Complete your name, nationality, fields of study, target countries and a valid GPA before matching. Use your source documents; do not guess missing details.");
+        }
+        if (facts.some(fact => !fact.sensitive && fact.id.startsWith("U_"))) {
+          throw new Error("Review and confirm the extracted source facts before starting the agent.");
+        }
+        await savePreferences(preferences);
+      }
       await api.startRun(mode, topN, liveResearch);
       router.push("/matches");
     } catch (err) {
@@ -251,6 +262,13 @@ export default function ProfilePage() {
       )}
 
       {/* Card 1: Documents */}
+      <p role="status" className="text-sm text-[#b2c5ff]">
+        {facts.some(fact => fact.id.startsWith("U_"))
+          ? "Next: review the extracted facts below and confirm they match your documents."
+          : facts.length > 0
+            ? "Sources reviewed. Complete your matching preferences, then Run agent to research, draft and verify. Autopilot submits only to our demo portal."
+            : "Step 1: upload your CV and transcript. Step 2: click Parse Facts. Step 3: review the facts, complete your preferences and Run agent."}
+      </p>
       <DocumentsCard
         cvText={cvText}
         cvFileName={cvFileName}
@@ -292,7 +310,7 @@ export default function ProfilePage() {
         <div>
           <h3 className="text-sm font-semibold text-[#ECEDF0]">Process Documents & Personal Vault</h3>
           <p className="text-xs text-[#9AA0AE] mt-0.5">
-            Extract atomic facts with provenance links before initiating scholarship matching.
+            {cvFileName || transcriptFileName ? "Files selected. Click Parse Facts to extract their contents; selecting a file alone does not fill your profile." : "Extract source facts before initiating scholarship matching."}
           </p>
         </div>
         <button
@@ -321,6 +339,12 @@ export default function ProfilePage() {
           facts={facts}
           counts={counts}
           onPatchFact={handlePatchFact}
+          onReviewed={async () => {
+            const result = await api.getFacts();
+            setFacts(result.facts);
+            setCounts({ cv: result.facts.filter(f => f.source === "cv").length, transcript: result.facts.filter(f => f.source === "transcript").length, vault: result.facts.filter(f => f.source === "vault").length });
+            setToastMessage("Source review saved. Complete your matching preferences, then Run agent.");
+          }}
         />
       )}
 

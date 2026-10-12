@@ -139,6 +139,18 @@ Commit: `feat(frontend): layout and shared components [F02]`.
 
 ## F03. [x] Screen 1: Upload and Profile (`/`)
 
+### User-requested v1 flow repair (2026/10/12)
+
+- [x] Include `transcript_pdf_base64` in intake; keep explicit source review.
+- [x] Refresh reviewed facts through `onReviewed() -> Promise<void>` without reloading or clearing unsaved form inputs.
+- [x] Save current preferences through the existing profile endpoint before Run agent; reject missing matching inputs with a visible explanation.
+- [x] Display complete source excerpts and the next action in the existing Profile screen.
+- [x] Coalesce duplicate adapter reads, avoid full draft/profile hydration for list summaries, refresh summaries when run events change, and back off after HTTP 429 without relaxing rate limits.
+
+Files: `frontend/app/page.tsx`, `frontend/app/matches/page.tsx`, `frontend/components/profile/ParsedFactsCard.tsx`, `frontend/lib/api.ts`, `frontend/lib/v1.ts`. Existing backend spans and all independent verification gates remain unchanged; no endpoint, model, dependency or screen changes.
+
+Validation: browser uploaded both fictional Tobi PDFs and extracted 19 CV / 2 transcript excerpts. Explicit confirmation enabled Run agent without losing Germany / 2027 preference edits. Run `b76f4970-9ac6-48a9-bc05-d1a883a6c87e` reached the real worker; Gemini returned repeated HTTP 503 during drafting, and the application failed rather than submitting. This is a failed live attempt, not a successful demo receipt. Adapter checks cover coalesced requests, both PDF uploads, no implicit verification and preference persistence. TypeScript and ESLint checks run for changed frontend files. AWS update uses the existing approved release path and frontend service only; inspect deployment completion before claiming it is live.
+
 Goal: collect documents, preferences and the Vault, call intake, show editable facts, start a run.
 Depends: F02. Time box: 90 min.
 Read: `15_DESIGN_BRIEF.md` Screen 1.

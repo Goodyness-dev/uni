@@ -69,6 +69,8 @@ export default function MatchesPage() {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const pollBackoffUntil = useRef(0);
+  const overviewApplicationIds = useRef("");
   const [resuming, setResuming] = useState(false);
 
   const lastEventNoRef = useRef<number>(0);
@@ -104,6 +106,7 @@ export default function MatchesPage() {
         if (ignore) return;
         setMatches(matchesRes.matches || []);
         setApplications(appsRes.applications || []);
+        setError(null);
         setEvents(eventsRes.events || []);
         lastEventNoRef.current = eventsRes.last_event_no || 0;
         setGaps(gapsRes.gaps || []);
@@ -183,7 +186,7 @@ export default function MatchesPage() {
     }
 
     const pollTick = async () => {
-      if (isPollingRef.current) return;
+      if (isPollingRef.current || Date.now() < pollBackoffUntil.current) return;
       isPollingRef.current = true;
 
       try {
@@ -192,7 +195,8 @@ export default function MatchesPage() {
 
         // Fetch events with after = lastEventNoRef.current
         const eventsRes = await getRunEvents(runId, lastEventNoRef.current);
-        if (eventsRes.events && eventsRes.events.length > 0) {
+        const hasNewEvents = eventsRes.events && eventsRes.events.length > 0;
+        if (hasNewEvents) {
           setEvents((prev) => {
             const existingIds = new Set(prev.map((e) => e.event_no));
             const newEvents = eventsRes.events.filter((e) => !existingIds.has(e.event_no));
@@ -202,14 +206,18 @@ export default function MatchesPage() {
         }
 
         // Fetch matches and applications on each poll
+        if (hasNewEvents || updatedRun.application_ids.join() !== overviewApplicationIds.current || isFinalRun(updatedRun.status)) {
         const [matchesRes, appsRes] = await Promise.all([
           getMatches(runId),
           getApplications(runId),
         ]);
         setMatches(matchesRes.matches || []);
         setApplications(appsRes.applications || []);
+        overviewApplicationIds.current = updatedRun.application_ids.join();
+        }
 
         // Check if run has reached final state
+        setError(null);
         if (isFinalRun(updatedRun.status)) {
           if (pollTimerRef.current) {
             clearInterval(pollTimerRef.current);
@@ -219,8 +227,9 @@ export default function MatchesPage() {
           const finalGaps = await getGaps(runId).catch(() => ({ gaps: [] }));
           setGaps(finalGaps.gaps || []);
         }
-      } catch {
-        // Suppress tick errors to allow transient network recovery
+      } catch (err) {
+        if (typeof err === "object" && err !== null && "status" in err && err.status === 429) pollBackoffUntil.current = Date.now() + 60_000;
+        setError(err instanceof Error ? `Live progress could not be refreshed: ${err.message}. Retrying automatically.` : "Live progress could not be refreshed. Retrying automatically.");
       } finally {
         isPollingRef.current = false;
       }
