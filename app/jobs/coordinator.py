@@ -9,7 +9,7 @@ from app.agents.researcher import run_researcher
 from app.api.v1.matches import evaluate_eligibility_and_fit
 from app.core.logging import logger
 from app.core.tracing import workflow_span
-from app.db.models import Application, Job, Profile, Scholarship, User
+from app.db.models import Application, Job, Profile, Scholarship, User, Draft
 from app.jobs.queue import enqueue_job, register_job_handler
 from app.jobs.state_machine import transition_application
 
@@ -74,8 +74,10 @@ async def run_coordinator_pipeline(
         ]
 
     # Stage 3: researching -> drafting
+    stored_draft = (await session.execute(select(Draft).where(Draft.application_id == app_record.id)
+        .order_by(Draft.version.desc()))).scalars().first()
     draft_output = None
-    if app_record.status == "researching":
+    if app_record.status == "researching" or (app_record.status == "drafting" and stored_draft is None):
         if not research_facts:
             # In case status was already researching on entry
             research_res = await run_researcher(
@@ -87,13 +89,11 @@ async def run_coordinator_pipeline(
                 for f in research_res.facts
             ]
 
-        app_record = await transition_application(
-            application=app_record,
-            new_status="drafting",
-            actor="coordinator",
-            payload={"facts_discovered": len(research_facts)},
-            session=session,
-        )
+        if app_record.status == "researching":
+            app_record = await transition_application(
+                application=app_record, new_status="drafting", actor="coordinator",
+                payload={"facts_discovered": len(research_facts)}, session=session,
+            )
 
         # Edge finder generates competitive angles
         edge_res = await run_edge_finder(

@@ -29,14 +29,6 @@ def init_tracing(tags: Optional[list[str]] = None) -> bool:
     if neatlogs is None or not settings.NEATLOGS_API_KEY:
         return False
 
-    kwargs: dict[str, Any] = {
-        "api_key": settings.NEATLOGS_API_KEY,
-        "workflow_name": "scholarpilot",
-        "tags": list(tags or []),
-        "capture_logs": True,
-    }
-    if settings.NEATLOGS_ENDPOINT:
-        kwargs["endpoint"] = settings.NEATLOGS_ENDPOINT
     try:
         _enabled = shared_init(tags=tags)
         return _enabled

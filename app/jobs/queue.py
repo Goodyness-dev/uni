@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.logging import job_id_ctx, logger
 from app.db.base import AsyncSessionLocal
 from app.db.models import Job
+from app.core.tracing import recovery_decision
 
 # Handler registry mapping job_type -> async handler function(job, payload, db_session)
 JobHandler = Callable[[Job, Dict[str, Any], Any], Coroutine[Any, Any, Dict[str, Any]]]
@@ -151,6 +152,10 @@ async def execute_job(job_id: uuid.UUID, payload: Optional[Dict[str, Any]] = Non
 
             job.last_error = err_msg
             job.locked_by = None
+            with recovery_decision("job_failure", ["retry", "dead_letter"]) as decision:
+                decision.decide("retry" if job.status == "pending" else "dead_letter",
+                    "Internal work may retry; uncertain external submission requires manual reconciliation.")
+                decision.finish(job.status)
             await session.commit()
             raise
 
@@ -189,6 +194,13 @@ async def fetch_next_pending_job(worker_id: str) -> Optional[Job]:
         await client.lpop(REDIS_QUEUE_KEY)
     async with AsyncSessionLocal() as session:
         now = datetime.now(timezone.utc)
+        stale = Job.updated_at < now - timedelta(minutes=10)
+        await session.execute(update(Job).where(Job.status == "running", stale,
+            Job.type != "submit_application").values(status="pending", locked_by=None))
+        await session.execute(update(Job).where(Job.status == "running", stale,
+            Job.type == "submit_application").values(status="dead_letter", locked_by=None,
+            last_error="Worker interrupted; external acceptance must be reconciled manually."))
+        await session.commit()
         candidate = (await session.execute(
             select(Job.id).where(Job.status == "pending",
                 Job.scheduled_for.is_(None) | (Job.scheduled_for <= now))
