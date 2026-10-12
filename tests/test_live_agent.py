@@ -81,6 +81,17 @@ def test_tool_whitelist_requires_evidence_and_draft_before_finish():
     assert allowed_actions(True, True, True) == ["finish"]
 
 
+def test_project_authorship_does_not_prove_project_leadership() -> None:
+    sources = ["Embedded Systems Intern, BrightGrid Solar, 5 months in 2024.",
+        "SunTrack: a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors. Final year project."]
+    assert not deterministic_check("Professional background includes practical embedded systems development experience and technical project leadership in solar panel monitoring.", sources)
+    assert deterministic_check("I built a solar panel monitoring project.", sources)
+
+
+def test_explicit_leadership_source_can_support_literal_leadership() -> None:
+    assert deterministic_check("I have project leadership experience.", ["I have project leadership experience."])
+
+
 @pytest.fixture
 def agent_database():
     async def schema(create: bool) -> None:

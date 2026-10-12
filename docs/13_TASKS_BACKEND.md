@@ -370,7 +370,12 @@ Approved scope and implementation order: NEATLOGS_IMPROVEMENT_PLAN.md. Launch re
 - [x] MCP review of actual Fixes suggestion; preserve independent gates and add diagnostic counts/regressions.
 - [ ] Native coding-agent dispatch: credentials unavailable; investigation connection failures remain explicit.
 
+## DOCUMENT_FLOW_FACTUALITY_REPAIR. [x] Block inferred leadership after manual source review
+
+The completed demo receipt proves operational submission, but manual review found a leadership claim unsupported by its cited project-authorship facts. Extend the deterministic promotion check to reject leader/leadership, managed and supervised wording unless present in cited sources. Preserve independent judge and Challenger admission checks. Regression tests cover unsupported project leadership and explicitly sourced leadership. Historical evidence retains the original result and records the later finding.
+
 ## CFO_V1. [x] User-authorized cfo.ai preparation (2026/10/12)
+
 
 Files: backend/scripts/export_cfo.py, backend/tests/test_cfo_export.py,
 evidence/cfo bundle and evidence/business_plan.md. Functions: read_run(path: Path)

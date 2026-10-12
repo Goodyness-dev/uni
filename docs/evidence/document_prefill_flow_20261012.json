@@ -89,5 +89,14 @@
       "status": "failed",
       "error": "All model providers failed; no generated output is available. Last HTTP status: 404."
     }
-  ]
+  ],
+  "manual_review_findings": [
+    {
+      "claim": "Professional background includes practical embedded systems development experience and technical project leadership in solar panel monitoring.",
+      "finding": "Cited internship and project-authorship text does not explicitly establish leadership. Both model judges accepted it in this historical run.",
+      "fix": "Require explicit source evidence for leadership/leader/manager/managed/supervised wording; preserve all independent gates.",
+      "historical_receipt_retained": true
+    }
+  ],
+  "interpretation": "Operational completion with a subsequently discovered grounding error; not a perfect-factuality result."
 }
