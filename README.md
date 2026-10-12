@@ -41,7 +41,7 @@ Original demo (from `backend/`): install `backend/requirements.txt`, then `pytho
 
 Root service: install the existing root `requirements.txt`, configure an isolated database/broker, run `alembic upgrade head`, import the catalog with `python scripts/import_catalog.py`, then start `uvicorn app.main:app`. Start the worker separately with `python -m app.worker`.
 
-Docker Compose describes Postgres, Redis, API and worker services. **A working production deployment has not been validated.** Development credentials and the default encryption key must be replaced and database/broker ports kept private before deployment. Existing deployments at migration 001 must run the forward repair migration; changing an applied migration is insufficient.
+The private AWS prototype has been deployed in eu-north-1 using `deploy/aws-private.json` and the six-service `deploy/compose.yml`: PostgreSQL, Redis, API, worker, frontend and owned demo portal. Runtime secrets are private and database/cache ports have no inbound exposure. **Public, highly available production deployment and total-host recovery have not been validated.** See [operations and costs](docs/AWS_LOCAL_OPERATIONS.md). Existing deployments at migration 001 must run the forward repair migration; changing an applied migration is insufficient.
 
 ## Tests and validation
 
@@ -62,6 +62,14 @@ The fictional Tobi application completed through the existing frontend, root API
 On the configured Windows workstation, run `backend/.venv/Scripts/python.exe scripts/local_demo.py start`; open http://localhost:3000. Use `stop` to stop the recorded local processes, or `scripts/verify_local_demo.py` to recollect evidence. This uses portable runtime binaries and random credentials beneath ignored `storage/local_runtime`; it does not register Windows services. The default launcher disables paid providers, public research and external notifications, imports only the challenge-free fictional portal listing, and uses a separate portal SQLite database. PostgreSQL runs with a privileged development role.
 
 Frontend `.env.local` is configured for v1, mocks off, an empty public API base and `API_BACKEND_URL=http://127.0.0.1:8001`. The local launcher supplies these same values. Session keys remain in browser session storage, so a fresh tab needs to connect its existing key or create a new fictional identity in development. Production identity issuance remains token-protected.
+
+## Agent expansion validation
+
+The agent now has nine bounded actions and persistent research snapshots, missing-evidence continuation, cancellation before demo submission, real file-drop controls, actual email/Telegram delivery jobs and a Cognito PKCE sign-in redirect. Live discovery refreshes supplied official sources and saves unverified leads. It corrected closed Chevening/Rhodes cycles and the Commonwealth cutoff; unavailable pages remain explicit failures. This is bounded discovery, not unrestricted internet search or certified institutional eligibility.
+
+The live 32-case fictional evaluation accepted 11 supported claims and rejected 21 unsupported claims, including two previously accepted error categories. This curated result is not a factuality guarantee. Queued local email and Telegram tests completed with provider acceptance, and an AWS SES test succeeded using the instance role; inbox placement is not verified. The real Commonwealth preparation stopped at applicant handoff and Cambridge portal inspection stopped at login. No real scholarship application was submitted.
+
+See the current [reality audit](docs/AGENT_REALITY_AUDIT.md), [approved contract extensions](docs/PRODUCTION_V1_CONTRACT.md), and [evidence](docs/evidence). Verified onboarding is complete only after the user finishes Cognito signup, emailed verification and the callback; reaching its sign-in page does not establish that result.
 
 Portable runtime sources: [PostgreSQL Windows binaries](https://www.enterprisedb.com/download-postgresql-binaries), [Redis Windows 7.4.9 release and checksum](https://github.com/redis-windows/redis-windows/releases/tag/7.4.9). The Redis distribution is a Windows build, not a Linux deployment validation.
 

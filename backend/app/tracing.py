@@ -28,9 +28,13 @@ def metadata_mask(snapshot: dict[str, Any]) -> dict[str, Any]:
     attributes = snapshot.get("attributes", {})
     safe = {"neatlogs.span.kind", "openinference.span.kind", "llm.model_name", "gen_ai.request.model",
         "gen_ai.response.model", "gen_ai.system", "application_id", "listing_id", "mode", "iteration",
-        "neatlogs.tool.name", "guardrails_passed", "neatlogs.guardrail.passed", "prompt_version"}
+        "neatlogs.tool.name", "guardrails_passed", "neatlogs.guardrail.passed", "prompt_version",
+        "recovery.chosen", "recovery.outcome", "model", "tokens_in", "tokens_out", "cost_usd", "fallback_used",
+        "source_count", "observed_state", "blocked", "digest", "channel", "read_only", "fictional",
+        "neatlogs.llm.model_name", "neatlogs.llm.model"}
     attributes = {key: value for key, value in attributes.items() if key in safe or key.startswith((
-        "llm.token_count.", "gen_ai.usage.", "neatlogs.usage.", "code.", "neatlogs.llm.cost"))}
+        "llm.token_count.", "gen_ai.usage.", "neatlogs.usage.", "code.", "neatlogs.llm.cost",
+        "neatlogs.llm.token_count.", "neatlogs.llm.metrics."))}
     return {**snapshot, "attributes": attributes, "events": []}
 
 

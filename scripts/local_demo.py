@@ -174,6 +174,9 @@ def stop_application_processes() -> None:
         pid = int(pid_path.read_text())
         command = "function Stop-LocalDemoTree([int]$taskParent) { foreach ($taskChild in (Get-CimInstance Win32_Process -Filter ('ParentProcessId = ' + $taskParent))) { Stop-LocalDemoTree $taskChild.ProcessId }; Stop-Process -Id $taskParent -ErrorAction SilentlyContinue }; $p = Get-CimInstance Win32_Process -Filter 'ProcessId = " + str(pid) + "'; if ($p -and $p.CommandLine.Contains('" + workspace + "') -and $p.CommandLine -match 'uvicorn|app.worker|next') { Stop-LocalDemoTree " + str(pid) + " }"
         subprocess.run(["powershell", "-NoProfile", "-Command", command], check=False)
+        # A stopped PID can be reused before the next launch. Never treat that
+        # stale service marker as proof that the replacement service is running.
+        pid_path.unlink(missing_ok=True)
 
 
 def stop() -> None:

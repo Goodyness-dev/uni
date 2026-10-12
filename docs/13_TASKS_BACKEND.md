@@ -337,6 +337,15 @@ Commit: `fix(agent): honor user autopilot and submission pause [AGENT_AUTOPILOT_
 
 Validation: 89 root tests; frontend types/lint; real automatic receipt DEMO2985 without an approval event. The Profile off switch persisted Review and its shared Redis owner pause marker. Live proof: `evidence/autopilot_e2e_20261012.json`.
 
-## AGENT_EXPANSION_V1. [ ] User-authorized agent expansion
+## AGENT_EXPANSION_V1. [x] User-authorized agent expansion
 
 Scope, files/signatures/tests/spans: AGENT_EXPANSION_PLAN.md. Implement the five requested capability areas and frontend source-file workflow; both local and AWS deployment; Telegram and email. Record external setup blockers explicitly. Commit: feat(agent): add live research and adaptive recovery [AGENT_EXPANSION_V1].
+
+- [x] Curated fictional factuality regressions and actual live judge/Challenger evaluation.
+- [x] Official-source discovery, observed deadlines/policies and durable snapshots with honest blockers.
+- [x] Bounded adaptive actions, continuation, cancellation and changed-source checks.
+- [x] Actual source-file controls and opt-in queued email/Telegram notification delivery.
+- [x] Private AWS infrastructure, container builds/readiness and instance-role SES test.
+- [x] User-completed verified onboarding, cloud workflow and restart checks; external limits remain explicit in AWS_LOCAL_OPERATIONS.md.
+
+Validation: 137 root tests, 99 backend quick-check tests, frontend types/lint. Verified OIDC profile count: 1. Actual cloud demo receipt DEMO8273 and package digests survived database/cache/worker restart. Evidence: evidence/verified_onboarding_20261012.json and evidence/cloud_restart_20261012.json. Real scholarship portals remain read-only with applicant handoff.

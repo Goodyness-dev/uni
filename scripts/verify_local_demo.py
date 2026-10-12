@@ -90,8 +90,9 @@ async def collect() -> dict[str, Any]:
             "reviewed_documents": await pg.fetchval("SELECT count(*) FROM documents WHERE user_id=$1 AND verified=true", owner),
             "reviewed_source_facts": len(profile.get("_verified_facts", [])), "redis_lease_excluded_competitor": lease_excluded,
             "redis_lease_released": lease_released, "jobs": [dict(row) for row in jobs], "applications": details,
-            "llm_drafting_enabled": (ROOT / "storage/local_runtime/runtime_mode.txt").is_file() and (ROOT / "storage/local_runtime/runtime_mode.txt").read_text().strip() == "agent", "live_public_research_enabled": False,
-            "scope": "Local fictional integration only; live paid model calls in agent mode; no real scholarship or external notification."}
+            "llm_drafting_enabled": (ROOT / "storage/local_runtime/runtime_mode.txt").is_file() and (ROOT / "storage/local_runtime/runtime_mode.txt").read_text().strip() == "agent",
+            "public_research_snapshot_count": await pg.fetchval("SELECT count(*) FROM jobs WHERE type='research_snapshot' AND payload->>'url' LIKE 'https://%'"),
+            "scope": "Local fictional application integration and retained receipts. Public source observations and external notification delivery are reported separately; no real scholarship submission."}
     finally:
         await client.aclose()
         await pg.close()

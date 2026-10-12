@@ -85,11 +85,11 @@ async def send_telegram_message(
     bot_token: Optional[str] = None,
     client: Optional[httpx.AsyncClient] = None,
 ) -> Dict[str, Any]:
-    """Sends Markdown formatted message via Telegram Bot API or mock dispatcher."""
+    """Send through the real Telegram API; absence of configuration is failure."""
     token = bot_token or os.environ.get("TELEGRAM_BOT_TOKEN")
 
     if not token or token.lower() in ("mock", "test", "none"):
-        logger.info(f"Telegram notification dispatched [MOCK to chat {chat_id}]: {text[:60]}...")
+        logger.warning("Telegram notification unavailable: no configured bot token.")
         return {"ok": False, "mock": False, "error": "telegram_not_configured"}
 
     api_url = f"https://api.telegram.org/bot{token}/sendMessage"

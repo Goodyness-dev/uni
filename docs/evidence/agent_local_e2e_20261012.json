@@ -1,5 +1,5 @@
 {
-  "captured_at_utc": "2026-10-12T07:40:07.770788+00:00",
+  "captured_at_utc": "2026-10-12T11:50:42.986907+00:00",
   "fictional_fixture": "Tobi Adeyemi",
   "postgresql_version": "16.11",
   "redis_version": "7.4.9",
@@ -64,6 +64,54 @@
     {
       "id": "22e66678-3bb4-4b3b-ae53-a45c539743eb",
       "type": "submit_application",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "3121be9d-b955-4db7-8c27-587f551b5957",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "fdaa9e88-d360-4d4e-8cdc-f3c972bbf001",
+      "type": "submit_application",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "1bdef8c8-5a77-489e-a209-189bd42df180",
+      "type": "notification_delivery",
+      "status": "dead_letter",
+      "attempts": 3
+    },
+    {
+      "id": "c06163fa-f1f0-48bd-bdb1-b0290c80b761",
+      "type": "notification_delivery",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "f3fe2aad-372c-474a-87a6-f15e85cbfc14",
+      "type": "notification_delivery",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "7750ca93-51cc-48c6-9afa-bcdcc8e0df2b",
+      "type": "coordinator_pipeline",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "4c8626c4-eb35-4fb9-9143-39320d20d9d0",
+      "type": "notification_delivery",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "0f93932d-8983-42a6-9235-5d349c2877c4",
+      "type": "notification_delivery",
       "status": "completed",
       "attempts": 1
     }
@@ -189,9 +237,60 @@
           "sha256": "2928202982f0653ef190a1d03d68954302f97c3d3c0b4273110dfcc621d138ca"
         }
       ]
+    },
+    {
+      "id": "b5842efc-7735-4be5-ac43-33fbd8255d47",
+      "status": "submitted",
+      "confirmation_ref": "DEMO2985",
+      "submitted_at": "2026-10-12T08:02:39.848621+00:00",
+      "portal_receipt": {
+        "submitted": true,
+        "confirmation_code": "DEMO2985"
+      },
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "bytes": 149,
+          "sha256": "09bd8a50ab425d257044fbf9196a3b7f927ec6de17afa59142fb875ed27ae5cf"
+        },
+        {
+          "name": "cv.pdf",
+          "bytes": 2075,
+          "sha256": "9894df46d3634d177509278132bfeddded817161b88ca99ce766acedf229ad59"
+        },
+        {
+          "name": "essay.txt",
+          "bytes": 281,
+          "sha256": "e734a40c291eb17a5ad220fc03968831fe4904d12238a4d2824c80e79a1dec94"
+        }
+      ]
+    },
+    {
+      "id": "9315b0fd-8264-4167-8782-de02b5be73f4",
+      "status": "needs_human",
+      "confirmation_ref": null,
+      "submitted_at": null,
+      "portal_receipt": null,
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "bytes": 120,
+          "sha256": "69868ff435a138cb10500ed19a4cde610d1dd312084b270c45924c2c47e5b1ca"
+        },
+        {
+          "name": "cv.pdf",
+          "bytes": 3094,
+          "sha256": "f451fc8be2fa4b9580464b2707add6f5a3d0c7622c33e5e9b62017ebd07a6462"
+        },
+        {
+          "name": "essay.txt",
+          "bytes": 2501,
+          "sha256": "2daa9ec33c7c287218a5ab4a01530bc13ea7c9c2c1cce9994d3a6c28910eaa47"
+        }
+      ]
     }
   ],
   "llm_drafting_enabled": true,
-  "live_public_research_enabled": false,
-  "scope": "Local fictional integration only; live paid model calls in agent mode; no real scholarship or external notification."
+  "public_research_snapshot_count": 16,
+  "scope": "Local fictional application integration and retained receipts. Public source observations and external notification delivery are reported separately; no real scholarship submission."
 }

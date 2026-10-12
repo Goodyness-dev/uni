@@ -15,6 +15,7 @@ pytest>=8.0.0
 neatlogs
 pypdf
 reportlab
+jinja2
 
 openai
 boto3

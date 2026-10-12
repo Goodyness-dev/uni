@@ -1,0 +1,31 @@
+{
+  "notification_jobs": [
+    {
+      "channel": "email",
+      "status": "completed",
+      "attempts": 1,
+      "result": {
+        "ok": true,
+        "reason": "provider_accepted",
+        "message_id": "011001a12fe2540f-11f534c4-51e4-4085-b2a9-d46c2a75ee47-000000"
+      }
+    },
+    {
+      "channel": "telegram",
+      "status": "completed",
+      "attempts": 1,
+      "result": {
+        "ok": true,
+        "reason": "provider_accepted"
+      }
+    }
+  ],
+  "cambridge_portal": {
+    "url": "https://apply.postgraduate.study.cam.ac.uk/applicant/login",
+    "blocker": "login",
+    "sha256": "78e6f4033f242fd9c9454074679b4ef2c1fd08859b253d7ad2a098dd462a0029",
+    "retrieved_at": "2026-10-12T11:33:57.005609+00:00",
+    "read_only": true
+  },
+  "external_submission": false
+}

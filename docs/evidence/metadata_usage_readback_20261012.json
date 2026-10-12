@@ -1,0 +1,23 @@
+{
+  "trace_id": "c7e7d9710989d719a034ed6195925c24",
+  "workflow": "scholarpilot",
+  "status": "success",
+  "span_count": 4,
+  "llm_calls": 1,
+  "total_tokens": 239,
+  "prompt_tokens": 206,
+  "completion_tokens": 33,
+  "total_cost": 0.00014429999999999998,
+  "has_error": false,
+  "provider_usage": [
+    {
+      "tokens_in": 206,
+      "tokens_out": 33,
+      "cost_usd": 0.000144,
+      "latency_seconds": 2.0846,
+      "fallback_used": false,
+      "model": "gemini-3.5-flash-lite"
+    }
+  ],
+  "scope": "Actual new metadata-only trace after fixing installed SDK token attribute names; historical missing usage is not backfilled."
+}

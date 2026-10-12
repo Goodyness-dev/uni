@@ -1,0 +1,26 @@
+{
+  "workflow_name": "scholarpilot",
+  "observed_at": "2026-10-12T11:55:03.168Z",
+  "readiness": "persisted_records_only",
+  "ingestion_complete": null,
+  "scope": "All persisted scholarpilot records in the UTC date window; not a single-run measurement. Recovered/error traces are retained.",
+  "metrics": {
+    "window": {
+      "from": "2026-10-12T00:00:00Z",
+      "to": "2026-10-13T00:00:00Z"
+    },
+    "trace_count": 32,
+    "error_count": 3,
+    "error_rate": 0.09375,
+    "error_rate_denominator": 32,
+    "latency_ms": {
+      "sample_count": 32,
+      "p50": 2428.5,
+      "p95": 47458.49999999999,
+      "p99": 97430.46000000008
+    },
+    "total_cost_usd": 0.0732042,
+    "total_tokens": 94361,
+    "last_record_updated_at": "2026-10-12T11:54:59.079Z"
+  }
+}

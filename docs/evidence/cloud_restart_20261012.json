@@ -1,0 +1,5 @@
+{
+  "Status": "Success",
+  "StandardOutputContent": "{\"status\":\"ready\",\"checks\":{\"database\":true,\"kill_switch\":true,\"broker\":true,\"schema\":true}}persistent-fictional-test\n{\"unchanged_applications_and_package_digests\": true, \"authoritative_receipts_match\": true, \"applications\": [{\"id\": \"e7315ffa-b64e-4024-85a3-a8a6d8500150\", \"status\": \"submitted\", \"confirmation_ref\": \"DEMO8273\"}]}\n",
+  "StandardErrorContent": " Container deploy-db-1  Restarting\n Container deploy-worker-1  Restarting\n Container deploy-redis-1  Restarting\n Container deploy-db-1  Started\n Container deploy-redis-1  Started\n Container deploy-worker-1  Started\n"
+}

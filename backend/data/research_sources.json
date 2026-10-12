@@ -36,7 +36,12 @@
     ],
     "allowed_hosts": [
       "www.rhodeshouse.ox.ac.uk",
-      "rhodeshouse.ox.ac.uk"
+      "rhodeshouse.ox.ac.uk",
+      "www.ox.ac.uk",
+      "ox.ac.uk"
+    ],
+    "university_urls": [
+      "https://www.ox.ac.uk/admissions/graduate/courses/msc-advanced-computer-science"
     ]
   },
   "real_gates_cambridge": {

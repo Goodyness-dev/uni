@@ -5,13 +5,15 @@ import traceback
 import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Any, Callable, Coroutine, Dict, Optional, List
+import redis.asyncio as aioredis
+from redis.exceptions import ConnectionError as RedisConnectionError, TimeoutError as RedisTimeoutError
 from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.logging import job_id_ctx, logger
 from app.db.base import AsyncSessionLocal
 from app.db.models import Job
-from app.core.tracing import recovery_decision
+from app.core.tracing import recovery_decision, log_event
 
 # Handler registry mapping job_type -> async handler function(job, payload, db_session)
 JobHandler = Callable[[Job, Dict[str, Any], Any], Coroutine[Any, Any, Dict[str, Any]]]
@@ -24,13 +26,24 @@ REDIS_DEAD_LETTER_KEY = "scholarpilot:jobs:dead_letter"
 _redis_client = None
 
 
-async def get_redis_client():
+async def get_redis_client() -> aioredis.Redis | None:
     """Lazily gets or connects to Redis client with graceful fallback."""
     global _redis_client
     if _redis_client is not None:
-        return _redis_client
+        cached = _redis_client
+        try:
+            await cached.ping()
+            return cached
+        except (RedisConnectionError, RedisTimeoutError):
+            if _redis_client is cached:
+                _redis_client = None
+            await cached.aclose()
+            with recovery_decision("broker_connection_closed", ["reconnect", "database_queue_fallback"]) as recovery:
+                recovery.decide("reconnect", "Discard stale Redis connections before executing commands.")
+                recovery.finish("reconnecting")
+            log_event("Broker reconnect", recovery="reconnect")
+            logger.warning("Stale Redis connection discarded; reconnecting without replaying a command.")
     try:
-        import redis.asyncio as aioredis
         client = aioredis.from_url(
             settings.REDIS_URL,
             socket_connect_timeout=1.0,
@@ -41,7 +54,7 @@ async def get_redis_client():
         _redis_client = client
         logger.info("Connected to the configured Redis broker.")
         return _redis_client
-    except Exception:
+    except (RedisConnectionError, RedisTimeoutError, OSError, ValueError):
         # Fall back gracefully to database-backed queue
         logger.warning("Redis connection unavailable; database queue fallback selected.")
         return None

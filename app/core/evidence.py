@@ -74,3 +74,11 @@ async def approved_facts(profile: Profile, session: AsyncSession) -> list[dict[s
         if digest == fact["digest"]:
             result.append(fact)
     return result
+
+
+async def assert_current_sources(profile: Profile | None, sources: list[dict[str, str]], session: AsyncSession) -> None:
+    """A persisted generated draft cannot outlive changed or erased source documents."""
+    current = {fact["id"]: fact["text"] for fact in await approved_facts(profile, session)} if profile else {}
+    for source in sources:
+        if source.get("kind") == "profile" and current.get(source["id"]) != source["text"]:
+            raise ValueError("Reviewed evidence changed; regenerate and verify the draft before continuing.")

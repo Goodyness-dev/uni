@@ -7,6 +7,7 @@ from typing import Callable, Dict, List
 from fastapi import HTTPException, Request, status
 from app.core.config import settings
 from app.jobs.queue import get_redis_client
+from redis.exceptions import ConnectionError as RedisConnectionError, TimeoutError as RedisTimeoutError
 
 WINDOW_SCRIPT = """
 redis.call('zremrangebyscore', KEYS[1], '-inf', ARGV[1])
@@ -71,8 +72,11 @@ def rate_limit_dependency(max_requests: int = 60, window_seconds: int = 60) -> C
             ip_hash = hashlib.sha256(address.encode()).hexdigest()
             allowed = True
             for bucket in {"credential:" + hashed, "address:" + ip_hash}:
-                accepted = await broker.eval(WINDOW_SCRIPT, 1, "scholarpilot:rate:" + bucket,
-                    now - window_seconds, max_requests, now, uuid.uuid4().hex, window_seconds)
+                try:
+                    accepted = await broker.eval(WINDOW_SCRIPT, 1, "scholarpilot:rate:" + bucket,
+                        now - window_seconds, max_requests, now, uuid.uuid4().hex, window_seconds)
+                except (RedisConnectionError, RedisTimeoutError):
+                    raise HTTPException(status_code=503, detail="Shared rate limiting is temporarily unavailable.")
                 allowed = allowed and bool(accepted)
         else:
             allowed = limiter.is_allowed(client_key)

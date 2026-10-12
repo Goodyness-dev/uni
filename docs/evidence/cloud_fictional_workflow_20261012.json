@@ -1,0 +1,282 @@
+{
+  "fictional": true,
+  "operator_fixture": true,
+  "onboarding_validated": false,
+  "run_status": "completed",
+  "applications": [
+    {
+      "id": "e7315ffa-b64e-4024-85a3-a8a6d8500150",
+      "status": "submitted",
+      "confirmation_ref": "DEMO8273",
+      "verification": {
+        "claims": [
+          {
+            "id": "s1",
+            "text": "I am Tobi Adeyemi, a Computer Engineering student at Fictional State University.",
+            "reason": "The text states Tobi Adeyemi studies BSc Computer Engineering at Fictional State University (FSU), Nigeria.",
+            "section": "essay",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_de914ec4c06b4fb7a74097b99af9e5db"
+            ],
+            "segment_index": 0,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s2",
+            "text": "During my embedded systems internship at BrightGrid Solar, I wrote data logging firmware for a solar sensor board and tested it on 12 sensor boards.",
+            "reason": "The text confirms Tobi Adeyemi was an Embedded Systems Intern at BrightGrid Solar where he wrote data logging firmware for a solar sensor board and tested it on 12 sensor boards.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_1ce54ebff42d4feaabd08cda4ff1eb87",
+              "F_a7611543e0894e6aa4548512eb78d04a",
+              "F_189d4509f6984d569d9751f426c8afbf"
+            ],
+            "segment_index": 1,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s3",
+            "text": "As my final year project, I developed SunTrack, a low-cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors, which I tested on 3 rooftop panels.",
+            "reason": "The text confirms SunTrack was a final year project, a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors, and was tested on 3 rooftop panels.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_5e64e59c0b5d4419be354fffb7b117c5",
+              "F_41a01a977543412684b2f7a1d4b781c1",
+              "F_36e4439cc8fd48ae959f7a416c89c68b"
+            ],
+            "segment_index": 2,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s4",
+            "text": "I also created the SunTrack dashboard, a Python web dashboard that shows panel output over time.",
+            "reason": "The text states he created the SunTrack dashboard, a Python web dashboard that shows panel output over time.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_be2b5ee4cc7c44e3880c90c34c806918"
+            ],
+            "segment_index": 3,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s5",
+            "text": "I organized the FSU campus hackathon with 120 participants.",
+            "reason": "The text states he organized the FSU campus hackathon with 120 participants.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_1332db41f74e4380a4fe6178b861a0f5"
+            ],
+            "segment_index": 4,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s6",
+            "text": "I earned a CGPA of 4.30 out of 5.00, achieving Second Class Upper honors and making the Dean's list for 2 sessions.",
+            "reason": "The text confirms a CGPA of 4.30 out of 5.00, Second Class Upper, and Dean's list for 2 sessions.",
+            "section": "cv_summary",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_e31521437cb649aaab7d217a7bed6eae",
+              "F_d5bea75af1d8438aa8533fda47dab01a"
+            ],
+            "segment_index": 5,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s7",
+            "text": "My technical skills include Python, C, SQL, Git, ESP32, and Arduino.",
+            "reason": "The text lists technical skills as Python, C, SQL, Git, ESP32, Arduino.",
+            "section": "cv_summary",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_d8b2d4b142134a19881fa8d9a61b9afd"
+            ],
+            "segment_index": 6,
+            "deterministic_pass": true
+          }
+        ],
+        "rounds": 3,
+        "initial_claims": [
+          {
+            "id": "s1",
+            "text": "I am Tobi Adeyemi, a Computer Engineering student at Fictional State University.",
+            "reason": "The source text states Tobi Adeyemi is studying BSc Computer Engineering at Fictional State University (FSU).",
+            "section": "essay",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_de914ec4c06b4fb7a74097b99af9e5db"
+            ],
+            "segment_index": 0,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s2",
+            "text": "Throughout my undergraduate studies, I have focused on building practical technology solutions.",
+            "reason": "The source transcript lists courses and grades, but does not state a focus on building practical technology solutions as a general summary of undergraduate studies.",
+            "section": "essay",
+            "verdict": "unsupported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": true,
+            "source_ids": [
+              "F_1acbffb44fe2420393d892b3f2ee9c0e"
+            ],
+            "segment_index": 1,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s3",
+            "text": "During my embedded systems internship at BrightGrid Solar, I wrote data logging firmware for a solar sensor board and tested it on 12 sensor boards.",
+            "reason": "The sources explicitly state Tobi was an Embedded Systems Intern at BrightGrid Solar for 5 months in 2024, wrote data logging firmware for a solar sensor board, and tested the firmware on 12 sensor boards.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_1ce54ebff42d4feaabd08cda4ff1eb87",
+              "F_a7611543e0894e6aa4548512eb78d04a",
+              "F_189d4509f6984d569d9751f426c8afbf"
+            ],
+            "segment_index": 2,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s4",
+            "text": "As my final year project, I developed SunTrack, a low-cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors, which I tested on 3 rooftop panels.",
+            "reason": "The sources confirm SunTrack is a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors, was a final year project, and was tested on 3 rooftop panels.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_5e64e59c0b5d4419be354fffb7b117c5",
+              "F_41a01a977543412684b2f7a1d4b781c1",
+              "F_36e4439cc8fd48ae959f7a416c89c68b"
+            ],
+            "segment_index": 3,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s5",
+            "text": "I also created the SunTrack dashboard, a Python web dashboard that shows panel output over time.",
+            "reason": "The source text mentions the SunTrack dashboard as a Python web dashboard that shows panel output over time.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_be2b5ee4cc7c44e3880c90c34c806918"
+            ],
+            "segment_index": 4,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s6",
+            "text": "I organized the FSU campus hackathon with 120 participants.",
+            "reason": "The source text states Tobi organized the FSU campus hackathon with 120 participants.",
+            "section": "cv_bullets",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_1332db41f74e4380a4fe6178b861a0f5"
+            ],
+            "segment_index": 5,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s7",
+            "text": "I earned a CGPA of 4.30 out of 5.00, achieving Second Class Upper honors and making the Dean's list for 2 sessions.",
+            "reason": "The sources explicitly state a CGPA of 4.30 out of 5.00, Second Class Upper, and Dean's list for 2 sessions.",
+            "section": "cv_summary",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_e31521437cb649aaab7d217a7bed6eae",
+              "F_d5bea75af1d8438aa8533fda47dab01a"
+            ],
+            "segment_index": 6,
+            "deterministic_pass": true
+          },
+          {
+            "id": "s8",
+            "text": "My technical skills include Python, C, SQL, Git, ESP32, and Arduino.",
+            "reason": "The source text explicitly lists technical skills as Python, C, SQL, Git, ESP32, Arduino.",
+            "section": "cv_summary",
+            "verdict": "supported",
+            "llm_pass": true,
+            "challenged": true,
+            "overturned": false,
+            "source_ids": [
+              "F_d8b2d4b142134a19881fa8d9a61b9afd"
+            ],
+            "segment_index": 7,
+            "deterministic_pass": true
+          }
+        ],
+        "removed_claims": [],
+        "overturned_claims": [
+          {
+            "text": "Throughout my undergraduate studies, I have focused on building practical technology solutions.",
+            "reason": "The source transcript lists courses and grades, but does not state a focus on building practical technology solutions as a general summary of undergraduate studies."
+          }
+        ],
+        "unsupported_final": 0,
+        "unsupported_before": 1
+      },
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "sha256": "dde8110434bf5547cb0a6bd8405e0a565007a7654dbb7a98a8bfbc3640986cd2",
+          "bytes": 146
+        },
+        {
+          "name": "cv.pdf",
+          "sha256": "7b265ab91e4daa7b9c5bdea3cc2bff7024549471b8e90cb148b2e1bdf14f25db",
+          "bytes": 1941
+        },
+        {
+          "name": "essay.txt",
+          "sha256": "8d8dda4365f66958ac8219bba64c23246ddf9334a14dd813155edf4036e61991",
+          "bytes": 80
+        }
+      ],
+      "trace_url": "https://app.neatlogs.com/traces/66f2fa1b3781c4b715993826daa51884"
+    }
+  ]
+}

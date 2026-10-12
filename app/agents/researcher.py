@@ -84,7 +84,7 @@ async def run_researcher(scholarship_id: uuid.UUID, session: AsyncSession,
             pages = [{**page, "from_cache": False}]
     elif enabled:
         config = source_config(scholarship)
-        urls = config.get("urls", [url])
+        urls = config.get("urls", [url]) + config.get("university_urls", [])
         hosts = set(config.get("allowed_hosts", [urlsplit(url).hostname]))
         pages = await crawl_sources(urls, hosts, session, force=force)
     else:

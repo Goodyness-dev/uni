@@ -58,6 +58,7 @@ RUN python -m playwright install --with-deps chromium
 # Copy application code
 COPY app/ /app/app/
 COPY scripts/ /app/scripts/
+COPY deploy/cloud_fixture.py /app/scripts/cloud_fixture.py
 COPY backend/data/listings.json /app/backend/data/listings.json
 COPY backend/app/ /app/backend/app/
 COPY backend/data/synthetic/ /app/backend/data/synthetic/

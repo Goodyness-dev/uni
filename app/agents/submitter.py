@@ -14,6 +14,7 @@ from app.integrations.demo_portal import prepare_draft
 from app.core.logging import logger
 from app.core.security import decrypt_credential
 from app.db.models import Application, ApplicationEvent, Draft, Job, Profile, Scholarship, User
+from app.core.evidence import assert_current_sources
 from app.integrations.browser_runner import BrowserSubmissionResult, submit_portal
 from app.jobs.queue import register_job_handler
 from app.jobs.state_machine import IllegalStateTransitionError, KillSwitchActiveError, transition_application
@@ -156,6 +157,12 @@ async def _run_submitter(
     if not draft or not draft.content.strip():
         raise ValueError("A nonempty supported draft is required before submission.")
     draft_content = draft.content
+    audit = (await session.execute(select(ApplicationEvent).where(ApplicationEvent.application_id == application.id,
+        ApplicationEvent.event_type == "verification_report").order_by(ApplicationEvent.created_at.desc()))).scalars().first()
+    if settings.LLM_DRAFTING and (not audit or audit.payload.get("report", {}).get("unsupported_final") != 0):
+        raise ValueError("Generated submission requires a successful persisted source verification.")
+    if audit:
+        await assert_current_sources(profile, audit.payload.get("sources", []), session)
 
     # Look for saved storage_state_path if resuming
     storage_state_path = None

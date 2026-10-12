@@ -420,7 +420,8 @@ export async function withdrawApplication(id: string): Promise<void> { await req
 export interface NotificationSettings { notification_email: string | null; telegram_chat_id: string | null; email_notifications: boolean; telegram_notifications: boolean; email_ready: boolean; telegram_ready: boolean }
 export async function getNotificationSettings(): Promise<NotificationSettings> { return request("/v1/settings"); }
 export async function saveNotificationSettings(value: Pick<NotificationSettings, "notification_email" | "telegram_chat_id" | "email_notifications" | "telegram_notifications">): Promise<void> { await request("/v1/settings", { method: "PUT", body: JSON.stringify(value) }); }
-export async function testNotification(channel: "email" | "telegram"): Promise<void> { await request("/v1/settings/test-notification", { method: "POST", body: JSON.stringify({ channel }) }); }
+export async function testNotification(channel: "email" | "telegram"): Promise<{job_id: string}> { return request("/v1/settings/test-notification", { method: "POST", body: JSON.stringify({ channel }) }); }
+export async function getNotificationTest(id: string): Promise<{status: string; provider_accepted: boolean; reason: string}> { return request(`/v1/settings/test-notification/${encodeURIComponent(id)}`); }
 
 export async function beginVerifiedSignIn(): Promise<void> {
   const value = await request<{ url: string; state: string }>("/v1/auth/authorize");

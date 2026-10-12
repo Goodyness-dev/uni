@@ -1,16 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getNotificationSettings, saveNotificationSettings, testNotification, NotificationSettings } from "@/lib/api";
+import { getNotificationSettings, saveNotificationSettings, testNotification, getNotificationTest, NotificationSettings } from "@/lib/api";
 export function NotificationControls() {
   const [value, setValue] = useState<NotificationSettings | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [testId, setTestId] = useState<string | null>(null);
   useEffect(() => { let mounted = true; getNotificationSettings().then(v => { if (mounted) setValue(v); }).catch(err => { if (mounted) setMessage(err instanceof Error ? err.message : "Settings unavailable."); }); return () => { mounted = false; }; }, []);
+  useEffect(() => {
+    if (!testId) return;
+    let mounted = true;
+    const timer = setInterval(() => { void getNotificationTest(testId).then(result => {
+      if (!mounted) return;
+      if (["completed", "dead_letter", "failed"].includes(result.status)) {
+        setMessage(result.provider_accepted ? "Provider accepted the test message. Check your inbox or Telegram." : "Test delivery failed. Check the destination and provider configuration.");
+        setTestId(null);
+      }
+    }).catch(err => { if (mounted) { setMessage(err instanceof Error ? err.message : "Delivery status unavailable."); setTestId(null); } }); }, 2000);
+    return () => { mounted = false; clearInterval(timer); };
+  }, [testId]);
   const perform = async (channel?: "email" | "telegram") => {
     if (!value) return;
     setBusy(true); setMessage("");
     try { await saveNotificationSettings({ notification_email: value.notification_email || null, telegram_chat_id: value.telegram_chat_id || null, email_notifications: value.email_notifications, telegram_notifications: value.telegram_notifications });
-      if (channel) await testNotification(channel);
+      if (channel) { const test = await testNotification(channel); setTestId(test.job_id); }
       setMessage(channel ? "Test queued. Delivery requires provider acceptance; queueing alone is not delivery." : "Notification preferences saved.");
     } catch (err) { setMessage(err instanceof Error ? err.message : "Could not save settings."); }
     finally { setBusy(false); }

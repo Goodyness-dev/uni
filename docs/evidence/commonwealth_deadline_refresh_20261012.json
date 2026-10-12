@@ -1,0 +1,38 @@
+{
+  "deadline": "2026-10-20T15:00:00+00:00",
+  "ambiguous": false,
+  "candidates": [
+    "2026-10-20T15:00:00+00:00"
+  ],
+  "year_hint_used": true,
+  "state": "open",
+  "ai_policy": "unknown",
+  "source_count": 4,
+  "observed_at": "2026-10-12T11:38:52.606144+00:00",
+  "sources": [
+    {
+      "url": "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/",
+      "sha256": "c3488dc008ec4072fdfddd80e66c673050c6e904988c1d6ed9cf719a862657d7",
+      "retrieved_at": "2026-10-12T11:15:06.396547+00:00",
+      "blocker": null
+    },
+    {
+      "url": "https://cscuk.fcdo.gov.uk/commonwealth-scholarships-frequently-asked-questions/",
+      "sha256": "450c116d46ec417ccd1df68f46e0f77475d6f4b4487ad72a23c65421ff5c3faa",
+      "retrieved_at": "2026-10-12T11:15:07.829654+00:00",
+      "blocker": null
+    },
+    {
+      "url": "https://cscuk.fcdo.gov.uk/about-us/scholarships-and-fellowships/",
+      "sha256": "0ea8435480cb8a1c9a8977ac7decf331867e1b7a0f91e46a70a8fa3e599c8401",
+      "retrieved_at": "2026-10-12T11:15:09.165766+00:00",
+      "blocker": null
+    },
+    {
+      "url": "https://cscuk.fcdo.gov.uk/scholarships-filter-search/",
+      "sha256": "b6f34272ce8b91d2ec4401cc45343dbd5c1d8be91ebf742ce8feab608d41eb6c",
+      "retrieved_at": "2026-10-12T11:15:10.608128+00:00",
+      "blocker": null
+    }
+  ]
+}

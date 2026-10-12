@@ -1,0 +1,27 @@
+{
+  "trace_id": "66f2fa1b3781c4b715993826daa51884",
+  "name": "coordinator_pipeline",
+  "workflow": "scholarpilot",
+  "status": "success",
+  "finalization_status": "finalized",
+  "latency_ms": 23194,
+  "span_count": 109,
+  "span_payload_complete": true,
+  "span_tree_complete": true,
+  "verification_ready": true,
+  "returned_span_count": 50,
+  "llm_calls": 14,
+  "tool_calls": 59,
+  "retrieval_calls": 0,
+  "has_error": false,
+  "error_count": 0,
+  "total_tokens": 0,
+  "prompt_tokens": 0,
+  "completion_tokens": 0,
+  "total_cost": 0,
+  "privacy_check": {
+    "fictional_applicant_name_present": false,
+    "fictional_employer_present": false,
+    "scope": "Sentinel checks in actual metadata-only Neatlogs readback, not a general privacy certification."
+  }
+}

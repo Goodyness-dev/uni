@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import pytest
+import httpx
+from fastapi import HTTPException
 from sqlalchemy import select
 from app.agents.verifier import deterministic_check
 from app.agents.planner import adaptive_actions
@@ -13,6 +15,7 @@ from app.services import public_pages, notifications
 from app.services.discovery import deadline_observation, observe_pages
 from app.core.config import settings
 from backend.app.tracing import metadata_mask
+from app.jobs.queue import get_redis_client as actual_broker_client
 
 CASES = json.loads((Path(__file__).parent / "fixtures/factuality_cases.json").read_text())["cases"]
 
@@ -86,6 +89,16 @@ def test_mask_preserves_usage_without_applicant_prompt():
     assert not masked["events"]
 
 
+def test_mask_preserves_installed_sdk_token_attribute_names():
+    payload = {"attributes": {"neatlogs.llm.token_count.prompt": 13, "neatlogs.llm.token_count.completion": 7,
+        "neatlogs.llm.token_count.total": 20, "neatlogs.llm.model": "fictional-model",
+        "neatlogs.llm.input": "private input", "neatlogs.llm.output": "private output"}}
+    attributes = metadata_mask(payload)["attributes"]
+    assert attributes["neatlogs.llm.token_count.total"] == 20
+    assert attributes["neatlogs.llm.model"] == "fictional-model"
+    assert "neatlogs.llm.input" not in attributes and "neatlogs.llm.output" not in attributes
+
+
 def test_empty_claim_is_rejected():
     assert not deterministic_check("", ["A fictional source fact."])
 
@@ -143,3 +156,77 @@ def test_release_archive_excludes_private_and_generated_files(tmp_path):
         for name in archive.getnames():
             assert "node_modules/" not in name and "storage/" not in name
             assert not any(part.startswith(".env") for part in name.split("/"))
+
+
+def test_oidc_pkce_nonce_and_one_time_state(monkeypatch, offline_services):
+    import base64
+    from urllib.parse import urlsplit, parse_qs
+    from app.api.v1 import onboarding
+    monkeypatch.setattr(settings, "OIDC_AUTHORIZATION_URL", "https://identity.example.test/authorize")
+    monkeypatch.setattr(settings, "OIDC_TOKEN_URL", "https://identity.example.test/token")
+    monkeypatch.setattr(settings, "OIDC_AUDIENCE", "fictional-client")
+    payload = base64.urlsafe_b64encode(json.dumps({"nonce": "wrong-nonce", "email": "fictional@example.test"}).encode()).decode().rstrip("=")
+    token = "fictional-header." + payload + ".fictional-signature"
+    original_client = httpx.AsyncClient
+    def client(**kwargs):
+        return original_client(transport=httpx.MockTransport(lambda request: httpx.Response(200, json={"id_token": token})), **kwargs)
+    monkeypatch.setattr(onboarding.httpx, "AsyncClient", client)
+    async def run():
+        result = await onboarding.authorize()
+        query = parse_qs(urlsplit(result["url"]).query)
+        assert query["code_challenge_method"] == ["S256"]
+        saved = json.loads(await offline_services.get("scholarpilot:oidc:" + result["state"]))
+        assert saved["verifier"] not in result["url"]
+        with pytest.raises(HTTPException) as rejected:
+            await onboarding.callback(onboarding.Callback(state=result["state"], code="fictional-code"), None)
+        assert rejected.value.status_code == 401
+        assert await offline_services.get("scholarpilot:oidc:" + result["state"]) is None
+        with pytest.raises(HTTPException, match="already used"):
+            await onboarding.callback(onboarding.Callback(state=result["state"], code="fictional-code"), None)
+    asyncio.run(run())
+
+
+def test_official_redirect_cannot_fetch_private_destination(monkeypatch):
+    from app.core import public_fetch
+    calls = []
+    async def resolve(host, port):
+        return "8.8.8.8"
+    def response(request):
+        calls.append(str(request.url))
+        return httpx.Response(307, headers={"location": "http://127.0.0.1/private"})
+    original_client = httpx.AsyncClient
+    def client(**kwargs):
+        return original_client(transport=httpx.MockTransport(response), **kwargs)
+    monkeypatch.setattr(public_fetch, "resolve_public", resolve)
+    monkeypatch.setattr(public_fetch.httpx, "AsyncClient", client)
+    with pytest.raises(ValueError, match="HTTPS"):
+        asyncio.run(public_fetch.fetch_public_text("https://official.example.test/page", {"official.example.test"}, 2))
+    assert len(calls) == 1
+
+
+def test_generated_sources_must_still_match_reviewed_documents(monkeypatch):
+    from app.core import evidence
+    async def reviewed(profile, session):
+        return [{"id": "fictional-fact", "text": "A changed fictional fact."}]
+    monkeypatch.setattr(evidence, "approved_facts", reviewed)
+    with pytest.raises(ValueError, match="evidence changed"):
+        asyncio.run(evidence.assert_current_sources(object(), [{"id": "fictional-fact", "text": "An old fictional fact.", "kind": "profile"}], None))
+
+
+def test_stale_redis_connection_is_replaced_without_replaying_writes(monkeypatch):
+    from app.jobs import queue
+    from redis.exceptions import ConnectionError
+    calls = []
+    class Stale:
+        async def ping(self):
+            raise ConnectionError("Fictional stale connection.")
+        async def aclose(self):
+            calls.append("old_closed")
+    class Healthy:
+        async def ping(self):
+            calls.append("fresh_ping")
+    healthy = Healthy()
+    monkeypatch.setattr(queue, "_redis_client", Stale())
+    monkeypatch.setattr(queue.aioredis, "from_url", lambda *args, **kwargs: healthy)
+    assert asyncio.run(actual_broker_client()) is healthy
+    assert calls == ["old_closed", "fresh_ping"]

@@ -1,11 +1,12 @@
 """User settings management endpoints."""
 from typing import Annotated, Literal, Optional
+import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.db.base import get_db_session
-from app.db.models import User, Profile
+from app.db.models import User, Profile, Job
 from sqlalchemy import select
 from app.jobs.queue import enqueue_job
 from app.core.config import settings
@@ -105,3 +106,14 @@ async def test_notification(payload: NotificationTest, user: Annotated[User, Dep
     job = await enqueue_job("notification_delivery", {"user_id": str(user.id), "channel": payload.channel,
         "recipient": recipient, "body": "ScholarPilot connection test. Notification delivery is configured; no applicant documents are included."}, session=db)
     return {"job_id": str(job.id), "status": "queued"}
+
+
+@router.get("/test-notification/{job_id}")
+async def notification_status(job_id: uuid.UUID, user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db_session)]) -> dict[str, str | bool]:
+    job = await db.get(Job, job_id)
+    if not job or job.type != "notification_delivery" or job.payload.get("user_id") != str(user.id):
+        raise HTTPException(status_code=404, detail="Notification test not found.")
+    result = job.payload.get("delivery_result", {})
+    return {"status": job.status, "provider_accepted": result.get("ok") is True,
+        "reason": result.get("reason", "delivery_failed" if job.status == "dead_letter" else "pending")}
