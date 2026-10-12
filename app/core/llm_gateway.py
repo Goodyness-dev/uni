@@ -10,12 +10,21 @@ from pydantic import BaseModel
 from app.core.config import settings
 from app.core.logging import logger
 from app.core.budget import reserve_budget, settle_budget
-from app.core.tracing import tool_span
+from app.core.tracing import tool_span, recovery_decision, current_application_id
+from app.db.base import AsyncSessionLocal
+from app.db.models import ApplicationEvent
+from uuid import UUID
+from backend.app.llm import provider_completion
 
 T = TypeVar("T", bound=BaseModel)
 
 # Model pricing table per 1M tokens (USD)
 MODEL_PRICING: Dict[str, Dict[str, float]] = {
+    "gemini-3.5-flash-lite": {"input": 0.30, "output": 2.50},
+    "gemini-3.1-flash-lite": {"input": 0.25, "output": 1.50},
+    "gemini-3-flash-preview": {"input": 0.50, "output": 3.00},
+    "gemini-2.5-flash": {"input": 0.30, "output": 2.50},
+    "gemini-2.5-flash-lite": {"input": 0.10, "output": 0.40},
     "gemini-2.0-flash": {"input": 0.10, "output": 0.40},
     "gemini-1.5-flash": {"input": 0.075, "output": 0.30},
     "claude-3-5-sonnet-20241022": {"input": 3.00, "output": 15.00},
@@ -173,7 +182,12 @@ async def call_llm(
             (settings.CLAUDE_MODEL, settings.ANTHROPIC_API_KEY or settings.FALLBACK_API_KEY, "claude", True),
         ]
 
+    if settings.AGENT_ENABLED:
+        models_to_try = [(settings.GEMINI_MODEL, settings.GEMINI_API_KEY or settings.PRIMARY_API_KEY, "gemini", False),
+            (settings.AGENT_FALLBACK_MODEL, settings.GEMINI_API_KEY or settings.PRIMARY_API_KEY, "gemini_backup", True)]
     last_error: Optional[Exception] = None
+    total_in, total_out, total_cost = 0, 0, 0.0
+    gateway_started = time.perf_counter()
 
     for model_name, api_key, provider_type, is_fallback in models_to_try:
         # Check provider circuit breaker
@@ -183,7 +197,7 @@ async def call_llm(
 
         # Check spending limits before executing
         est_cost = calculate_cost(model_name, 1000, 500)
-        if settings.ENVIRONMENT != "production":
+        if settings.ENVIRONMENT != "production" and not settings.AGENT_ENABLED:
             spend_tracker.check_and_record(user_id, est_cost)
 
         start_time = time.perf_counter()
@@ -191,7 +205,7 @@ async def call_llm(
             reservation = None
             billed_cost = None
             try:
-                if settings.ENVIRONMENT == "production":
+                if settings.ENVIRONMENT == "production" or settings.AGENT_ENABLED:
                     if not api_key or model_name.lower() not in MODEL_PRICING:
                         raise ValueError("Production model requires a real key and configured model pricing.")
                     input_bound = len((system_prompt + user_prompt).encode("utf-8")) + 2048
@@ -199,6 +213,13 @@ async def call_llm(
                 # If no real API key configured in dev/test, generate deterministic fallback structure
                 if not api_key:
                     raise ValueError("No provider key configured; use an explicit mock_response in tests.")
+                elif settings.AGENT_ENABLED and provider_type.startswith("gemini"):
+                    res_json = await provider_completion(api_key, settings.GEMINI_BASE_URL, model_name,
+                        [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+                        temperature, settings.NEATLOGS_CAPTURE_CONTENT, settings.LLM_TIMEOUT_SECONDS)
+                    raw_content = res_json["choices"][0]["message"]["content"]
+                    usage = res_json.get("usage") or {}
+                    in_tokens, out_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
                 elif provider_type == "claude" or "claude" in model_name.lower():
                     # Anthropic Claude Messages API
                     endpoint = f"{settings.CLAUDE_BASE_URL.rstrip('/')}/messages"
@@ -224,8 +245,8 @@ async def call_llm(
                         res_json = resp.json()
                         raw_content = res_json["content"][0]["text"]
                         usage = res_json.get("usage", {})
-                        in_tokens = usage.get("input_tokens", 250)
-                        out_tokens = usage.get("output_tokens", 100)
+                        in_tokens = usage.get("input_tokens")
+                        out_tokens = usage.get("output_tokens")
                 else:
                     # Gemini via OpenAI-compatible endpoint
                     endpoint = f"{settings.GEMINI_BASE_URL.rstrip('/')}/chat/completions"
@@ -251,10 +272,15 @@ async def call_llm(
                         res_json = resp.json()
                         raw_content = res_json["choices"][0]["message"]["content"]
                         usage = res_json.get("usage", {})
-                        in_tokens = usage.get("prompt_tokens", 250)
-                        out_tokens = usage.get("completion_tokens", 100)
+                        in_tokens = usage.get("prompt_tokens")
+                        out_tokens = usage.get("completion_tokens")
 
+                if type(in_tokens) is not int or type(out_tokens) is not int or min(in_tokens, out_tokens) < 0:
+                    raise ValueError("Provider usage is missing; reservation remains charged, no metrics are invented.")
                 billed_cost = calculate_cost(model_name, in_tokens, out_tokens)
+                total_in += in_tokens
+                total_out += out_tokens
+                total_cost += billed_cost
                 if reservation:
                     await settle_budget(reservation, billed_cost)
                     reservation = None
@@ -267,13 +293,13 @@ async def call_llm(
                         if attempt < settings.LLM_MAX_RETRIES:
                             logger.warning("Provider schema validation failed; output excluded from logs.")
                             continue
-                        raise LLMValidationError(f"Model output failed schema validation twice: {ve}")
+                        raise LLMValidationError("Model output failed schema validation; content excluded.") from None
 
                 latency = round(time.perf_counter() - start_time, 4)
                 actual_cost = calculate_cost(model_name, in_tokens, out_tokens)
 
                 # Reconcile spend and report circuit breaker success
-                if settings.ENVIRONMENT != "production":
+                if settings.ENVIRONMENT != "production" and not settings.AGENT_ENABLED:
                     spend_tracker.reconcile(user_id, est_cost, actual_cost)
                 circuit_breaker.record_success(provider_type)
 
@@ -281,25 +307,38 @@ async def call_llm(
                     content=raw_content,
                     parsed=parsed_data,
                     model_used=model_name,
-                    input_tokens=in_tokens,
-                    output_tokens=out_tokens,
-                    cost_usd=actual_cost,
-                    latency_seconds=latency,
+                    input_tokens=total_in,
+                    output_tokens=total_out,
+                    cost_usd=round(total_cost, 6),
+                    latency_seconds=round(time.perf_counter() - gateway_started, 4),
                     fallback_used=is_fallback,
                 )
 
             except (httpx.HTTPStatusError, httpx.RequestError, Exception) as err:
                 last_error = err
                 logger.warning("Provider call failed; prompt and response excluded from logs.")
+                if settings.AGENT_ENABLED:
+                    chosen = "retry" if attempt < settings.LLM_MAX_RETRIES else "fallback_model" if not is_fallback else "stop"
+                    reason = f"{model_name} failed with {type(err).__name__} on attempt {attempt + 1}; {chosen}."
+                    with recovery_decision("provider_failure", ["retry", "fallback_model", "stop"]) as recovery:
+                        recovery.decide(chosen, reason)
+                        recovery.finish("requested")
+                    application_id = current_application_id()
+                    if application_id:
+                        async with AsyncSessionLocal() as event_session:
+                            event_session.add(ApplicationEvent(application_id=UUID(application_id), actor="coordinator",
+                                event_type="recovery_decision", payload={"trigger": "provider_failure", "chosen": chosen,
+                                "reason": reason, "outcome": "requested", "options": ["retry", "fallback_model", "stop"]}))
+                            await event_session.commit()
                 if attempt < settings.LLM_MAX_RETRIES:
                     await asyncio.sleep(0.2 * (2 ** attempt))
                 else:
                     # Refund estimated cost and trip circuit breaker on final attempt failure
-                    if settings.ENVIRONMENT != "production":
+                    if settings.ENVIRONMENT != "production" and not settings.AGENT_ENABLED:
                         spend_tracker.reconcile(user_id, est_cost, 0.0)
                     circuit_breaker.record_failure(provider_type)
 
-    raise RuntimeError("All model providers failed; no generated output is available.") from last_error
+    raise RuntimeError("All model providers failed; no generated output is available.") from None
 
 
 def set_active_llm_provider(provider: str) -> None:

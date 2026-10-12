@@ -18,9 +18,19 @@ export function TimelineSection({
   loading = false,
 }: TimelineSectionProps) {
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
+  const traced = timeline.some(event => event.type === "neatlogs_trace");
+  const usage = timeline.flatMap(event => event.type === "agent_decision" && Array.isArray(event.data.usage)
+    ? event.data.usage : event.type === "model_usage" && Array.isArray(event.data.calls) ? event.data.calls : []) as { tokens_in?: number; tokens_out?: number; cost_usd?: number }[];
+  const tokens = usage.reduce((total, call) => total + (call.tokens_in ?? 0) + (call.tokens_out ?? 0), 0);
+  const estimatedCost = usage.reduce((total, call) => total + (call.cost_usd ?? 0), 0);
 
   return (
     <div className="p-4 rounded-xl bg-[#181A20] border border-[#262932] flex flex-col gap-4">
+      {traced && <div className="rounded-lg border border-[#7AA2FF]/40 p-3 text-xs text-[#ECEDF0]">
+        <p className="font-semibold text-[#7AA2FF]">Neatlogs · Agent decisions, tools and verification</p>
+        <p className="mt-1">{usage.length} completed model operations · {tokens.toLocaleString()} reported tokens · ${estimatedCost.toFixed(4)} estimated model cost</p>
+        <p className="mt-1 text-[#9AA0AE]">Open Neatlogs above for the span tree, detections, Analytics and Session Replay. Export status is verified in the dashboard.</p>
+      </div>}
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-[#262932]">
         <div>

@@ -1,4 +1,5 @@
 "use client";
+import { useV1 } from "@/lib/v1";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
@@ -60,7 +61,7 @@ function getStageFromStatus(status: AppStatus): number {
 export default function MatchesPage() {
   const [run, setRun] = useState<Run | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
-  const [, setApplications] = useState<ApplicationSummary[]>([]);
+  const [applications, setApplications] = useState<ApplicationSummary[]>([]);
   const [events, setEvents] = useState<AppEvent[]>([]);
   const [gaps, setGaps] = useState<Gap[]>([]);
 
@@ -253,7 +254,8 @@ export default function MatchesPage() {
   const eligibleMatches = matches.filter((m) => m.status !== "skipped");
   const ineligibleMatches = matches.filter((m) => m.status === "skipped");
 
-  const isCompleted = run?.status === "completed";
+  const batchComplete = run?.status === "completed";
+  const isCompleted = batchComplete && (!useV1 || (applications.length > 0 && applications.every(application => ["submitted", "prepared", "failed", "skipped"].includes(application.status))));
   const isFailed = run?.status === "failed";
   const isInterrupted = run?.status === "interrupted";
   const isRunning = run?.status === "running";
@@ -393,7 +395,7 @@ export default function MatchesPage() {
                 <span className="text-[#49e095]">Pipeline complete</span>
               </>
             ) : (
-              <span className="text-[#626877]">Status: {run?.status}</span>
+              <span className="text-[#626877]">{useV1 && batchComplete ? "Preparation complete; review pending" : `Status: ${run?.status ?? "unknown"}`}</span>
             )}
           </div>
         </div>

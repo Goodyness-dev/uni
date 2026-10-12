@@ -1,0 +1,68 @@
+[
+  {
+    "name": "ScholarPilot blocked verification",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"id\":\"67fb2dfd-fe2d-4709-a8c3-041f9afd6e00\",\"slug\":\"custom_conditional_htWt9RAfB7\",\"display_name\":\"ScholarPilot blocked verification\",\"group_name\":\"Negative\",\"type\":\"conditional\",\"backfill_status\":\"pending\",\"message\":\"Detection created. A 14-day backfill is running to score recent traces; it will appear scoring in the dashboard shortly.\"}"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScholarPilot high model context",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"id\":\"67d6f608-1410-429f-935c-6806cc9c5003\",\"slug\":\"custom_conditional_Ob63XayW-D\",\"display_name\":\"ScholarPilot high model context\",\"group_name\":\"Neutral\",\"type\":\"conditional\",\"backfill_status\":\"pending\",\"message\":\"Detection created. A 14-day backfill is running to score recent traces; it will appear scoring in the dashboard shortly.\"}"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScholarPilot wording needs review",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"id\":\"1f877449-f4a3-40d5-bb94-4f3569639138\",\"slug\":\"custom_regex_sYXhmHAVCO\",\"display_name\":\"ScholarPilot wording needs review\",\"group_name\":\"Negative\",\"type\":\"regex\",\"backfill_status\":\"pending\",\"message\":\"Detection created. A 14-day backfill is running to score recent traces; it will appear scoring in the dashboard shortly.\"}"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScholarPilot injection text",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"id\":\"5d841211-0ee1-4f48-89cc-f9b5a7ddad64\",\"slug\":\"custom_regex_s5VFmfyGz6\",\"display_name\":\"ScholarPilot injection text\",\"group_name\":\"Negative\",\"type\":\"regex\",\"backfill_status\":\"pending\",\"message\":\"Detection created. A 14-day backfill is running to score recent traces; it will appear scoring in the dashboard shortly.\"}"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScholarPilot recovery observed",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"id\":\"91e37aa2-a783-47b0-ad0e-e5f3d661a06a\",\"slug\":\"custom_conditional_Tny1K-XX-8\",\"display_name\":\"ScholarPilot recovery observed\",\"group_name\":\"Neutral\",\"type\":\"conditional\",\"backfill_status\":\"pending\",\"message\":\"Detection created. A 14-day backfill is running to score recent traces; it will appear scoring in the dashboard shortly.\"}"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ScholarPilot model spend review",
+    "response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"id\":\"fe9ef4de-ba9c-4bf2-9ac8-31a0216ee16b\",\"slug\":\"custom_conditional_3KppJgHU9m\",\"display_name\":\"ScholarPilot model spend review\",\"group_name\":\"Neutral\",\"type\":\"conditional\",\"backfill_status\":\"pending\",\"message\":\"Detection created. A 14-day backfill is running to score recent traces; it will appear scoring in the dashboard shortly.\"}"
+        }
+      ]
+    }
+  }
+]

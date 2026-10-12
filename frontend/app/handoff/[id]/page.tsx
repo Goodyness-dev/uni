@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -21,6 +21,10 @@ import { ErrorBanner } from "@/components/ErrorBanner";
 type HandoffState = "waiting" | "checking" | "success" | "check_failed" | "not_needed";
 
 export default function HandoffPage() {
+  return <Suspense fallback={<div className="p-6 text-sm">Loading handoff...</div>}><HandoffContent /></Suspense>;
+}
+
+function HandoffContent() {
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
 
@@ -149,6 +153,7 @@ export default function HandoffPage() {
   const scholarshipName = application?.listing?.name || "Scholarship Portal";
   const portalUrl = application?.handoff?.portal_url || "#";
   const unsupportedFinal = application?.verification?.unsupported_final ?? 0;
+  const externalPortal = portalUrl.startsWith("https://");
 
   return (
     <div className="min-h-screen bg-[#0d0e11] text-[#ECEDF0] flex flex-col font-sans">
@@ -303,7 +308,7 @@ export default function HandoffPage() {
 
             {/* Explanation card */}
             <div className="p-4 rounded-xl bg-[#181A20] border border-[#262932] text-xs leading-relaxed text-[#ECEDF0]">
-              The portal for <strong className="text-[#ECEDF0]">{scholarshipName}</strong> is asking you to solve a CAPTCHA. For your safety and the portal&apos;s rules, only you can do that. Everything else is already filled in.
+              {externalPortal ? application.handoff?.instructions || "Complete the official application yourself using genuine documents. ScholarPilot has not filled or submitted this portal." : "The demo portal needs your verification. Open its prepared draft and complete the required step."}
             </div>
 
             {/* 3 Step Guide */}
@@ -319,7 +324,7 @@ export default function HandoffPage() {
                   </span>
                 </div>
                 <p className="text-xs text-[#9AA0AE] pl-8">
-                  Your prepared CV summary, essay, and responses are pre-filled in the portal draft.
+                  {externalPortal ? "Download your source notes below, then open the official portal. No external form has been filled." : "Your prepared responses are available in the demo portal draft."}
                 </p>
                 <div className="pl-8 pt-1">
                   <a
@@ -328,7 +333,7 @@ export default function HandoffPage() {
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#262932] hover:bg-[#353945] border border-[#353945] text-xs font-semibold text-[#ECEDF0] transition-colors w-full sm:w-auto justify-center"
                   >
-                    <span>Open portal draft</span>
+                    <span>{externalPortal ? "Open official portal" : "Open portal draft"}</span>
                     <ExternalLink className="w-3.5 h-3.5 text-[#5b8cff]" />
                   </a>
                 </div>
@@ -341,11 +346,11 @@ export default function HandoffPage() {
                     2
                   </span>
                   <span className="text-sm font-semibold text-[#ECEDF0]">
-                    Solve the CAPTCHA and press Submit on that page
+                    {externalPortal ? "Follow the portal’s applicant instructions" : "Complete verification on the demo portal"}
                   </span>
                 </div>
                 <p className="text-xs text-[#9AA0AE] pl-8">
-                  Complete the verification challenge at the bottom of the portal and confirm submission.
+                  {externalPortal ? "Only submit your own truthful application. Login and verification remain under your control." : "Complete the required challenge and confirm your demo submission."}
                 </p>
               </div>
 
@@ -356,11 +361,11 @@ export default function HandoffPage() {
                     3
                   </span>
                   <span className="text-sm font-semibold text-[#ECEDF0]">
-                    Come back and tap Done
+                    {externalPortal ? "Keep your external receipt" : "Come back and tap Done"}
                   </span>
                 </div>
                 <p className="text-xs text-[#9AA0AE] pl-8">
-                  We&apos;ll record the confirmation code and update your application dashboard.
+                  {externalPortal ? "This adapter cannot verify an external submission. Your dashboard continues to show applicant handoff." : "We will check the demo portal for its confirmation code."}
                 </p>
               </div>
             </div>
@@ -370,6 +375,7 @@ export default function HandoffPage() {
               <button
                 type="button"
                 onClick={handleDone}
+                hidden={externalPortal}
                 className="w-full py-3.5 px-4 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-[#14171F] font-bold text-sm transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Done, I submitted it</span>

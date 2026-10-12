@@ -1,0 +1,539 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Private ScholarPilot hackathon full stack on one credit-limited EC2 host; access through SSM, Cognito PKCE onboarding, encrypted retained state.",
+  "Metadata": {
+    "AWSToolsMetrics": {
+      "AWSAgentToolkit": "aws-cloudformation@3"
+    }
+  },
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id"
+    },
+    "SubnetId": {
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "ImageId": {
+      "Type": "AWS::EC2::Image::Id"
+    },
+    "EmailSender": {
+      "Type": "String",
+      "NoEcho": true,
+      "Description": "Verified SES sender identity in the selected Region."
+    }
+  },
+  "Resources": {
+    "ArtifactBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        },
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "ArtifactPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "ArtifactBucket"
+        },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Deny",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ArtifactBucket",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Sub": "${ArtifactBucket.Arn}/*"
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": "false"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "RuntimeSecret": {
+      "Type": "AWS::SecretsManager::Secret",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "GenerateSecretString": {
+          "SecretStringTemplate": "{}",
+          "GenerateStringKey": "POSTGRES_PASSWORD",
+          "PasswordLength": 36,
+          "ExcludePunctuation": true
+        }
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "CommandLogs": {
+      "Type": "AWS::Logs::LogGroup",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "RetentionInDays": 7
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "HostRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "PrivateReleaseAndRuntime",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:GetObject"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "${ArtifactBucket.Arn}/release.tgz"
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "secretsmanager:GetSecretValue"
+                  ],
+                  "Resource": {
+                    "Ref": "RuntimeSecret"
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "${CommandLogs.Arn}:*"
+                  }
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ses:SendEmail"
+                  ],
+                  "Resource": {
+                    "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/${EmailSender}"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "HostProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "HostRole"
+          }
+        ]
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "HostSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Private ScholarPilot; outbound HTTPS and no inbound web or SSH",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 443,
+            "ToPort": 443,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "HostTemplate": {
+      "Type": "AWS::EC2::LaunchTemplate",
+      "Properties": {
+        "LaunchTemplateData": {
+          "ImageId": {
+            "Ref": "ImageId"
+          },
+          "InstanceType": "t3.small",
+          "IamInstanceProfile": {
+            "Arn": {
+              "Fn::GetAtt": [
+                "HostProfile",
+                "Arn"
+              ]
+            }
+          },
+          "MetadataOptions": {
+            "HttpTokens": "required",
+            "HttpPutResponseHopLimit": 2
+          },
+          "CreditSpecification": {
+            "CpuCredits": "standard"
+          },
+          "BlockDeviceMappings": [
+            {
+              "DeviceName": "/dev/xvda",
+              "Ebs": {
+                "Encrypted": true,
+                "VolumeSize": 40,
+                "VolumeType": "gp3",
+                "DeleteOnTermination": false
+              }
+            }
+          ],
+          "NetworkInterfaces": [
+            {
+              "DeviceIndex": 0,
+              "AssociatePublicIpAddress": true,
+              "SubnetId": {
+                "Ref": "SubnetId"
+              },
+              "Groups": [
+                {
+                  "Ref": "HostSecurityGroup"
+                }
+              ]
+            }
+          ],
+          "UserData": {
+            "Fn::Base64": "#!/bin/bash\nset -euo pipefail\ndnf install -y docker python3 unzip\nsystemctl enable --now docker\nmkdir -p /usr/local/lib/docker/cli-plugins /opt/scholarpilot\ncurl --fail --location https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose\ncurl --fail --location https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64.sha256 -o /tmp/compose.sha256\nexpected=$(cut -d \" \" -f1 /tmp/compose.sha256)\necho \"$expected  /usr/local/lib/docker/cli-plugins/docker-compose\" | sha256sum --check -\nchmod 755 /usr/local/lib/docker/cli-plugins/docker-compose\nif [ ! -f /swapfile ]; then fallocate -l 4G /swapfile; chmod 600 /swapfile; mkswap /swapfile; echo \"/swapfile swap swap defaults 0 0\" >> /etc/fstab; fi\nswapon -a\n"
+          }
+        }
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "Host": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "LaunchTemplate": {
+          "LaunchTemplateId": {
+            "Ref": "HostTemplate"
+          },
+          "Version": {
+            "Fn::GetAtt": [
+              "HostTemplate",
+              "LatestVersionNumber"
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Project",
+            "Value": "ScholarPilot"
+          },
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "${AWS::StackName}-private-demo"
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "UserPool": {
+      "Type": "AWS::Cognito::UserPool",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "UsernameAttributes": [
+          "email"
+        ],
+        "AutoVerifiedAttributes": [
+          "email"
+        ],
+        "UserPoolTier": "LITE",
+        "Policies": {
+          "PasswordPolicy": {
+            "MinimumLength": 12,
+            "RequireLowercase": true,
+            "RequireUppercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true
+          }
+        },
+        "AccountRecoverySetting": {
+          "RecoveryMechanisms": [
+            {
+              "Name": "verified_email",
+              "Priority": 1
+            }
+          ]
+        }
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "UserPoolClient": {
+      "Type": "AWS::Cognito::UserPoolClient",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "UserPool"
+        },
+        "GenerateSecret": false,
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthFlows": [
+          "code"
+        ],
+        "AllowedOAuthScopes": [
+          "openid",
+          "email"
+        ],
+        "SupportedIdentityProviders": [
+          "COGNITO"
+        ],
+        "CallbackURLs": [
+          "http://localhost:3000/",
+          "http://localhost:13000/"
+        ],
+        "LogoutURLs": [
+          "http://localhost:3000/",
+          "http://localhost:13000/"
+        ],
+        "EnableTokenRevocation": true,
+        "PreventUserExistenceErrors": "ENABLED",
+        "ReadAttributes": [
+          "email",
+          "email_verified"
+        ],
+        "AccessTokenValidity": 10,
+        "IdTokenValidity": 10,
+        "RefreshTokenValidity": 1,
+        "TokenValidityUnits": {
+          "AccessToken": "minutes",
+          "IdToken": "minutes",
+          "RefreshToken": "days"
+        }
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    },
+    "AuthDomain": {
+      "Type": "AWS::Cognito::UserPoolDomain",
+      "Properties": {
+        "UserPoolId": {
+          "Ref": "UserPool"
+        },
+        "Domain": {
+          "Fn::Sub": "${AWS::StackName}-${AWS::AccountId}"
+        },
+        "ManagedLoginVersion": 1
+      },
+      "Metadata": {
+        "com.aws.cloudformation.Context": {
+          "why": "Private single-host hackathon validation with durable storage and verified user onboarding.",
+          "must": [
+            "Selected project Region only",
+            "Never expose database, cache or unauthenticated key bootstrap",
+            "No secrets or applicant facts in template/user data"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "InstanceId": {
+      "Value": {
+        "Ref": "Host"
+      }
+    },
+    "ArtifactBucket": {
+      "Value": {
+        "Ref": "ArtifactBucket"
+      }
+    },
+    "RuntimeSecret": {
+      "Value": {
+        "Ref": "RuntimeSecret"
+      }
+    },
+    "UserPoolId": {
+      "Value": {
+        "Ref": "UserPool"
+      }
+    },
+    "ClientId": {
+      "Value": {
+        "Ref": "UserPoolClient"
+      }
+    },
+    "Issuer": {
+      "Value": {
+        "Fn::Sub": "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"
+      }
+    },
+    "AuthBase": {
+      "Value": {
+        "Fn::Sub": "https://${AuthDomain}.auth.${AWS::Region}.amazoncognito.com"
+      }
+    },
+    "CommandLogs": {
+      "Value": {
+        "Ref": "CommandLogs"
+      }
+    }
+  }
+}

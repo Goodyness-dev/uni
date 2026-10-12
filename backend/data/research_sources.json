@@ -1,0 +1,118 @@
+{
+  "real_one": {
+    "urls": [
+      "https://www.chevening.org/scholarship/nigeria/",
+      "https://www.chevening.org/faqs/can-i-use-ai-to-help-me-write-my-application/"
+    ],
+    "allowed_hosts": [
+      "www.chevening.org",
+      "chevening.org",
+      "chevening.org"
+    ]
+  },
+  "real_two": {
+    "urls": [
+      "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/",
+      "https://cscuk.fcdo.gov.uk/commonwealth-scholarships-frequently-asked-questions/"
+    ],
+    "allowed_hosts": [
+      "cscuk.fcdo.gov.uk"
+    ],
+    "deadline_year": 2026,
+    "portal_url": "https://portal.csccentralonline.org.uk/"
+  },
+  "real_fulbright": {
+    "urls": [
+      "https://foreign.fulbrightonline.org"
+    ],
+    "allowed_hosts": [
+      "foreign.fulbrightonline.org"
+    ]
+  },
+  "real_rhodes": {
+    "urls": [
+      "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/west-africa/",
+      "https://www.rhodeshouse.ox.ac.uk/scholarships/faqs/"
+    ],
+    "allowed_hosts": [
+      "www.rhodeshouse.ox.ac.uk",
+      "rhodeshouse.ox.ac.uk"
+    ]
+  },
+  "real_gates_cambridge": {
+    "urls": [
+      "https://www.gatescambridge.org/apply/how-to-apply/",
+      "https://www.postgraduate.study.cam.ac.uk/courses/directory/cscsmpacs",
+      "https://www.postgraduate.study.cam.ac.uk/courses/directory/cscsmpacs/apply"
+    ],
+    "allowed_hosts": [
+      "www.gatescambridge.org",
+      "gatescambridge.org",
+      "www.postgraduate.study.cam.ac.uk",
+      "gatescambridge.org"
+    ],
+    "portal_url": "https://apply.postgraduate.study.cam.ac.uk/applicant/login",
+    "portal_policy": "applicant_only",
+    "policy_source": "https://www.postgraduate.study.cam.ac.uk/apply"
+  },
+  "real_ptdf_overseas": {
+    "urls": [
+      "https://ptdf.gov.ng"
+    ],
+    "allowed_hosts": [
+      "ptdf.gov.ng"
+    ]
+  },
+  "real_mastercard_scholars": {
+    "urls": [
+      "https://mastercardfdn.org/all/scholars/"
+    ],
+    "allowed_hosts": [
+      "mastercardfdn.org",
+      "www.mastercardfdn.org"
+    ]
+  },
+  "real_erasmus_mundus": {
+    "urls": [
+      "https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en"
+    ],
+    "allowed_hosts": [
+      "www.eacea.ec.europa.eu",
+      "eacea.ec.europa.eu"
+    ]
+  },
+  "real_si_sweden": {
+    "urls": [
+      "https://si.se/en/apply/scholarships/"
+    ],
+    "allowed_hosts": [
+      "si.se",
+      "www.si.se"
+    ]
+  },
+  "real_daad_germany": {
+    "urls": [
+      "https://www.daad.de/en/study-and-research-in-germany/scholarships/scholarship-database/"
+    ],
+    "allowed_hosts": [
+      "www.daad.de",
+      "daad.de"
+    ]
+  },
+  "real_vanier_canada": {
+    "urls": [
+      "https://vanier.gc.ca"
+    ],
+    "allowed_hosts": [
+      "vanier.gc.ca"
+    ]
+  },
+  "real_turkiye_burslari": {
+    "urls": [
+      "https://turkiyeburslari.gov.tr"
+    ],
+    "allowed_hosts": [
+      "turkiyeburslari.gov.tr"
+    ]
+  }
+}

@@ -37,7 +37,7 @@ export function ResearchSection({ dossier, loading = false }: ResearchSectionPro
         <div className="p-3 rounded-lg bg-[rgba(245,165,36,0.12)] border border-[#ffb957]/30 flex items-start gap-2 text-xs text-[#ffb957]">
           <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
-            We could not reach the programme pages, so no school-specific claims were made.
+            No public research evidence is available for this run, so no school-specific claims were made.
           </span>
         </div>
       )}

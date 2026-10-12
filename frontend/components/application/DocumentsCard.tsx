@@ -7,6 +7,7 @@ import { fileUrl } from "@/lib/api";
 import { SegmentText } from "@/components/SegmentText";
 import { FileCard } from "@/components/FileCard";
 import { Skeleton } from "@/components/Skeleton";
+import { useV1 } from "@/lib/v1";
 
 interface DocumentsCardProps {
   application: Application;
@@ -247,15 +248,15 @@ export function DocumentsCard({ application, factsMap }: DocumentsCardProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FileCard
-                name="Tailored CV (PDF)"
+                name={useV1 ? "Source-based CV.pdf" : "Tailored CV (PDF)"}
                 type="pdf"
-                size="Verified PDF"
+                size={useV1 ? "Source-reviewed PDF" : "Verified PDF"}
                 url={fileUrl(id, "cv")}
               />
               <FileCard
-                name="Scholarship Essay (TXT)"
+                name={useV1 ? "Application writing.txt" : "Scholarship Essay (TXT)"}
                 type="markdown"
-                size="Verified TXT"
+                size={useV1 ? "Source-reviewed text" : "Verified TXT"}
                 url={fileUrl(id, "essay")}
               />
               <FileCard

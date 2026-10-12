@@ -46,7 +46,7 @@ def test_timezone_aware_discovery_filtering():
             p_lagos = Profile(
                 user_id=u_lagos.id,
                 personal_details={"first_name": "Emeka", "citizenship": "Nigeria"},
-                target_countries=["United Kingdom"],
+                target_countries=["UK"],
                 target_fields_of_study=["Engineering"],
                 education_history=[{"degree": "B.Sc."}],
                 grades={"gpa": 4.5},
@@ -108,17 +108,17 @@ def test_telegram_chat_id_resolution_in_alerts(monkeypatch):
 
             profile = Profile(
                 user_id=user.id,
-                personal_details={"first_name": "Amina", "citizenship": "Nigeria"},
-                target_countries=["United Kingdom"],
-                target_fields_of_study=["Computer Science"],
+                personal_details={"first_name": "Amina", "citizenship": "Nigeria", "target_level": "masters"},
+                target_countries=["UK"],
+                target_fields_of_study=["Computer Engineering"],
                 education_history=[{"degree": "B.Sc."}],
-                grades={"gpa": 4.9},
+                grades={"gpa": 4.9, "gpa_scale": 5.0},
             )
             session.add(profile)
 
             # Create upcoming scholarship within 3-day deadline
             now = datetime.now(timezone.utc)
-            schol = (await session.execute(select(Scholarship))).scalars().first()
+            schol = (await session.execute(select(Scholarship).where(Scholarship.eligibility_rules["is_mock"].as_boolean() == True))).scalars().first()
             schol.deadline = now + timedelta(days=2)
             session.add(schol)
             await session.commit()
@@ -203,7 +203,8 @@ def test_export_and_gdpr_physical_file_erasure():
                     "personal_details": {"first_name": "Tari", "nationalities": ["Nigeria"]},
                     "education_history": [{"degree": "B.Sc."}],
                     "grades": {"gpa": 4.8, "gpa_scale": 5.0},
-                    "target_countries": ["United Kingdom"],
+                        "target_fields_of_study": ["Engineering"],
+                    "target_countries": ["UK"],
                 },
             )
             await client.post("/v1/matches/refresh", headers=headers)

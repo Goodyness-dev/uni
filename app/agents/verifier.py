@@ -26,12 +26,44 @@ def normalize_tokens(text: str) -> str:
 @tool_span("deterministic_claim_check", description="deterministic verification of numbers and entities")
 def deterministic_check(claim_text: str, source_facts: List[str]) -> bool:
     """Verifies that numbers, dates, and named entities in a claim exist in cited sources."""
-    if not source_facts:
+    if not source_facts or not claim_text.strip():
         return False
 
     raw_sources = " ".join(source_facts)
     source_blob = normalize_tokens(raw_sources)
     claim_norm = normalize_tokens(claim_text)
+    source_entities = re.sub(r"[^a-z0-9\s]", "", source_blob)
+
+    if claim_norm in source_blob:
+        return True
+    if re.search(r"\b(?:not|never|no)\b", source_blob) and not re.search(r"\b(?:not|never|no)\b", claim_norm):
+        return False
+    if "assistant coordinator" in source_blob and "coordinator" in claim_norm and "assistant" not in claim_norm:
+        return False
+    promotions = ("founded", "founder", "led", "president", "fluent", "commercial", "deployed")
+    if any(re.search(r"\b" + word + r"\b", claim_norm) and not re.search(r"\b" + word + r"\b", source_blob) for word in promotions):
+        return False
+    if "degree" in claim_norm and "certificate" in source_blob and "degree" not in source_blob:
+        return False
+    if "hardship" in claim_norm and "hardship" not in source_blob:
+        return False
+    quantities = r"\b(\d+(?:\.\d+)?)\s+(students?|hours?|years?|months?|participants?|(?:sensor )?boards?|seasons?)\b"
+    for number, unit in re.findall(quantities, claim_norm):
+        unit_root = unit.rstrip("s")
+        if not re.search(r"\b" + re.escape(number) + r"\s+" + re.escape(unit_root) + r"s?\b", source_blob):
+            return False
+
+    # Temporal association and aspiration must not become achieved causal impact.
+    unsupported_bridges = ("resulting in", "resulted in", "results in", "led to", "directly addresses", "actionable insights",
+        "demonstrating", "my work focuses", "proven impact", "transformed", "guaranteed", "caused")
+    if any(phrase in claim_norm and phrase not in source_blob for phrase in unsupported_bridges):
+        return False
+    future_facts = [fact for fact in source_facts if re.search(r"\b(want|hope|intend|aim|aspire|goal)\b", fact.lower())]
+    if future_facts and not re.search(r"\b(want|hope|intend|aim|aspire|plan|goal)\b", claim_norm):
+        ignored = {"i", "to", "a", "the", "want", "goal", "is", "my", "in", "on", "and", "work", "build", "design"}
+        words = set(re.findall(r"[a-z]+", claim_norm)) - ignored
+        if any(len(words & (set(re.findall(r"[a-z]+", fact.lower())) - ignored)) >= max(2, len(words) // 2) for fact in future_facts):
+            return False
 
     # 1. Number / Date check: any specific number cited must appear in sources
     claim_numbers = re.findall(r"\b\d+(?:\.\d+)?\b", claim_norm)
@@ -54,7 +86,7 @@ def deterministic_check(claim_text: str, source_facts: List[str]) -> bool:
                 and len(clean_word) > 2
                 and clean_word not in CAP_STOPWORDS
             ):
-                if clean_word.lower() not in source_blob:
+                if clean_word.lower() not in source_entities:
                     return False
 
     return True

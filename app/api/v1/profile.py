@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_request_id
 from app.db.base import get_db_session
 from app.db.models import Profile, User
+from app.core.evidence import approved_facts
 
 router = APIRouter(prefix="/profile", tags=["Profile Vault"])
 
@@ -76,10 +77,13 @@ async def get_profile(
         await db.commit()
         await db.refresh(profile)
 
+    response_details = {key: value for key, value in (profile.personal_details or {}).items() if key != "_identity_subject"}
+    if "_verified_facts" in response_details:
+        response_details["_verified_facts"] = await approved_facts(profile, db)
     return ProfileResponse(
         id=str(profile.id),
         user_id=str(profile.user_id),
-        personal_details=profile.personal_details or {},
+        personal_details=response_details,
         education_history=profile.education_history or [],
         grades=profile.grades or {},
         test_scores=profile.test_scores or {},
@@ -103,11 +107,15 @@ async def update_profile(
     profile = (await db.execute(stmt)).scalar_one_or_none()
 
     score = compute_completeness_score(payload)
+    # Reserved identity/provenance records cannot be supplied through an ordinary profile PUT.
+    details = {key: value for key, value in payload.personal_details.items() if not key.startswith("_")}
+    if profile:
+        details.update({key: value for key, value in profile.personal_details.items() if key.startswith("_")})
 
     if not profile:
         profile = Profile(
             user_id=user.id,
-            personal_details=payload.personal_details,
+            personal_details=details,
             education_history=payload.education_history,
             grades=payload.grades,
             test_scores=payload.test_scores,
@@ -119,7 +127,7 @@ async def update_profile(
         )
         db.add(profile)
     else:
-        profile.personal_details = payload.personal_details
+        profile.personal_details = details
         profile.education_history = payload.education_history
         profile.grades = payload.grades
         profile.test_scores = payload.test_scores
@@ -132,10 +140,13 @@ async def update_profile(
     await db.commit()
     await db.refresh(profile)
 
+    response_details = {key: value for key, value in (profile.personal_details or {}).items() if key != "_identity_subject"}
+    if "_verified_facts" in response_details:
+        response_details["_verified_facts"] = await approved_facts(profile, db)
     return ProfileResponse(
         id=str(profile.id),
         user_id=str(profile.user_id),
-        personal_details=profile.personal_details or {},
+        personal_details=response_details,
         education_history=profile.education_history or [],
         grades=profile.grades or {},
         test_scores=profile.test_scores or {},

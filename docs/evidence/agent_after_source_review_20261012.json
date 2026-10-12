@@ -1,0 +1,377 @@
+{
+  "trace_id": "7aeb442a172e5c5179639b86fa39f867",
+  "workflow": "scholarpilot",
+  "status": "success",
+  "finalization_status": "finalized",
+  "created_at": "2026-10-12T06:55:24.498Z",
+  "latency_ms": 116568,
+  "span_count": 112,
+  "llm_calls": 11,
+  "tool_calls": 62,
+  "total_tokens": 33537,
+  "total_cost": 0.024693299999999998,
+  "detections": [
+    "ScholarPilot wording needs review",
+    "ScholarPilot blocked verification",
+    "ScholarPilot recovery observed"
+  ],
+  "verification_ready": true,
+  "returned_span_count": 50,
+  "next_offset": 50,
+  "application_id": "0a10f49a-da06-4bed-9127-0c23ba3c2285",
+  "application_status": "submitted",
+  "confirmation_ref": "DEMO1584",
+  "submitted_at": "2026-10-12T07:25:03.392066+00:00",
+  "verification": {
+    "claims": [
+      {
+        "id": "seg_cv_summary_1",
+        "text": "Tobi Adeyemi is a Computer Engineering graduate from Fictional State University with a CGPA of 4.30 out of 5.00 and Dean's list recognition for two sessions.",
+        "reason": "The profile sources confirm Tobi Adeyemi is a Computer Engineering graduate from Fictional State University with a CGPA of 4.30 and Dean's list recognition for 2 sessions.",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_f0c3f369878d4f8db9c78ae7300e151e",
+          "F_9a848cf5519143dd96633c9b55f41940"
+        ],
+        "segment_index": 0,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_summary_2",
+        "text": "Experienced in embedded systems development, Python programming, and microcontroller applications with hands-on internship experience at BrightGrid Solar.",
+        "reason": "The sources confirm experience as an embedded systems intern at BrightGrid Solar, and the skills list Python, C, ESP32, Arduino, and microcontroller applications/embedded systems.",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2f511c1206ab4a84abbbd8ed8b778e42",
+          "F_44c3749aa22e472a8849386887500311"
+        ],
+        "segment_index": 1,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_summary_3",
+        "text": "Award-winning project creator recognized with the departmental prize for the best final year project in 2025.",
+        "reason": "Source F_2481de65995e491ab59ef44db0ad0242 explicitly states receiving the departmental prize for the best final year project in 2025.",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2481de65995e491ab59ef44db0ad0242"
+        ],
+        "segment_index": 2,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_1",
+        "text": "Wrote data logging firmware for a solar sensor board and tested the firmware on 12 sensor boards during an embedded systems internship at BrightGrid Solar.",
+        "reason": "Sources confirm the internship at BrightGrid Solar for 5 months in 2024, writing data logging firmware for a solar sensor board, and testing it on 12 sensor boards.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2f511c1206ab4a84abbbd8ed8b778e42",
+          "F_2d821849a10b4ec381082b49964b4713",
+          "F_411c07f00c8140069902c438541c06af"
+        ],
+        "segment_index": 3,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_2",
+        "text": "Developed SunTrack, a low-cost solar panel monitoring system using an ESP32 microcontroller, wireless sensors, and a Python web dashboard.",
+        "reason": "Sources confirm SunTrack is a low-cost solar panel monitoring system built with an ESP32 and wireless sensors, along with a Python web dashboard.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_423e9625bfc04e32abe990e11329312e",
+          "F_24a97ff6a4584237a039eaddd0189a25",
+          "F_eecf3709edae49959506dafdfa0a8181"
+        ],
+        "segment_index": 4,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_3",
+        "text": "Organized the FSU campus hackathon featuring 120 participants while serving as assistant coordinator of the FSU Tech Club.",
+        "reason": "Sources confirm organizing the campus hackathon with 120 participants and serving as assistant coordinator of the FSU Tech Club for the 2023 to 2024 session.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e6ce4ce22178442bb6d3c33f08a4aefb",
+          "F_9a7ece1623d44be0a34d3a1d81abdfee"
+        ],
+        "segment_index": 5,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_4",
+        "text": "Volunteered as a coding teacher teaching Python to 40 students over 200 hours across two years at Community Secondary School.",
+        "reason": "Sources confirm volunteering as a coding teacher at Community Secondary School and teaching Python to 40 students over 200 hours across 2 years.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_6efcb45dd2a744099e44bcba0c45d220",
+          "F_17a8999f702b42f2aa0b53ca0dd13386"
+        ],
+        "segment_index": 6,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_essay_2",
+        "text": "During my undergraduate studies at Fictional State University, I built SunTrack, a low-cost solar monitoring system using an ESP32 microcontroller and wireless sensors.",
+        "reason": "Sources confirm studying at Fictional State University and building SunTrack using an ESP32 microcontroller and wireless sensors.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_423e9625bfc04e32abe990e11329312e"
+        ],
+        "segment_index": 7,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_essay_3",
+        "text": "My academic transcript reflects strong foundations in Digital Electronics, Embedded Systems, Data Structures, and Power Systems, supporting my practical work in hardware and software integration.",
+        "reason": "Transcript summary confirms grades of A in Digital Electronics, Embedded Systems, Data Structures and Algorithms, and Power Systems.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_655fe7cfa86445849b454cd0f955be2d"
+        ],
+        "segment_index": 8,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_essay_4",
+        "text": "I want a Master's in AI for energy systems because leading research groups on energy forecasting and smart grids are abroad, and I want to bring that knowledge home.",
+        "reason": "Source F_a355362b11724371bfdbd3fbceb90017 matches the statement word for word regarding wanting a Master's in AI for energy systems.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_a355362b11724371bfdbd3fbceb90017"
+        ],
+        "segment_index": 9,
+        "deterministic_pass": true
+      }
+    ],
+    "rounds": 2,
+    "initial_claims": [
+      {
+        "id": "seg_cv_summary_1",
+        "text": "Tobi Adeyemi is a Computer Engineering graduate from Fictional State University with a CGPA of 4.30 out of 5.00 and Dean's list recognition for two sessions.",
+        "reason": "The sources confirm Tobi Adeyemi is a Computer Engineering graduate from Fictional State University (F_088bcb20295d46df8422ef3bcf1b99b7), with a CGPA of 4.30 out of 5.00 (F_f0c3f369878d4f8db9c78ae7300e151e) and Dean's list recognition for two sessions (F_9a848cf5519143dd96633c9b55f41940).",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_f0c3f369878d4f8db9c78ae7300e151e",
+          "F_9a848cf5519143dd96633c9b55f41940"
+        ],
+        "segment_index": 0,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_summary_2",
+        "text": "Experienced in embedded systems development, Python programming, and microcontroller applications with hands-on internship experience at BrightGrid Solar.",
+        "reason": "Sources confirm experience in embedded systems development, Python, microcontroller applications (F_44c3749aa22e472a8849386887500311), and a 5-month internship at BrightGrid Solar (F_2f511c1206ab4a84abbbd8ed8b778e42).",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2f511c1206ab4a84abbbd8ed8b778e42",
+          "F_44c3749aa22e472a8849386887500311"
+        ],
+        "segment_index": 1,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_summary_3",
+        "text": "Award-winning project creator recognized with the departmental prize for the best final year project in 2025.",
+        "reason": "Source F_2481de65995e491ab59ef44db0ad0242 explicitly states receiving the departmental prize for the best final year project in 2025.",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2481de65995e491ab59ef44db0ad0242"
+        ],
+        "segment_index": 2,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_1",
+        "text": "Wrote data logging firmware for a solar sensor board and tested the firmware on 12 sensor boards during an embedded systems internship at BrightGrid Solar.",
+        "reason": "The sources verify writing data logging firmware for a solar sensor board during a 5-month internship at BrightGrid Solar in 2024 (F_2f511c1206ab4a84abbbd8ed8b778e42, F_2d821849a10b4ec381082b49964b4713) and testing it on 12 sensor boards (F_411c07f00c8140069902c438541c06af).",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2f511c1206ab4a84abbbd8ed8b778e42",
+          "F_2d821849a10b4ec381082b49964b4713",
+          "F_411c07f00c8140069902c438541c06af"
+        ],
+        "segment_index": 3,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_2",
+        "text": "Developed SunTrack, a low-cost solar panel monitoring system using an ESP32 microcontroller, wireless sensors, and a Python web dashboard.",
+        "reason": "Sources confirm the development of SunTrack using an ESP32 microcontroller and wireless sensors (F_423e9625bfc04e32abe990e11329312e, F_eecf3709edae49959506dafdfa0a8181) alongside a Python web dashboard showing panel output over time (F_24a97ff6a4584237a039eaddd0189a25).",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_423e9625bfc04e32abe990e11329312e",
+          "F_24a97ff6a4584237a039eaddd0189a25",
+          "F_eecf3709edae49959506dafdfa0a8181"
+        ],
+        "segment_index": 4,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_3",
+        "text": "Organized the FSU campus hackathon featuring 120 participants while serving as assistant coordinator of the FSU Tech Club.",
+        "reason": "Sources confirm organizing the campus hackathon with 120 participants (F_e6ce4ce22178442bb6d3c33f08a4aefb) and serving as assistant coordinator of the FSU Tech Club for the 2023 to 2024 session (F_9a7ece1623d44be0a34d3a1d81abdfee).",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e6ce4ce22178442bb6d3c33f08a4aefb",
+          "F_9a7ece1623d44be0a34d3a1d81abdfee"
+        ],
+        "segment_index": 5,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_cv_bullets_4",
+        "text": "Volunteered as a coding teacher teaching Python to 40 students over 200 hours across two years at Community Secondary School.",
+        "reason": "Sources confirm volunteering as a coding teacher at Community Secondary School (F_6efcb45dd2a744099e44bcba0c45d220) and teaching Python to 40 students over 200 hours across 2 years (F_17a8999f702b42f2aa0b53ca0dd13386).",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_6efcb45dd2a744099e44bcba0c45d220",
+          "F_17a8999f702b42f2aa0b53ca0dd13386"
+        ],
+        "segment_index": 6,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_essay_1",
+        "text": "My goal is to design low cost energy monitoring systems that help small businesses in Nigeria use solar power reliably.",
+        "reason": "Deterministic source checks failed.",
+        "section": "essay",
+        "verdict": "unsupported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e35d8a928b184782b8f63a62d528e2b6"
+        ],
+        "segment_index": 7,
+        "deterministic_pass": false
+      },
+      {
+        "id": "seg_essay_2",
+        "text": "During my undergraduate studies at Fictional State University, I built SunTrack, a low-cost solar monitoring system using an ESP32 microcontroller and wireless sensors.",
+        "reason": "Sources confirm undergraduate studies at Fictional State University (F_088bcb20295d46df8422ef3bcf1b99b7) and building SunTrack with an ESP32 microcontroller and wireless sensors (F_423e9625bfc04e32abe990e11329312e).",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_423e9625bfc04e32abe990e11329312e"
+        ],
+        "segment_index": 8,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_essay_3",
+        "text": "My academic transcript reflects strong foundations in Digital Electronics, Embedded Systems, Data Structures, and Power Systems, supporting my practical work in hardware and software integration.",
+        "reason": "Source F_655fe7cfa86445849b454cd0f955be2d lists grades of A in Digital Electronics, Embedded Systems, Data Structures and Algorithms, and Power Systems.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_655fe7cfa86445849b454cd0f955be2d"
+        ],
+        "segment_index": 9,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_essay_4",
+        "text": "I want a Master's in AI for energy systems because leading research groups on energy forecasting and smart grids are abroad, and I want to bring that knowledge home.",
+        "reason": "Directly supported by source F_a355362b11724371bfdbd3fbceb90017.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_a355362b11724371bfdbd3fbceb90017"
+        ],
+        "segment_index": 10,
+        "deterministic_pass": true
+      }
+    ],
+    "removed_claims": [],
+    "overturned_claims": [],
+    "unsupported_final": 0,
+    "unsupported_before": 1
+  },
+  "screenshot": "docs/evidence/neatlogs_replay_20261012.png",
+  "replay_exercised": true,
+  "investigation_completed": false,
+  "evaluations_completed": false,
+  "scope": "Actual fictional fixture and owned portal; not production or an accuracy benchmark. Readback returned 50 of 112 spans; metadata totals are server reported.",
+  "submission_screenshot": "docs/evidence/agent_submitted_20261012.png"
+}

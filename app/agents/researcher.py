@@ -1,4 +1,4 @@
-"""Researcher Agent: gathers verified school and department facts with 7-day caching."""
+"""Researcher Agent: retrieves literal official text with six-hour durable snapshots."""
 import re
 import uuid
 import ipaddress
@@ -8,15 +8,18 @@ from typing import Any, Dict, List, Optional
 import httpx
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.services.public_pages import parse_page, crawl_sources
+from app.services.discovery import source_config
 from app.core.logging import logger
+from app.core.config import settings
+from app.core.public_fetch import fetch_public_text
 from app.core.llm_gateway import sanitize_untrusted_content
 from app.core.tracing import agent_span, tool_span
+from app.core.runtime import is_demo_portal
 from app.db.models import Job, Scholarship
 from app.jobs.queue import register_job_handler
 
-# 7-day in-memory / persistent research cache store
-_RESEARCH_CACHE: Dict[str, Dict[str, Any]] = {}
-CACHE_TTL_DAYS = 7
 
 
 def public_source_url(url: str) -> bool:
@@ -54,92 +57,49 @@ class ResearcherOutput(BaseModel):
     from_cache: bool
 
 
-@agent_span("researcher", role="Institutional Researcher", goal="Gather verified institutional priorities")
-async def run_researcher(scholarship_id: uuid.UUID, session: AsyncSession) -> ResearcherOutput:
-    """Researches scholarship institution, department, and faculty priorities with strict source enforcement."""
-    cache_key = str(scholarship_id)
-    now = datetime.now(timezone.utc)
-
-    # 1. Check 7-day cache
-    if cache_key in _RESEARCH_CACHE:
-        entry = _RESEARCH_CACHE[cache_key]
-        cached_time = datetime.fromisoformat(entry["cached_at"])
-        if now - cached_time < timedelta(days=CACHE_TTL_DAYS):
-            return ResearcherOutput(
-                scholarship_id=scholarship_id,
-                school=entry["school"],
-                department=entry["department"],
-                programme_priorities=entry["programme_priorities"],
-                facts=[ResearchFact.model_validate(f) for f in entry["facts"]],
-                from_cache=True,
-            )
-
-    # 2. Load scholarship from database
-    s = await session.get(Scholarship, scholarship_id)
-    if not s:
-        raise ValueError(f"Scholarship {scholarship_id} not found.")
-
-    school_name = s.provider
-    dept_name = ""
-    base_url = s.application_url
-
-    # 3. Live portal snippet extraction if reachable
-    live_snippet: Optional[str] = None
-    if public_source_url(base_url):
-        try:
-            async with httpx.AsyncClient(timeout=10.0, follow_redirects=False) as client:
-                res = await client.get(base_url)
-                if res.status_code == 200:
-                    raw_html = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", res.text[:2000], flags=re.I | re.S)
-                    clean_text = re.sub(r"<[^>]+>", " ", raw_html)
-                    clean_text = " ".join(clean_text.split())
-                    suspicious = any(term in clean_text.lower() for term in (
-                        "ignore previous", "system prompt", "api key", "login required", "sign in to continue",
-                    ))
-                    if len(clean_text) > 40 and not suspicious:
-                        live_snippet = clean_text[:200]
-        except httpx.HTTPError:
-            logger.warning("Public institutional page could not be retrieved; no facts inferred.")
-
-    # Sourced institutional facts
-    candidate_facts: List[Dict[str, Any]] = []
-
-    if live_snippet:
-        candidate_facts.insert(0, {
-            "fact_id": f"RF_{s.id.hex[:4]}_LIVE",
-            "category": "portal_verified",
-            "claim": live_snippet,
-            "source_url": base_url,
-            "retrieved_at": now.isoformat(),
-        })
-
-    # Rule per Section 8.2: "Every claim must carry a source. Unsourced claims are dropped before reaching the Drafter."
-    verified_facts: List[ResearchFact] = []
-    for cf in candidate_facts:
-        if cf.get("source_url") and cf.get("claim"):
-            # Sanitize untrusted content before storage
-            cf["claim"] = sanitize_untrusted_content(cf["claim"]).replace("<untrusted_document_content>\n", "").replace("\n</untrusted_document_content>", "")
-            verified_facts.append(ResearchFact.model_validate(cf))
-
-    priorities: List[str] = []
-
-    # Store in cache
-    _RESEARCH_CACHE[cache_key] = {
-        "cached_at": now.isoformat(),
-        "school": school_name,
-        "department": dept_name,
-        "programme_priorities": priorities,
-        "facts": [f.model_dump() for f in verified_facts],
-    }
-
-    return ResearcherOutput(
-        scholarship_id=scholarship_id,
-        school=school_name,
-        department=dept_name,
-        programme_priorities=priorities,
-        facts=verified_facts,
-        from_cache=False,
-    )
+@agent_span("researcher", role="Institutional Researcher", goal="Cross-check official institutional pages with durable provenance")
+async def run_researcher(scholarship_id: uuid.UUID, session: AsyncSession,
+    live_research: bool | None = None, force: bool = False) -> ResearcherOutput:
+    scholarship = await session.get(Scholarship, scholarship_id)
+    if scholarship is None:
+        raise ValueError("Scholarship not found.")
+    enabled = settings.LIVE_RESEARCH and live_research is not False
+    url = scholarship.application_url
+    owned = is_demo_portal(url) and "/portal/apply/" in url
+    facts = []
+    cached = False
+    if owned:
+        about = url.replace("/portal/apply/", "/portal/about/")
+        snapshots = (await session.execute(select(Job).where(Job.type == "research_snapshot",
+            Job.payload["url"].as_string() == about).order_by(Job.created_at.desc()).limit(1))).scalars().all()
+        if snapshots and not force and datetime.now(timezone.utc) - datetime.fromisoformat(snapshots[0].payload["retrieved_at"]) < timedelta(hours=6):
+            pages = [{**snapshots[0].payload, "from_cache": True}]
+        else:
+            async with httpx.AsyncClient(timeout=10, follow_redirects=False, trust_env=False) as client:
+                response = await client.get(about)
+                response.raise_for_status()
+            page = parse_page(response.text[:200000], about)
+            session.add(Job(type="research_snapshot", status="completed", payload=page, attempts=1))
+            await session.commit()
+            pages = [{**page, "from_cache": False}]
+    elif enabled:
+        config = source_config(scholarship)
+        urls = config.get("urls", [url])
+        hosts = set(config.get("allowed_hosts", [urlsplit(url).hostname]))
+        pages = await crawl_sources(urls, hosts, session, force=force)
+    else:
+        pages = []
+    for page in pages:
+        if not page.get("text") or page.get("blocker"):
+            continue
+        text = sanitize_untrusted_content(page["text"]).replace("<untrusted_document_content>\n", "").replace("\n</untrusted_document_content>", "")
+        digest = page["sha256"][:10]
+        snippet = text[:2200]
+        facts.append(ResearchFact(fact_id="RF_" + digest, category="portal_verified" if owned else "official_source",
+            claim=snippet, source_url=page["url"], retrieved_at=page["retrieved_at"]))
+        cached = cached or page.get("from_cache", False)
+    return ResearcherOutput(scholarship_id=scholarship.id, school=scholarship.provider, department="",
+        programme_priorities=[], facts=facts, from_cache=cached)
 
 
 @register_job_handler("researcher")

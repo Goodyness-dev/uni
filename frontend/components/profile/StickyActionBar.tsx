@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Settings2, Loader2 } from "lucide-react";
+
+import { getAutopilot, setAutopilot } from "../../lib/api";
+import { useV1 } from "../../lib/v1";
 
 interface StickyActionBarProps {
   factsCount: number;
@@ -21,9 +24,27 @@ export function StickyActionBar({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [mode, setMode] = useState<"A" | "B" | "Z">("B");
   const [topN, setTopN] = useState<number>(2);
-  const [liveResearch, setLiveResearch] = useState<boolean>(false);
+  const [liveResearch, setLiveResearch] = useState<boolean>(useV1);
 
-  const canRun = factsCount > 0 && !isRunning;
+  const [autopilot, setAutopilotValue] = useState(true);
+  const [autonomyLoading, setAutonomyLoading] = useState(useV1);
+  const [autonomyError, setAutonomyError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!useV1) return;
+    let mounted = true;
+    getAutopilot().then(value => { if (mounted) setAutopilotValue(value); })
+      .catch(error => { if (mounted) setAutonomyError(error instanceof Error ? error.message : "Autopilot setting could not be loaded."); })
+      .finally(() => { if (mounted) setAutonomyLoading(false); });
+    return () => { mounted = false; };
+  }, []);
+  const changeAutopilot = async (enabled: boolean) => {
+    setAutonomyLoading(true); setAutonomyError(null);
+    try { await setAutopilot(enabled); setAutopilotValue(enabled); }
+    catch (error) { setAutonomyError(error instanceof Error ? error.message : "Autopilot setting could not be saved."); }
+    finally { setAutonomyLoading(false); }
+  };
+
+  const canRun = factsCount > 0 && !isRunning && !autonomyLoading && !autonomyError;
 
   const handleRun = () => {
     if (canRun) {
@@ -44,7 +65,7 @@ export function StickyActionBar({
               <div className="flex items-center gap-2">
                 <span className="text-[#9AA0AE]">Pipeline Mode:</span>
                 <div className="inline-flex p-0.5 rounded bg-[#121318] border border-[#262932]">
-                  {(["A", "B", "Z"] as const).map((m) => (
+                  {(useV1 ? ["B"] as const : ["A", "B", "Z"] as const).map((m) => (
                     <button
                       key={m}
                       type="button"
@@ -95,7 +116,7 @@ export function StickyActionBar({
                       : "bg-[#121318] text-[#9AA0AE] border-[#262932]"
                   }`}
                 >
-                  {liveResearch ? "Live Scraping" : "Cached Dossier"}
+                  {liveResearch ? "Refresh official sources" : "Stored sources"}
                 </button>
               </div>
             </div>
@@ -127,6 +148,10 @@ export function StickyActionBar({
             </span>
           </div>
 
+          {useV1 && <label className="flex items-center gap-2 text-xs text-[#ECEDF0]">
+            <input type="checkbox" checked={autopilot} disabled={autonomyLoading} onChange={event => { void changeAutopilot(event.target.checked); }} />
+            Autopilot | auto-submit to demo portal
+          </label>}
           {/* Right Controls */}
           <div className="flex items-center gap-3">
             {isDemoMode && (
@@ -168,10 +193,11 @@ export function StickyActionBar({
           </div>
         </div>
 
+        {autonomyError && <p role="alert" className="text-xs text-red-300">{autonomyError}</p>}
         {/* Privacy Line */}
         <div className="border-t border-[#262932]/50 pt-1 text-center sm:text-left">
           <p className="font-mono text-[10px] text-[#626877] leading-normal">
-            Your documents and personal file are sent to an AI provider to be processed. They are not shared with scholarship providers unless you submit an application.
+          Your documents are processed by the backend. When AI drafting is enabled, reviewed source facts may be sent to the configured provider. Autopilot submits verified packages to the demo portal automatically. Turn it off to require review. A submission already accepted by the portal cannot be undone.
           </p>
         </div>
       </div>

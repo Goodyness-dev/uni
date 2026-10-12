@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.logging import logger
 from app.db.models import Application, ApplicationEvent
+from app.services.notifications import queue_notifications
 
 
 class IllegalStateTransitionError(Exception):
@@ -38,12 +39,12 @@ VALID_APPLICATION_STATES: Set[str] = {
 ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
     "discovered": {"matched", "withdrawn", "expired"},
     "matched": {"researching", "withdrawn", "expired"},
-    "researching": {"drafting", "failed", "withdrawn", "expired"},
-    "drafting": {"ready_for_review", "submitting", "failed", "withdrawn", "expired"},
+    "researching": {"drafting", "needs_human", "failed", "withdrawn", "expired"},
+    "drafting": {"ready_for_review", "needs_human", "submitting", "failed", "withdrawn", "expired"},
     "ready_for_review": {"approved", "withdrawn", "expired"},
     "approved": {"submitting", "withdrawn", "expired"},
     "submitting": {"submitted", "needs_human", "failed", "withdrawn"},
-    "needs_human": {"submitting", "failed", "withdrawn", "expired"},
+    "needs_human": {"researching", "drafting", "submitting", "failed", "withdrawn", "expired"},
     "submitted": set(),  # Terminal
     "failed": {"drafting", "submitting", "withdrawn", "expired"},  # Retry states
     "expired": set(),    # Terminal
@@ -104,5 +105,7 @@ async def transition_application(
     await session.commit()
     await session.refresh(application)
 
+    if new_status in {"needs_human", "ready_for_review", "submitted", "failed"}:
+        await queue_notifications(application, session)
     logger.info(f"Application {application.id} transitioned from '{old_status}' to '{new_status}' by {actor}")
     return application

@@ -1,17 +1,40 @@
 "use client";
 
+import { beginVerifiedSignIn, finishVerifiedSignIn } from "../lib/api";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sparkles, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { exchangeIdentity, connectDevelopmentIdentity, connectApiKey } from "../lib/api";
+import { useV1 } from "../lib/v1";
 import { api } from "../lib/api";
 import { Run } from "../lib/types";
 
 export function TopBar() {
+  return <Suspense fallback={<header className="h-14 bg-[#0d0e11]" />}><TopBarContent /></Suspense>;
+}
+
+function TopBarContent() {
   const pathname = usePathname();
+  const [email, setEmail] = useState("");
+  const [identityToken, setIdentityToken] = useState("");
+  const [connectionError, setConnectionError] = useState("");
+  const [connecting, setConnecting] = useState(false);
+  const [credentialKind, setCredentialKind] = useState<"identity" | "api_key" | "development">("identity");
+  async function connect() {
+    setConnecting(true); setConnectionError("");
+    try {
+      if (credentialKind === "api_key") await connectApiKey(identityToken);
+      else if (credentialKind === "development") await connectDevelopmentIdentity(email);
+      else await exchangeIdentity(email, identityToken);
+      setIdentityToken(""); window.location.reload();
+    }
+    catch (error) { setConnectionError(error instanceof Error ? error.message : "Connection failed."); }
+    finally { setConnecting(false); }
+  }
   const [latestRun, setLatestRun] = useState<Run | null>(null);
   const [demoMode, setDemoMode] = useState<boolean>(true);
-  const isMock = typeof window !== "undefined" && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
+  const isMock = !useV1 && typeof window !== "undefined" && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
   useEffect(() => {
     let mounted = true;
@@ -36,6 +59,17 @@ export function TopBar() {
       mounted = false;
     };
   }, [pathname]);
+
+  useEffect(() => {
+    if (!useV1) return;
+    const parameters = new URLSearchParams(window.location.search);
+    const code = parameters.get("code"), state = parameters.get("state");
+    if (code && state) {
+      window.history.replaceState({}, "", window.location.pathname);
+      finishVerifiedSignIn(code, state).then(() => window.location.reload())
+        .catch(error => { setConnectionError(error instanceof Error ? error.message : "Sign-in failed."); });
+    }
+  }, []);
 
   const handleLoadDemo = () => {
     if (typeof window !== "undefined") {
@@ -122,7 +156,15 @@ export function TopBar() {
           </div>
 
           {/* Load demo persona button (visible when demo_mode is enabled) */}
-          {demoMode && (
+          {useV1 && <details className="relative text-xs"><summary className="cursor-pointer">Connect identity</summary>
+              <button type="button" className="text-xs text-[#7AA2FF]" onClick={() => { void beginVerifiedSignIn().catch(error => setConnectionError(error instanceof Error ? error.message : "Sign-in unavailable.")); }}>Sign in with verified identity</button><div className="absolute right-0 top-8 w-72 bg-[#181A20] border border-[#353945] p-4 rounded flex flex-col gap-2">
+            <label>Connection method<select value={credentialKind} onChange={e => { setCredentialKind(e.target.value as typeof credentialKind); setIdentityToken(""); }} className="w-full bg-[#0d0e11] p-2"><option value="identity">Identity provider token</option><option value="api_key">Existing API key</option>{demoMode && <option value="development">New fictional demo identity</option>}</select></label>
+            {credentialKind !== "api_key" && <label>Email<input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-[#0d0e11] p-2" /></label>}
+            {credentialKind !== "development" && <label>{credentialKind === "api_key" ? "API key" : "Identity provider token"}<input type="password" autoComplete="off" value={identityToken} onChange={e => setIdentityToken(e.target.value)} className="w-full bg-[#0d0e11] p-2" /></label>}
+            <button disabled={connecting || (credentialKind !== "api_key" && !email) || (credentialKind !== "development" && !identityToken)} onClick={connect} className="p-2 bg-[#262932] disabled:opacity-50">{connecting ? "Connecting…" : "Connect"}</button>
+            {connectionError && <p role="alert">{connectionError}</p>}
+          </div></details>}
+          {demoMode && !useV1 && (
             <button
               type="button"
               onClick={handleLoadDemo}
@@ -135,7 +177,7 @@ export function TopBar() {
 
           <div
             className="w-7 h-7 rounded-full bg-[#5b8cff] flex items-center justify-center text-[#002665]"
-            title="Tobi Adeyemi"
+            title="Profile"
           >
             <User className="w-4 h-4" />
           </div>

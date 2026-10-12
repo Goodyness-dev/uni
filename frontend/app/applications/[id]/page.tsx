@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
@@ -18,6 +18,10 @@ import { ErrorBanner } from "@/components/ErrorBanner";
 import { EmptyState } from "@/components/EmptyState";
 
 export default function ApplicationDetailPage() {
+  return <Suspense fallback={<div className="p-6 text-sm">Loading application...</div>}><ApplicationDetailContent /></Suspense>;
+}
+
+function ApplicationDetailContent() {
   const params = useParams();
   const id = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params.id[0] : "";
 

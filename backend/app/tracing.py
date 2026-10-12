@@ -23,6 +23,17 @@ class _NoSpan:
         return None
 
 
+def metadata_mask(snapshot: dict[str, Any]) -> dict[str, Any]:
+    """Keep measured model metadata while excluding applicant content at export."""
+    attributes = snapshot.get("attributes", {})
+    safe = {"neatlogs.span.kind", "openinference.span.kind", "llm.model_name", "gen_ai.request.model",
+        "gen_ai.response.model", "gen_ai.system", "application_id", "listing_id", "mode", "iteration",
+        "neatlogs.tool.name", "guardrails_passed", "neatlogs.guardrail.passed", "prompt_version"}
+    attributes = {key: value for key, value in attributes.items() if key in safe or key.startswith((
+        "llm.token_count.", "gen_ai.usage.", "neatlogs.usage.", "code.", "neatlogs.llm.cost"))}
+    return {**snapshot, "attributes": attributes, "events": []}
+
+
 def init_tracing(tags: list[str] | None = None) -> bool:
     """Initialize neatlogs tracing once per process."""
     global _enabled
@@ -36,7 +47,8 @@ def init_tracing(tags: list[str] | None = None) -> bool:
         "api_key": api_key,
         "workflow_name": "scholarpilot",
         "tags": list(tags or []),
-        "capture_logs": False,
+        "capture_logs": bool(getattr(settings, "NEATLOGS_CAPTURE_CONTENT", False)),
+        "mask": None if bool(getattr(settings, "NEATLOGS_CAPTURE_CONTENT", False)) else metadata_mask,
     }
     if endpoint:
         kwargs["endpoint"] = endpoint

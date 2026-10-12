@@ -1,15 +1,22 @@
 """Student account management endpoints: NDPR/GDPR data export and permanent deletion."""
 import os
 import uuid
+import base64
+import hashlib
+import mimetypes
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any, Dict, List
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.core.logging import logger
 from app.core.storage import managed_document_path, remove_managed_file
+from app.jobs.queue import get_redis_client
+from app.core.audit import authorize_privacy_erasure
+from app.agents.packager import package_path
+from app.core.config import settings
 from app.db.base import get_db_session
 from app.db.models import (
     ApiKey,
@@ -31,6 +38,7 @@ router = APIRouter(prefix="/account", tags=["account"])
 async def export_student_account_data(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
+    include_files: bool = False,
 ) -> Dict[str, Any]:
     """Downloads a complete machine-readable JSON archive of the student's personal data,
     Profile Vault, documents, drafts, and applications.
@@ -68,6 +76,21 @@ async def export_student_account_data(
         }
         for d in documents
     ]
+    if include_files:
+        total_bytes = 0
+        for document, exported in zip(documents, docs_data):
+            try:
+                path = managed_document_path(current_user.id, document.storage_key)
+            except (ValueError, OSError):
+                exported["file_unavailable"] = "Not an existing owned local document."
+                continue
+            total_bytes += path.stat().st_size
+            if total_bytes > 20_000_000:
+                raise HTTPException(status_code=413, detail="File export exceeds the 20 MB limit.")
+            content = path.read_bytes()
+            exported.update(content_base64=base64.b64encode(content).decode(),
+                sha256=hashlib.sha256(content).hexdigest(),
+                content_type=mimetypes.guess_type(path.name)[0] or "application/octet-stream")
 
     # 3. Applications and Drafts
     apps_stmt = select(Application).where(Application.user_id == current_user.id)
@@ -144,6 +167,8 @@ async def export_student_account_data(
             "id": str(current_user.id),
             "email": current_user.email,
             "mode": current_user.mode,
+            "timezone": current_user.timezone,
+            "telegram_chat_id": current_user.telegram_chat_id,
             "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
         },
         "profile": profile_data,
@@ -164,6 +189,13 @@ async def delete_student_account(
     under the Right to be Forgotten (NDPR & GDPR).
     """
     logger.info(f"Permanent account deletion initiated for user {current_user.id}")
+    await authorize_privacy_erasure(session, current_user.id)
+    broker = await get_redis_client()
+    if broker is None and settings.ENVIRONMENT == "production":
+        raise HTTPException(status_code=503, detail="Erasure requires the shared worker stop service.")
+    if broker:
+        # Stop active workers before erasing files or database records.
+        await broker.set("scholarpilot:user_deleted:" + str(current_user.id), "1")
 
     # 1. Delete Profile
     await session.execute(delete(Profile).where(Profile.user_id == current_user.id))
@@ -193,6 +225,10 @@ async def delete_student_account(
     app_ids = [a.id for a in applications]
 
     if app_ids:
+        for application_id in app_ids:
+            for kind in ("cv", "essay", "checklist"):
+                remove_managed_file(package_path(current_user.id, application_id, kind),
+                    Path("storage/packages") / str(current_user.id))
         events_stmt = select(ApplicationEvent).where(ApplicationEvent.application_id.in_(app_ids))
         events = (await session.execute(events_stmt)).scalars().all()
         for ev in events:

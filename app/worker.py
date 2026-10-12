@@ -13,6 +13,7 @@ from app.jobs.queue import (
     fetch_next_pending_job,
     get_redis_client,
     requeue_dead_letter_jobs,
+    close_redis_client,
 )
 # Ensure all job handlers are imported and registered
 import app.agents.submitter
@@ -21,6 +22,9 @@ import app.agents.researcher
 import app.agents.edge_finder
 import app.agents.drafter
 import app.jobs.coordinator
+import app.core.audit
+import app.api.v1.runs
+import app.services.notifications
 from app.services.scheduler import schedule_daily_cycles
 from app.core.tracing import init_tracing, shutdown_tracing
 
@@ -73,6 +77,7 @@ class Worker:
         finally:
             self.running = False
             shutdown_tracing()
+            await close_redis_client()
             logger.info(f"Worker {self.worker_id} stopped cleanly.")
 
     def stop(self):

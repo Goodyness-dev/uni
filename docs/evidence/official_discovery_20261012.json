@@ -1,0 +1,247 @@
+{
+  "observations": [
+    {
+      "id": "1ccd6e4c-947e-4c2f-b5e7-b3f0ceff7fa1",
+      "title": "Chevening Scholarships",
+      "deadline": null,
+      "ambiguous": false,
+      "candidates": [],
+      "year_hint_used": false,
+      "state": "closed",
+      "ai_policy": "restricted",
+      "source_count": 4,
+      "observed_at": "2026-10-12T11:15:05.065843+00:00",
+      "sources": [
+        {
+          "url": "https://www.chevening.org/scholarship/nigeria/",
+          "sha256": "9a33487d27fa3c17b22d20d85463d55cce0854b123f06c51ba3177f3e2b9a209",
+          "retrieved_at": "2026-10-12T11:14:54.834746+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.chevening.org/faqs/can-i-use-ai-to-help-me-write-my-application/",
+          "sha256": "9055868d244d1f83e18c077b60c24527cfe597ba9f5e538dcd397f25e685979b",
+          "retrieved_at": "2026-10-12T11:14:58.980429+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.chevening.org/scholarships/",
+          "sha256": "3b2df1db62f98c0f69e645876f23c292075d586e11f569415d6d5326f1adf2d1",
+          "retrieved_at": "2026-10-12T11:15:01.065813+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.chevening.org/scholarships/why-study-in-the-uk/",
+          "sha256": "4ec077485252daf202e2b8868c895a37b322954d3363bbeace6e2d218b06aa27",
+          "retrieved_at": "2026-10-12T11:15:05.058858+00:00",
+          "blocker": null
+        }
+      ],
+      "discovered_links": [
+        "https://chevening.org/news/ready-set-goal-how-a-chevening-scholarship-could-accelerate-your-sporting-career/",
+        "https://chevening.org/scholarships/application-timeline/",
+        "https://chevening.org/scholarships/find-a-course/",
+        "https://chevening.org/scholarships/who-can-apply/",
+        "https://chevening.org/scholarships/why-study-in-the-uk/",
+        "https://www.chevening.org/asean-chevening-scholarship/",
+        "https://www.chevening.org/scholarship/nigeria/",
+        "https://www.chevening.org/scholarships/",
+        "https://www.chevening.org/scholarships/application-timeline/",
+        "https://www.chevening.org/scholarships/find-a-course/",
+        "https://www.chevening.org/scholarships/who-can-apply/",
+        "https://www.chevening.org/scholarships/why-study-in-the-uk/"
+      ]
+    },
+    {
+      "id": "0bc2d34a-679d-4436-84d3-ad4264d250e2",
+      "title": "Commonwealth Master's Scholarships",
+      "deadline": "2026-10-20T00:00:00+00:00",
+      "ambiguous": false,
+      "candidates": [
+        "2026-10-20T00:00:00+00:00"
+      ],
+      "year_hint_used": true,
+      "state": "open",
+      "ai_policy": "unknown",
+      "source_count": 4,
+      "observed_at": "2026-10-12T11:15:10.620846+00:00",
+      "sources": [
+        {
+          "url": "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/",
+          "sha256": "c3488dc008ec4072fdfddd80e66c673050c6e904988c1d6ed9cf719a862657d7",
+          "retrieved_at": "2026-10-12T11:15:06.396547+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://cscuk.fcdo.gov.uk/commonwealth-scholarships-frequently-asked-questions/",
+          "sha256": "450c116d46ec417ccd1df68f46e0f77475d6f4b4487ad72a23c65421ff5c3faa",
+          "retrieved_at": "2026-10-12T11:15:07.829654+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://cscuk.fcdo.gov.uk/about-us/scholarships-and-fellowships/",
+          "sha256": "0ea8435480cb8a1c9a8977ac7decf331867e1b7a0f91e46a70a8fa3e599c8401",
+          "retrieved_at": "2026-10-12T11:15:09.165766+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://cscuk.fcdo.gov.uk/scholarships-filter-search/",
+          "sha256": "b6f34272ce8b91d2ec4401cc45343dbd5c1d8be91ebf742ce8feab608d41eb6c",
+          "retrieved_at": "2026-10-12T11:15:10.608128+00:00",
+          "blocker": null
+        }
+      ],
+      "discovered_links": [
+        "https://cscuk.fcdo.gov.uk/about-us/scholarships-and-fellowships/",
+        "https://cscuk.fcdo.gov.uk/commonwealth-scholarships-frequently-asked-questions/",
+        "https://cscuk.fcdo.gov.uk/commonwealth-shared-scholarship-university-applications/",
+        "https://cscuk.fcdo.gov.uk/scholarships-filter-search/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-fellowships-information-for-candidates/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-phd-scholarships-for-high-income-countries/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-phd-scholarships-for-least-developed-countries-and-fragile-states/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-professional-fellowships-information-for-uk-host-organisations/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-shared-scholarships-2022/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-shared-scholarships-applications/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-split-site-scholarships-for-low-and-middle-income-countries/"
+      ]
+    },
+    {
+      "id": "adadff15-41ec-4cd2-97a6-77f392810926",
+      "title": "Fulbright Foreign Student Program",
+      "deadline": null,
+      "ambiguous": false,
+      "candidates": [],
+      "year_hint_used": false,
+      "state": "unverified",
+      "ai_policy": "unknown",
+      "source_count": 1,
+      "observed_at": "2026-10-12T11:15:12.431167+00:00",
+      "sources": [
+        {
+          "url": "https://foreign.fulbrightonline.org",
+          "sha256": "5cf8621f59930206ea3137658804db61934aec7e7312f47f5de3644cc1d07b17",
+          "retrieved_at": "2026-10-12T11:15:12.431167+00:00",
+          "blocker": null
+        }
+      ],
+      "discovered_links": []
+    },
+    {
+      "id": "18afc3fe-e2a2-455e-ab77-c8abf06fe657",
+      "title": "Rhodes Scholarship for West Africa",
+      "deadline": "2026-08-27T00:00:00+00:00",
+      "ambiguous": false,
+      "candidates": [
+        "2026-08-27T00:00:00+00:00"
+      ],
+      "year_hint_used": false,
+      "state": "closed",
+      "ai_policy": "unknown",
+      "source_count": 4,
+      "observed_at": "2026-10-12T11:15:17.112436+00:00",
+      "sources": [
+        {
+          "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/west-africa/",
+          "sha256": "8079c0fe5f0d3d49b8fe8b066b3d387d8a8fc49d58f7a7a88da84d2afb50c86b",
+          "retrieved_at": "2026-10-12T11:15:13.899834+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/faqs/",
+          "sha256": "7074bbf61227f08b826b875ac1ed34f84a7b296ba73fd1fbe2240aedb5433a8c",
+          "retrieved_at": "2026-10-12T11:15:15.029275+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/",
+          "sha256": "deda49d8c8e50b378ce4a2349438fe45a332a131cf59c019d57b4b0c64264b9b",
+          "retrieved_at": "2026-10-12T11:15:16.049402+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+          "sha256": "677d0337f314f7cf2f4288d3eda42b89462f0f09f8da1ed9e0c7b02f0d028a01",
+          "retrieved_at": "2026-10-12T11:15:17.099896+00:00",
+          "blocker": null
+        }
+      ],
+      "discovered_links": [
+        "https://www.rhodeshouse.ox.ac.uk/potential/creating-scholarships/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/application-overview/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/applications/west-africa/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/constituency-information/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/faqs/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/guidance-for-referees/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/history-of-the-rhodes-scholarship/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/information-for-academic-advisors/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/information-for-institutions-universities/",
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/information-sessions/"
+      ]
+    },
+    {
+      "id": "ba39cf9e-4b46-42a5-a977-e82a8b90da2a",
+      "title": "Gates Cambridge Scholarship",
+      "deadline": null,
+      "ambiguous": false,
+      "candidates": [],
+      "year_hint_used": false,
+      "state": "unverified",
+      "ai_policy": "unknown",
+      "source_count": 2,
+      "observed_at": "2026-10-12T11:15:22.212806+00:00",
+      "sources": [
+        {
+          "url": "https://www.gatescambridge.org/apply/how-to-apply/",
+          "sha256": "d514687025a95ad255deaa56d3851f72315f84a44ff1fa4ff154a33e9353bb60",
+          "retrieved_at": "2026-10-12T11:15:18.696228+00:00",
+          "blocker": null
+        },
+        {
+          "url": "https://www.postgraduate.study.cam.ac.uk/courses/directory/cscsmpacs",
+          "sha256": null,
+          "retrieved_at": null,
+          "blocker": "unavailable"
+        },
+        {
+          "url": "https://www.postgraduate.study.cam.ac.uk/courses/directory/cscsmpacs/apply",
+          "sha256": null,
+          "retrieved_at": null,
+          "blocker": "unavailable"
+        },
+        {
+          "url": "https://www.gatescambridge.org/programme/the-scholarship/",
+          "sha256": "ba07a213a806e37efafb1cb210bd83f1a5e1d667c833e883156679af560bc853",
+          "retrieved_at": "2026-10-12T11:15:22.203537+00:00",
+          "blocker": null
+        }
+      ],
+      "discovered_links": [
+        "https://www.gatescambridge.org/programme/the-scholarship/"
+      ]
+    },
+    {
+      "id": "4f1b626c-a82b-471b-8fb1-2bb0ebff57d2",
+      "title": "PTDF Overseas Scholarship Scheme",
+      "deadline": null,
+      "ambiguous": false,
+      "candidates": [],
+      "year_hint_used": false,
+      "state": "unverified",
+      "ai_policy": "unknown",
+      "source_count": 1,
+      "observed_at": "2026-10-12T11:15:23.933695+00:00",
+      "sources": [
+        {
+          "url": "https://ptdf.gov.ng",
+          "sha256": "e05b33d58a719ffc63dad3daf27d60ea89b7e286bbc6bab7d94212c6f81fe08f",
+          "retrieved_at": "2026-10-12T11:15:23.818149+00:00",
+          "blocker": null
+        }
+      ],
+      "discovered_links": []
+    }
+  ]
+}

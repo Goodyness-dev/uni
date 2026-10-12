@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Fact, Preferences, IntakeRequest } from "../lib/types";
 import { api, ApiError } from "../lib/api";
+import { useV1 } from "../lib/v1";
 import { DocumentsCard } from "../components/profile/DocumentsCard";
 import { PreferencesCard } from "../components/profile/PreferencesCard";
 import { VaultCard } from "../components/profile/VaultCard";
 import { ParsedFactsCard } from "../components/profile/ParsedFactsCard";
+import { NotificationControls } from "../components/profile/NotificationControls";
 import { StickyActionBar } from "../components/profile/StickyActionBar";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { Toast } from "../components/Toast";
@@ -36,6 +38,7 @@ export default function ProfilePage() {
   const [cvPdfBase64, setCvPdfBase64] = useState<string | null>(null);
   const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [cvFileSize, setCvFileSize] = useState<string | null>(null);
+  const [transcriptPdfBase64, setTranscriptPdfBase64] = useState<string | null>(null);
   const [transcriptText, setTranscriptText] = useState("");
   const [transcriptFileName, setTranscriptFileName] = useState<string | null>(null);
 
@@ -61,6 +64,18 @@ export default function ProfilePage() {
   const [conflictWarning, setConflictWarning] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!useV1) return;
+    let mounted = true;
+    api.getFacts().then(result => {
+      if (!mounted) return;
+      setFacts(result.facts);
+      setCounts({ cv: result.facts.filter(f => f.source === "cv").length, transcript: result.facts.filter(f => f.source === "transcript").length, vault: result.facts.filter(f => f.source === "vault").length });
+      if (result.preferences) setPreferences({ ...result.preferences, countries: result.preferences.countries.map(country => country === "UK" ? "United Kingdom" : country) });
+    }).catch(error => { if (mounted) setErrorMsg(error instanceof Error ? error.message : "Profile could not be loaded."); });
+    return () => { mounted = false; };
+  }, []);
+
   // Load Demo Persona Callback
   const handleLoadDemo = useCallback(async () => {
     try {
@@ -79,8 +94,8 @@ export default function ProfilePage() {
       }
 
       setCvFileName("Tobi_Adeyemi_CV_2025.pdf");
-      setCvFileSize("142 KB");
-      setCvPdfBase64("MOCK_PDF_BASE64_TOKEN");
+      setCvFileSize(null);
+      setCvPdfBase64(null);
       setCvText(
         "BSc Computer Engineering, Fictional State University, CGPA 4.30/5.00. Embedded Systems Intern, BrightGrid Solar. Final year capstone: SunTrack low-cost solar monitoring."
       );
@@ -197,7 +212,7 @@ export default function ProfilePage() {
           <span>INDEX STATUS: DETERMINISTIC PROVENANCE</span>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {!useV1 && <button
             type="button"
             onClick={handleLoadDemo}
             disabled={intakeLoading}
@@ -206,7 +221,7 @@ export default function ProfilePage() {
           >
             <Sparkles className="w-3.5 h-3.5 text-[#5b8cff]" />
             <span>Load demo persona</span>
-          </button>
+          </button>}
           <span className="text-[#626877] text-xs font-mono hidden sm:inline">|</span>
           <span className="text-[#49e095] text-xs font-mono hidden sm:inline">STRICT TRUTH GUARD ON</span>
         </div>
@@ -243,6 +258,8 @@ export default function ProfilePage() {
         hasCvPdf={!!cvPdfBase64}
         transcriptText={transcriptText}
         transcriptFileName={transcriptFileName}
+        hasTranscriptPdf={!!transcriptPdfBase64}
+        onTranscriptFileChange={(base64, name) => { setTranscriptPdfBase64(base64); setTranscriptFileName(name); }}
         onCvPdfChange={(base64, fileName, fileSize) => {
           setCvPdfBase64(base64);
           setCvFileName(fileName);
@@ -307,9 +324,10 @@ export default function ProfilePage() {
         />
       )}
 
+      {useV1 && <NotificationControls />}
       {/* Sticky Action Bar */}
       <StickyActionBar
-        factsCount={facts.length}
+        factsCount={useV1 ? facts.filter(fact => !fact.id.startsWith("U_")).length : facts.length}
         onRunAgent={handleRunAgent}
         isRunning={runLoading}
         isDemoMode={true}

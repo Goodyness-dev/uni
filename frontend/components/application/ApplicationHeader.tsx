@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { approveApplication, continueApplication, withdrawApplication } from "@/lib/api";
+import { useV1 } from "@/lib/v1";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, XCircle, CheckCircle2, ShieldAlert } from "lucide-react";
 import { Application } from "@/lib/types";
@@ -15,6 +18,8 @@ interface ApplicationHeaderProps {
 }
 
 export function ApplicationHeader({ application }: ApplicationHeaderProps) {
+  const [approvalError, setApprovalError] = useState("");
+  const [approving, setApproving] = useState(false);
   const { listing, status, trace_url, handoff, failure_reason, submission, id } = application;
 
   const daysRemaining = listing?.deadline ? daysLeft(listing.deadline) : null;
@@ -77,7 +82,7 @@ export function ApplicationHeader({ application }: ApplicationHeaderProps) {
           <div className="shrink-0 flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#181A20] border border-[#5b8cff]/30 text-[11px] text-[#b2c5ff]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#5b8cff] animate-pulse" />
-              <span>Traced with neatlogs</span>
+              <span>Neatlogs instrumentation enabled</span>
             </span>
             <a
               href={trace_url}
@@ -86,13 +91,19 @@ export function ApplicationHeader({ application }: ApplicationHeaderProps) {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#262932] hover:bg-[#353945] border border-[#353945] text-xs font-medium text-[#7AA2FF] transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>View trace</span>
+              <span>View Neatlogs trace</span>
             </a>
           </div>
         )}
       </div>
 
+      {useV1 && status === "ready" && <div className="text-xs"><button disabled={approving} className="p-3 rounded bg-[#262932] disabled:opacity-50" onClick={async () => { setApproving(true); setApprovalError(""); try { await approveApplication(id); window.location.reload(); } catch (error) { setApprovalError(error instanceof Error ? error.message : "Approval failed."); } finally { setApproving(false); } }}>{approving ? "Approving…" : "Approve reviewed demo application"}</button>{approvalError && <p role="alert">{approvalError}</p>}</div>}
       {/* Stage Tracker */}
+      {useV1 && !["submitted", "prepared", "failed", "skipped"].includes(status) && <div className="flex gap-3 text-xs">
+        {handoff?.reason === "missing_evidence" && <><Link href="/" className="text-[#7AA2FF]">Upload missing evidence</Link>
+          <button disabled={approving} className="text-[#49e095]" onClick={async () => { setApproving(true); try { await continueApplication(id); window.location.reload(); } catch (err) { setApprovalError(err instanceof Error ? err.message : "Could not continue."); } finally { setApproving(false); } }}>Continue agent</button></>}
+        <button disabled={approving} className="text-red-300" onClick={async () => { setApproving(true); try { await withdrawApplication(id); window.location.reload(); } catch (err) { setApprovalError(err instanceof Error ? err.message : "Could not stop."); } finally { setApproving(false); } }}>Stop this application</button>
+      </div>}
       <StageTracker
         currentStage={statusStage(status)}
         isCompleted={isCompleted}
@@ -172,7 +183,7 @@ export function ApplicationHeader({ application }: ApplicationHeaderProps) {
             <div>
               <h3 className="text-sm font-semibold text-[#ECEDF0]">Package Ready</h3>
               <p className="text-xs text-[#9AA0AE] mt-0.5">
-                Your verified CV, tailored essay and submission checklist are prepared.
+                Your source-based CV, writing material and submission checklist are prepared for review.
               </p>
             </div>
           </div>

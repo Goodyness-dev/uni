@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.config import settings
 from app.api.deps import get_current_user
 from app.db.base import get_db_session
 from app.db.models import Match, Profile, Scholarship, User
@@ -30,6 +31,14 @@ def evaluate_eligibility_and_fit(profile: Profile, scholarship: Scholarship) -> 
     """Deterministic eligibility check and fit scoring per Section 8.1."""
     rules = scholarship.eligibility_rules or {}
     reasons: List[str] = []
+    if rules.get("catalog_id") and not rules.get("is_mock"):
+        observation = rules.get("_source_observation", {})
+        if observation.get("state") != "open" or not observation.get("source_count"):
+            return None
+        if observation.get("observed_at"):
+            age = datetime.now(timezone.utc) - datetime.fromisoformat(observation["observed_at"])
+            if age.total_seconds() > 21600:
+                return None
 
     # 1. Deadline check
     now = datetime.now(timezone.utc)
@@ -52,12 +61,17 @@ def evaluate_eligibility_and_fit(profile: Profile, scholarship: Scholarship) -> 
             reasons.append(f"Deadline in {days_left} days")
 
     # 2. Level check
-    target_level = "masters"  # Default assumption for graduate study
-    if scholarship.level.lower() != target_level.lower():
-        # Soft match or check profile
-        pass
+    target_level = profile.personal_details.get("target_level")
+    if target_level and scholarship.level.lower() != str(target_level).lower():
+        return None
+    if not target_level:
+        if settings.ENVIRONMENT == "production":
+            return None
+        reasons.append("Degree level needs applicant confirmation")
     else:
         reasons.append(f"Target degree level matches {scholarship.level.title()}")
+    if profile.target_countries and scholarship.country.casefold() not in {country.casefold() for country in profile.target_countries}:
+        return None
 
     # 3. Country / Nationality check
     eligible_nats = rules.get("eligible_nationalities", [])
@@ -80,7 +94,6 @@ def evaluate_eligibility_and_fit(profile: Profile, scholarship: Scholarship) -> 
             return None
         if user_gpa / scale < min_gpa / required_scale:
             return None
-    elif min_gpa > 0:
         reasons.append(f"GPA {user_gpa} meets minimum requirement ({min_gpa})")
 
     # 5. Field of study fit scoring
@@ -89,6 +102,8 @@ def evaluate_eligibility_and_fit(profile: Profile, scholarship: Scholarship) -> 
     schol_fields = [f.lower() for f in rules.get("fields", [scholarship.field])]
 
     field_match = any(any(uf in sf or sf in uf for sf in schol_fields) for uf in user_fields)
+    if rules.get("fields") and not field_match:
+        return None
     if field_match:
         fit_score += 20.0
         reasons.append(f"Field of study aligns with {scholarship.field}")

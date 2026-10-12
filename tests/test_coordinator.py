@@ -59,8 +59,10 @@ def test_coordinator_autopilot_pipeline_end_to_end():
             )
             session.add(profile)
 
-            schol = (await session.execute(select(Scholarship))).scalars().first()
+            schol = (await session.execute(select(Scholarship).where(Scholarship.eligibility_rules["is_mock"].as_boolean() == True))).scalars().first()
 
+            schol.application_url = "http://localhost:8000/portal/apply/fictional"
+            schol.eligibility_rules = {**schol.eligibility_rules, "ai_policy": "allowed"}
             # 2. Start Application in discovered state
             app_record = Application(
                 user_id=user.id,
@@ -130,11 +132,12 @@ def test_coordinator_review_mode_pauses_at_ready_for_review():
                 user_id=user.id,
                 personal_details={"first_name": "Tari", "last_name": "Alagoa", "citizenship": "Nigeria"},
                 education_history=[{"institution": "Rivers State University", "degree": "B.Sc. Mechanical Engineering"}],
-                grades={"gpa": 4.6},
+                grades={"gpa": 4.6, "gpa_scale": 5.0},
+                target_fields_of_study=["engineering"],
             )
             session.add(profile)
 
-            schol = (await session.execute(select(Scholarship))).scalars().first()
+            schol = (await session.execute(select(Scholarship).where(Scholarship.eligibility_rules["is_mock"].as_boolean() == True))).scalars().first()
 
             app_record = Application(
                 user_id=user.id,
@@ -167,7 +170,7 @@ def test_coordinator_review_mode_pauses_at_ready_for_review():
     asyncio.run(run())
 
 
-def test_rest_approve_and_resume_enqueue_submission():
+def test_rest_approve_enqueues_and_unreconciled_resume_stops():
     """Verifies that calling /approve and /resume enqueues submit_application jobs into the queue."""
     async def run():
         transport = ASGITransport(app=app)
@@ -191,6 +194,10 @@ def test_rest_approve_and_resume_enqueue_submission():
             # 2. Fast-forward to ready_for_review
             async with AsyncSessionLocal() as session:
                 app_obj = await session.get(Application, uuid.UUID(app_id))
+                scholarship = await session.get(Scholarship, app_obj.scholarship_id)
+                scholarship.application_url = "http://localhost:8000/portal/apply/fictional"
+                scholarship.eligibility_rules = {**scholarship.eligibility_rules, "ai_policy": "allowed"}
+                session.add(Draft(application_id=app_obj.id, kind="essay", content="Clearly fictional source evidence for review.", version=1))
                 app_obj.status = "ready_for_review"
                 await session.commit()
 
@@ -213,8 +220,7 @@ def test_rest_approve_and_resume_enqueue_submission():
 
             # 4. Call resume endpoint
             resume_resp = await client.post(f"/v1/applications/{app_id}/resume", headers=headers)
-            assert resume_resp.status_code == 200
-            assert resume_resp.json()["status"] == "submitting"
+            assert resume_resp.status_code == 409
 
             # Check that another submit_application job was enqueued
             async with AsyncSessionLocal() as session:
@@ -223,7 +229,7 @@ def test_rest_approve_and_resume_enqueue_submission():
                         select(Job).where(Job.type == "submit_application").order_by(Job.created_at.desc())
                     )
                 ).scalars().all()
-                assert len(jobs) >= 2
+                assert len(jobs) == 1
 
     asyncio.run(run())
 
@@ -236,7 +242,7 @@ def test_kill_switch_cancellation_guards():
             session.add(user)
             await session.commit()
 
-            schol = (await session.execute(select(Scholarship))).scalars().first()
+            schol = (await session.execute(select(Scholarship).where(Scholarship.eligibility_rules["is_mock"].as_boolean() == True))).scalars().first()
             application = Application(
                 user_id=user.id,
                 scholarship_id=schol.id,

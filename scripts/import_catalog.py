@@ -4,6 +4,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 # Add project root to sys.path
 root_dir = Path(__file__).resolve().parent.parent
@@ -50,6 +51,7 @@ async def import_listings(json_path: Path) -> int:
             existing = (await session.execute(stmt)).scalar_one_or_none()
 
             eligibility = {
+                "catalog_id": item.get("id"),
                 "fields": fields_list,
                 "min_gpa": item.get("min_gpa", 0.0),
                 "gpa_scale": item.get("gpa_scale", 5.0),
@@ -60,17 +62,22 @@ async def import_listings(json_path: Path) -> int:
                 "essay_word_limit": item.get("essay_word_limit", 500),
                 "channel": item.get("channel", "portal_form"),
                 "is_mock": item.get("is_mock", False),
+                "ai_policy": item.get("ai_policy", "unknown") if item.get("is_mock") else "unknown",
             }
+            application_url = item.get("source_url") or "https://scholarpilot.demo"
+            if item.get("is_mock") and item.get("portal_path"):
+                origin = urlsplit(application_url)
+                application_url = origin.scheme + "://" + origin.netloc + item["portal_path"]
 
             if existing:
                 existing.country = item.get("country", "Unknown")
                 existing.level = item.get("level", "masters")
                 existing.field = primary_field
-                existing.deadline = deadline_dt
-                existing.eligibility_rules = eligibility
-                existing.application_url = item.get("source_url") or "https://scholarpilot.demo"
+                existing.deadline = deadline_dt if item.get("is_mock") else existing.deadline if existing.last_verified_at else None
+                existing.eligibility_rules = {**eligibility, **({k: v for k, v in existing.eligibility_rules.items() if k in {"_source_observation", "research_urls", "portal_url", "portal_policy", "ai_policy"}} if existing.last_verified_at else {})}
+                existing.application_url = application_url
                 existing.source = "listings.json"
-                existing.status = "active"
+                existing.status = "active" if item.get("is_mock") else existing.status if existing.last_verified_at else "unverified"
             else:
                 scholarship = Scholarship(
                     title=item.get("name", "Untitled"),
@@ -78,14 +85,14 @@ async def import_listings(json_path: Path) -> int:
                     country=item.get("country", "Unknown"),
                     level=item.get("level", "masters"),
                     field=primary_field,
-                    amount=float(item.get("amount", 10000.0) if item.get("funding") == "full" else 5000.0),
+                    amount=float(item.get("amount", 0.0)),
                     currency="USD",
-                    deadline=deadline_dt,
+                    deadline=deadline_dt if item.get("is_mock") else None,
                     eligibility_rules=eligibility,
-                    application_url=item.get("source_url") or "https://scholarpilot.demo",
+                    application_url=application_url,
                     requires_essay=bool(item.get("essay_prompt")),
                     source="listings.json",
-                    status="active",
+                    status="active" if item.get("is_mock") else "unverified",
                 )
                 session.add(scholarship)
                 imported_count += 1

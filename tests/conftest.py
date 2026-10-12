@@ -16,6 +16,7 @@ class FakeRedis:
         self.values = {}
         self.expires = {}
         self.lists = {}
+        self.windows = {}
 
     async def get(self, key):
         if self.expires.get(key, float("inf")) <= time.monotonic():
@@ -33,6 +34,11 @@ class FakeRedis:
     async def delete(self, key):
         return int(self.values.pop(key, None) is not None)
 
+    async def getdel(self, key):
+        value = await self.get(key)
+        await self.delete(key)
+        return value
+
     async def rpush(self, key, value):
         self.lists.setdefault(key, []).append(value)
 
@@ -41,6 +47,14 @@ class FakeRedis:
         return values.pop(0) if values else None
 
     async def eval(self, script, count, *args):
+        if "zremrangebyscore" in script:
+            key, cutoff, maximum, now, nonce, expiry = args
+            window = [value for value in self.windows.get(key, []) if value > float(cutoff)]
+            self.windows[key] = window
+            if len(window) >= int(maximum):
+                return 0
+            window.append(float(now))
+            return 1
         if count == 2:
             first, second, amount = args[:3]
             amount = int(amount)
@@ -53,6 +67,9 @@ class FakeRedis:
             return 1
         key, token = args
         if await self.get(key) == token:
+            if "expire" in script:
+                self.expires[key] = time.monotonic() + 90
+                return 1
             return await self.delete(key)
         return 0
 
@@ -63,6 +80,8 @@ def offline_services(monkeypatch):
     from app.jobs import queue
     from app.core import runtime
     from app.services import scheduler
+    from app.core import rate_limiter, identity
+    from app.api.v1 import settings as user_settings, onboarding, applications
     from app.agents import researcher
     from app.core.config import settings
     broker = FakeRedis()
@@ -70,13 +89,25 @@ def offline_services(monkeypatch):
     async def get_broker():
         return broker
 
-    for module in (queue, runtime, scheduler):
+    for module in (queue, runtime, scheduler, rate_limiter, identity, user_settings, onboarding, applications):
         monkeypatch.setattr(module, "get_redis_client", get_broker)
     for name in ("GEMINI_API_KEY", "ANTHROPIC_API_KEY", "PRIMARY_API_KEY", "FALLBACK_API_KEY", "NEATLOGS_API_KEY"):
         monkeypatch.setattr(settings, name, None)
     monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
     monkeypatch.setattr(settings, "ENVIRONMENT", "development")
-    researcher._RESEARCH_CACHE.clear()
+    monkeypatch.setattr(settings, "LLM_DRAFTING", False)
+    monkeypatch.setattr(settings, "NOTIFICATIONS_ENABLED", False)
+    monkeypatch.setattr(settings, "EMAIL_PROVIDER", "smtp")
+    monkeypatch.setattr(settings, "SES_FROM", None)
+    monkeypatch.setattr(settings, "SMTP_USER", None)
+    monkeypatch.setattr(settings, "SMTP_APP_PASSWORD", None)
+    async def public_fixture(url):
+        return "<p>Fictional institutional page used only in offline tests.</p>"
+    from app.services import public_pages
+    async def official_fixture(url, **kwargs):
+        return await public_fixture(url)
+    monkeypatch.setattr(public_pages, "fetch_public_text", official_fixture)
+    monkeypatch.setattr(settings, "LIVE_RESEARCH", True)
     original = httpx.AsyncClient.request
 
     async def request(client, method, url, **kwargs):

@@ -4,13 +4,15 @@ from typing import Any, Dict
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from app.api.deps import get_request_id
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.logging import logger, setup_logging
 from app.core.tracing import init_tracing, shutdown_tracing
-from app.jobs.queue import get_redis_client
+from app.jobs.queue import get_redis_client, close_redis_client
+import app.core.audit
 from app.db.base import AsyncSessionLocal, engine, Base
 
 
@@ -28,12 +30,13 @@ async def lifespan(app: FastAPI):
                 await conn.run_sync(Base.metadata.create_all)
             logger.info("Database schema initialized via metadata in non-production mode.")
         except Exception as e:
-            logger.error(f"Database initialization error: {e}")
+            logger.error("Database initialization failed; sensitive details excluded.")
 
     yield
 
     logger.info("Shutting down ScholarPilot API...")
     shutdown_tracing()
+    await close_redis_client()
     await engine.dispose()
 
 
@@ -43,6 +46,9 @@ app = FastAPI(
     description="Autonomous, verification-first scholarship application agent platform.",
     lifespan=lifespan,
 )
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Content-Type", "Authorization", "X-API-Key"],
+    expose_headers=["Content-Disposition"])
 
 
 # Global Exception Handlers for consistent error payloads per Section 11
@@ -51,7 +57,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     req_id = get_request_id(request.headers.get("X-Request-ID"))
     detail = exc.detail
     if isinstance(detail, dict) and "code" in detail:
-        return JSONResponse(status_code=exc.status_code, content=detail)
+        return JSONResponse(status_code=exc.status_code, content=detail, headers=exc.headers)
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -59,6 +65,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
             "message": str(detail),
             "request_id": req_id,
         },
+        headers=exc.headers,
     )
 
 
@@ -71,7 +78,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "code": "VALIDATION_ERROR",
             "message": "Request validation failed.",
             "request_id": req_id,
-            "details": exc.errors(),
+            "details": [{"type": error["type"], "loc": error["loc"]} for error in exc.errors()],
         },
     )
 
@@ -84,6 +91,12 @@ async def health_check() -> Dict[str, Any]:
         "service": "scholarpilot",
         "environment": settings.ENVIRONMENT,
         "kill_switch_active": settings.KILL_SWITCH_ACTIVE,
+        "demo_mode": settings.ENVIRONMENT != "production",
+        "llm_primary": "configured" if settings.GEMINI_API_KEY or settings.PRIMARY_API_KEY else "missing",
+        "llm_fallback": "configured" if settings.ANTHROPIC_API_KEY or settings.FALLBACK_API_KEY else "missing",
+        "telegram": "configured" if settings.TELEGRAM_BOT_TOKEN else "missing",
+        "neatlogs": "configured" if settings.NEATLOGS_API_KEY else "missing",
+        "smtp": "configured" if settings.SMTP_USER and settings.SMTP_APP_PASSWORD else "missing", "crustdata": "missing",
     }
 
 
@@ -96,13 +109,17 @@ async def readiness_check() -> JSONResponse:
     }
     if settings.ENVIRONMENT == "production":
         checks["broker"] = await get_redis_client() is not None
+        checks["schema"] = False
 
     try:
         async with AsyncSessionLocal() as session:
             await session.execute(text("SELECT 1"))
             checks["database"] = True
+            if settings.ENVIRONMENT == "production":
+                revision = (await session.execute(text("SELECT version_num FROM alembic_version"))).scalar_one()
+                checks["schema"] = revision == "003_audit_guards"
     except Exception as e:
-        logger.error(f"Readiness database check failed: {e}")
+        logger.error("Readiness database check failed; sensitive details excluded.")
 
     is_ready = all(checks.values())
     http_status = status.HTTP_200_OK if is_ready else status.HTTP_503_SERVICE_UNAVAILABLE

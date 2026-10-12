@@ -1,0 +1,430 @@
+{
+  "trace_id": "fd911277e30ccad4cddcd3221bb0eae3",
+  "workflow": "scholarpilot",
+  "status": "success",
+  "finalization_status": "finalized",
+  "created_at": "2026-10-12T06:42:21.164Z",
+  "latency_ms": 41424,
+  "span_count": 114,
+  "llm_calls": 12,
+  "tool_calls": 65,
+  "total_tokens": 43253,
+  "total_cost": 0.0373959,
+  "detections": [
+    "ScholarPilot blocked verification",
+    "ScholarPilot recovery observed"
+  ],
+  "verification_ready": true,
+  "returned_span_count": 50,
+  "next_offset": 50,
+  "application_id": "d1765d73-2614-424e-8cc1-162b598bef39",
+  "submission_approved": false,
+  "manual_review_findings": [
+    "Causal wording: teaching resulted in later science-fair entry, which the source does not establish.",
+    "A future design goal was presented as current work.",
+    "Inferred dashboard benefits and community impact required stronger evidence."
+  ],
+  "verification_report": {
+    "claims": [
+      {
+        "id": "seg_1",
+        "text": "My work focuses on designing low cost energy monitoring systems that help small businesses in Nigeria use solar power reliably.",
+        "reason": "The source text F_e35d8a928b184782b8f63a62d528e2b6 states: 'I want to design low cost energy monitoring systems that help small businesses in Nigeria use solar power reliably', matching the claim.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e35d8a928b184782b8f63a62d528e2b6"
+        ],
+        "segment_index": 0,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_2",
+        "text": "During my undergraduate studies at Fictional State University, I developed SunTrack, a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors.",
+        "reason": "Sources F_088bcb20295d46df8422ef3bcf1b99b7, F_423e9625bfc04e32abe990e11329312e, and F_79ed49558f9c49cdbb200b5fce21503e confirm undergraduate studies at FSU, developing SunTrack as a low cost solar panel monitoring system with ESP32 and wireless sensors, and that it was a final year project.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_423e9625bfc04e32abe990e11329312e",
+          "F_79ed49558f9c49cdbb200b5fce21503e"
+        ],
+        "segment_index": 1,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_3",
+        "text": "This final year project received the departmental prize for the best final year project in 2025 and directly addresses community energy needs.",
+        "reason": "Sources F_79ed49558f9c49cdbb200b5fce21503e, F_2481de65995e491ab59ef44db0ad0242, and F_eecf3709edae49959506dafdfa0a8181 support that it was a final year project, received the departmental prize in 2025, and monitors solar panels with low cost sensors.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_79ed49558f9c49cdbb200b5fce21503e",
+          "F_2481de65995e491ab59ef44db0ad0242",
+          "F_eecf3709edae49959506dafdfa0a8181"
+        ],
+        "segment_index": 2,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_4",
+        "text": "I also built a Python web dashboard that shows panel output over time to provide actionable insights for users.",
+        "reason": "Sources F_24a97ff6a4584237a039eaddd0189a25 and F_10ae6adaf2cd476aa2bbbee964320a68 support the creation of a Python web dashboard that shows panel output over time.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_24a97ff6a4584237a039eaddd0189a25",
+          "F_10ae6adaf2cd476aa2bbbee964320a68"
+        ],
+        "segment_index": 3,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_5",
+        "text": "Beyond technical projects, I volunteered as a coding teacher at Community Secondary School and taught Python to 40 students over 200 hours across 2 years.",
+        "reason": "Sources F_6efcb45dd2a744099e44bcba0c45d220 and F_17a8999f702b42f2aa0b53ca0dd13386 support volunteering as a coding teacher at Community Secondary School and teaching Python to 40 students over 200 hours across 2 years.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_6efcb45dd2a744099e44bcba0c45d220",
+          "F_17a8999f702b42f2aa0b53ca0dd13386"
+        ],
+        "segment_index": 4,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_6",
+        "text": "Eight of my students later entered a state science fair, demonstrating early educational impact in my community.",
+        "reason": "Source F_65f4f37c17974703a11f782f2a292312 supports that eight students entered a state science fair.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_65f4f37c17974703a11f782f2a292312"
+        ],
+        "segment_index": 5,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_8",
+        "text": "Computer Engineering graduate from Fictional State University with a CGPA of 4.30 out of 5.00 and practical experience in embedded systems and solar monitoring.",
+        "reason": "Sources F_088bcb20295d46df8422ef3bcf1b99b7 and F_f0c3f369878d4f8db9c78ae7300e151e support being a Computer Engineering graduate from FSU with a CGPA of 4.30 out of 5.00.",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_f0c3f369878d4f8db9c78ae7300e151e"
+        ],
+        "segment_index": 6,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_10",
+        "text": "Embedded Systems Intern at BrightGrid Solar for 5 months in 2024, writing data logging firmware for a solar sensor board and testing it across 12 boards.",
+        "reason": "Sources F_2f511c1206ab4a84abbbd8ed8b778e42, F_2d821849a10b4ec381082b49964b4713, and F_411c07f00c8140069902c438541c06af support being an Embedded Systems Intern at BrightGrid Solar for 5 months in 2024, writing firmware for a solar sensor board and testing it across 12 boards.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2f511c1206ab4a84abbbd8ed8b778e42",
+          "F_2d821849a10b4ec381082b49964b4713",
+          "F_411c07f00c8140069902c438541c06af"
+        ],
+        "segment_index": 7,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_11",
+        "text": "Created SunTrack, a low cost solar panel monitoring system with wireless sensors tested on 3 rooftop panels, paired with a Python web dashboard.",
+        "reason": "Sources F_423e9625bfc04e32abe990e11329312e, F_acea486c54074445b819118e974d7389, and F_24a97ff6a4584237a039eaddd0189a25 support SunTrack details, testing on 3 rooftop panels, and the Python web dashboard.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_423e9625bfc04e32abe990e11329312e",
+          "F_acea486c54074445b819118e974d7389",
+          "F_24a97ff6a4584237a039eaddd0189a25"
+        ],
+        "segment_index": 8,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_12",
+        "text": "Organized the FSU campus hackathon with 120 participants and served as assistant coordinator of the FSU Tech Club for the 2023 to 2024 session.",
+        "reason": "Sources F_e6ce4ce22178442bb6d3c33f08a4aefb and F_9a7ece1623d44be0a34d3a1d81abdfee support organizing the hackathon with 120 participants and serving as assistant coordinator of the FSU Tech Club for the 2023 to 2024 session.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e6ce4ce22178442bb6d3c33f08a4aefb",
+          "F_9a7ece1623d44be0a34d3a1d81abdfee"
+        ],
+        "segment_index": 9,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_13",
+        "text": "Volunteered as a coding teacher for 40 students over 200 hours, resulting in eight students entering a state science fair.",
+        "reason": "Sources F_6efcb45dd2a744099e44bcba0c45d220, F_17a8999f702b42f2aa0b53ca0dd13386, and F_65f4f37c17974703a11f782f2a292312 support volunteering as a coding teacher for 40 students over 200 hours and eight students entering a state science fair.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_6efcb45dd2a744099e44bcba0c45d220",
+          "F_17a8999f702b42f2aa0b53ca0dd13386",
+          "F_65f4f37c17974703a11f782f2a292312"
+        ],
+        "segment_index": 10,
+        "deterministic_pass": true
+      }
+    ],
+    "rounds": 2,
+    "initial_claims": [
+      {
+        "id": "seg_1",
+        "text": "My work focuses on designing low cost energy monitoring systems that help small businesses in Nigeria use solar power reliably.",
+        "reason": "The source F_e35d8a928b184782b8f63a62d528e2b6 states: 'I want to design low cost energy monitoring systems that help small businesses in Nigeria use solar power reliably.' This supports the statement.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e35d8a928b184782b8f63a62d528e2b6"
+        ],
+        "segment_index": 0,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_2",
+        "text": "During my undergraduate studies at Fictional State University, I developed SunTrack, a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors.",
+        "reason": "Sources F_088bcb20295d46df8422ef3bcf1b99b7, F_423e9625bfc04e32abe990e11329312e, and F_79ed49558f9c49cdbb200b5fce21503e confirm undergraduate studies at Fictional State University and developing SunTrack as a low cost solar panel monitoring system built with an ESP32 microcontroller and wireless sensors for a final year project.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_423e9625bfc04e32abe990e11329312e",
+          "F_79ed49558f9c49cdbb200b5fce21503e"
+        ],
+        "segment_index": 1,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_3",
+        "text": "This final year project received the departmental prize for the best final year project in 2025 and directly addresses community energy needs.",
+        "reason": "Sources F_79ed49558f9c49cdbb200b5fce21503e, F_2481de65995e491ab59ef44db0ad0242, and F_eecf3709edae49959506dafdfa0a8181 verify it was a final year project, received the departmental prize for the best final year project in 2025, and that SunTrack monitors solar panels with low cost sensors.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_79ed49558f9c49cdbb200b5fce21503e",
+          "F_2481de65995e491ab59ef44db0ad0242",
+          "F_eecf3709edae49959506dafdfa0a8181"
+        ],
+        "segment_index": 2,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_4",
+        "text": "I also built a Python web dashboard that shows panel output over time to provide actionable insights for users.",
+        "reason": "Sources F_24a97ff6a4584237a039eaddd0189a25 and F_10ae6adaf2cd476aa2bbbee964320a68 support building a Python web dashboard that shows panel output over time.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_24a97ff6a4584237a039eaddd0189a25",
+          "F_10ae6adaf2cd476aa2bbbee964320a68"
+        ],
+        "segment_index": 3,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_5",
+        "text": "Beyond technical projects, I volunteered as a coding teacher at Community Secondary School and taught Python to 40 students over 200 hours across 2 years.",
+        "reason": "Sources F_6efcb45dd2a744099e44bcba0c45d220 and F_17a8999f702b42f2aa0b53ca0dd13386 state: 'I volunteered as a coding teacher at Community Secondary School' and 'I taught Python to 40 students over 200 hours across 2 years.'",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_6efcb45dd2a744099e44bcba0c45d220",
+          "F_17a8999f702b42f2aa0b53ca0dd13386"
+        ],
+        "segment_index": 4,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_6",
+        "text": "Eight of my students later entered a state science fair, demonstrating early educational impact in my community.",
+        "reason": "Source F_65f4f37c17974703a11f782f2a292312 states: 'Eight of my students later entered a state science fair'.",
+        "section": "essay",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_65f4f37c17974703a11f782f2a292312"
+        ],
+        "segment_index": 5,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_7",
+        "text": "I want a Master's in AI for energy systems because leading research groups on energy forecasting and smart grids are abroad, and I want to bring that knowledge home.",
+        "reason": "Deterministic source checks failed.",
+        "section": "essay",
+        "verdict": "unsupported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_a355362b11724371bfdbd3fbceb90017"
+        ],
+        "segment_index": 6,
+        "deterministic_pass": false
+      },
+      {
+        "id": "seg_8",
+        "text": "Computer Engineering graduate from Fictional State University with a CGPA of 4.30 out of 5.00 and practical experience in embedded systems and solar monitoring.",
+        "reason": "Sources F_088bcb20295d46df8422ef3bcf1b99b7 and F_f0c3f369878d4f8db9c78ae7300e151e state Computer Engineering, Fictional State University, and CGPA of 4.30 out of 5.00.",
+        "section": "cv_summary",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_f0c3f369878d4f8db9c78ae7300e151e"
+        ],
+        "segment_index": 7,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_9",
+        "text": "BSc Computer Engineering, Fictional State University, Nigeria, 2020 to 2025 (CGPA 4.30/5.00, Second Class Upper, Dean's list for 2 sessions).",
+        "reason": "Deterministic source checks failed.",
+        "section": "cv_bullets",
+        "verdict": "unsupported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_088bcb20295d46df8422ef3bcf1b99b7",
+          "F_f0c3f369878d4f8db9c78ae7300e151e",
+          "F_9a848cf5519143dd96633c9b55f41940"
+        ],
+        "segment_index": 8,
+        "deterministic_pass": false
+      },
+      {
+        "id": "seg_10",
+        "text": "Embedded Systems Intern at BrightGrid Solar for 5 months in 2024, writing data logging firmware for a solar sensor board and testing it across 12 boards.",
+        "reason": "Sources F_2f511c1206ab4a84abbbd8ed8b778e42, F_2d821849a10b4ec381082b49964b4713, and F_411c07f00c8140069902c438541c06af verify the internship at BrightGrid Solar for 5 months in 2024, writing data logging firmware for a solar sensor board, and testing it on 12 sensor boards.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_2f511c1206ab4a84abbbd8ed8b778e42",
+          "F_2d821849a10b4ec381082b49964b4713",
+          "F_411c07f00c8140069902c438541c06af"
+        ],
+        "segment_index": 9,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_11",
+        "text": "Created SunTrack, a low cost solar panel monitoring system with wireless sensors tested on 3 rooftop panels, paired with a Python web dashboard.",
+        "reason": "Sources F_423e9625bfc04e32abe990e11329312e, F_acea486c54074445b819118e974d7389, and F_24a97ff6a4584237a039eaddd0189a25 verify SunTrack as a low cost solar panel monitoring system with wireless sensors tested on 3 rooftop panels, paired with a Python web dashboard.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_423e9625bfc04e32abe990e11329312e",
+          "F_acea486c54074445b819118e974d7389",
+          "F_24a97ff6a4584237a039eaddd0189a25"
+        ],
+        "segment_index": 10,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_12",
+        "text": "Organized the FSU campus hackathon with 120 participants and served as assistant coordinator of the FSU Tech Club for the 2023 to 2024 session.",
+        "reason": "Sources F_e6ce4ce22178442bb6d3c33f08a4aefb and F_9a7ece1623d44be0a34d3a1d81abdfee verify organizing the campus hackathon with 120 participants and serving as assistant coordinator of the FSU Tech Club for the 2023 to 2024 session.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_e6ce4ce22178442bb6d3c33f08a4aefb",
+          "F_9a7ece1623d44be0a34d3a1d81abdfee"
+        ],
+        "segment_index": 11,
+        "deterministic_pass": true
+      },
+      {
+        "id": "seg_13",
+        "text": "Volunteered as a coding teacher for 40 students over 200 hours, resulting in eight students entering a state science fair.",
+        "reason": "Sources F_6efcb45dd2a744099e44bcba0c45d220, F_17a8999f702b42f2aa0b53ca0dd13386, and F_65f4f37c17974703a11f782f2a292312 confirm volunteering as a coding teacher for 40 students over 200 hours, resulting in eight students entering a state science fair.",
+        "section": "cv_bullets",
+        "verdict": "supported",
+        "llm_pass": true,
+        "challenged": true,
+        "overturned": false,
+        "source_ids": [
+          "F_6efcb45dd2a744099e44bcba0c45d220",
+          "F_17a8999f702b42f2aa0b53ca0dd13386",
+          "F_65f4f37c17974703a11f782f2a292312"
+        ],
+        "segment_index": 12,
+        "deterministic_pass": true
+      }
+    ],
+    "removed_claims": [],
+    "overturned_claims": [],
+    "unsupported_final": 0,
+    "unsupported_before": 2
+  },
+  "evidence_source": "Authenticated Neatlogs get_trace_context and actual application API readback",
+  "failure_injected": false
+}

@@ -6,7 +6,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import select
 from app.core.config import settings
 from app.db.base import AsyncSessionLocal, Base, engine
-from app.db.models import Application, ApplicationEvent, Scholarship, User
+from app.db.models import Application, ApplicationEvent, Draft, Scholarship, User
 from app.jobs.state_machine import (
     IllegalStateTransitionError,
     KillSwitchActiveError,
@@ -259,6 +259,7 @@ def test_applications_rest_endpoints():
             # 5. Fast-forward application in DB to ready_for_review to test approval endpoint
             async with AsyncSessionLocal() as session:
                 app_obj = await session.get(Application, uuid.UUID(app_id))
+                session.add(Draft(application_id=app_obj.id, kind="essay", content="Clearly fictional original applicant evidence.", version=1))
                 app_obj.status = "ready_for_review"
                 await session.commit()
 
@@ -274,8 +275,7 @@ def test_applications_rest_endpoints():
                 await session.commit()
 
             resume_resp = await client.post(f"/v1/applications/{app_id}/resume", headers=headers)
-            assert resume_resp.status_code == 200
-            assert resume_resp.json()["status"] == "submitting"
+            assert resume_resp.status_code == 409
 
             # 8. Withdraw application
             withdraw_resp = await client.post(f"/v1/applications/{app_id}/withdraw", headers=headers)

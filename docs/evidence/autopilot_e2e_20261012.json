@@ -1,0 +1,33 @@
+{
+  "captured_at_utc": "2026-10-12T08:05:48.846325+00:00",
+  "application_id": "b5842efc-7735-4be5-ac43-33fbd8255d47",
+  "status": "submitted",
+  "confirmation_ref": "DEMO2985",
+  "portal_receipt": {
+    "submitted": true,
+    "confirmation_code": "DEMO2985"
+  },
+  "approval_events": 0,
+  "automatic_submission_queued": true,
+  "autopilot_off_ui_persisted": true,
+  "owner_pause_marker_verified": true,
+  "neatlogs": {
+    "trace_id": "3720e970f1789d3418667a9194a024af",
+    "finalization_status": "finalized",
+    "span_count": 99,
+    "llm_calls": 12,
+    "total_tokens": 17550,
+    "total_cost": 0.011088899999999999,
+    "latency_ms": 54834,
+    "detections": [
+      "ScholarPilot recovery observed",
+      "Execution Failed"
+    ],
+    "returned_span_count": 50,
+    "next_offset": 50,
+    "status": "error",
+    "has_error": true,
+    "error_count": 4
+  },
+  "scope": "Real execution with fictional applicant, seeded scholarship and owned portal. No approval endpoint called; no external scholarship submission."
+}

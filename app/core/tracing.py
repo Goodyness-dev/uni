@@ -3,6 +3,7 @@ import functools
 import inspect
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, Optional
 from app.core.config import settings
 from backend.app.tracing import init_tracing as shared_init, shutdown_tracing as shared_shutdown
@@ -13,6 +14,30 @@ except ImportError:
     neatlogs = None
 
 _enabled: bool = False
+_context: ContextVar[dict[str, Any]] = ContextVar("scholarpilot_trace_context", default={})
+
+
+@contextmanager
+def application_context(application_id: str, listing_id: str, mode: str) -> Generator[None, None, None]:
+    token = _context.set({"application_id": application_id, "listing_id": listing_id, "mode": mode})
+    try:
+        yield
+    finally:
+        _context.reset(token)
+
+
+def trace_identifier(span: Any) -> str | None:
+    context = span.get_span_context() if hasattr(span, "get_span_context") else None
+    return format(context.trace_id, "032x") if context and context.is_valid else None
+
+
+def current_application_id() -> str | None:
+    return _context.get().get("application_id")
+
+
+def log_event(message: str, **kwargs: Any) -> None:
+    if _enabled and neatlogs is not None:
+        neatlogs.log(message, **kwargs)
 
 
 class _NoSpan:
@@ -53,11 +78,7 @@ def tracing_enabled() -> bool:
 
 
 def get_trace_url(run_id: Optional[str] = None) -> Optional[str]:
-    """Generates trace dashboard URL."""
-    if _enabled and neatlogs is not None:
-        base = settings.NEATLOGS_ENDPOINT or "https://app.neatlogs.com"
-        suffix = f"?run_id={run_id}" if run_id else ""
-        return f"{base.rstrip('/')}/traces/scholarpilot{suffix}"
+    """Return no deep link until the SDK supplies a verified dashboard trace ID."""
     return None
 
 
@@ -101,7 +122,8 @@ def _lazy_span(kind: str, name: str, **extra: Any) -> Callable:
         if inspect.iscoroutinefunction(fn):
             @functools.wraps(fn)
             async def async_inner(*args: Any, **kw: Any) -> Any:
-                with trace_block(name, kind, **extra):
+                with trace_block(name, kind, **extra, **{"code.filepath": fn.__code__.co_filename,
+                    "code.function": fn.__name__, "code.lineno": fn.__code__.co_firstlineno}):
                     return await fn(*args, **kw)
             return async_inner
         return inner
@@ -140,7 +162,7 @@ def trace_block(name: str, kind: str, **attrs: Any) -> Generator[Any, None, None
         return
     try:
         with neatlogs.trace(name, kind=kind) as span:
-            set_attrs(span, **attrs)
+            set_attrs(span, **{**_context.get(), **attrs})
             yield span
     except Exception:
         raise
@@ -177,6 +199,7 @@ class _Recovery:
 
     def decide(self, chosen: str, reason: str) -> None:
         set_attrs(self.span, **{"recovery.chosen": chosen, "recovery.reason": reason})
+        log_event("Recovery selected", chosen=chosen, reason=reason)
 
     def finish(self, outcome: str) -> None:
         set_attrs(self.span, **{"recovery.outcome": outcome})

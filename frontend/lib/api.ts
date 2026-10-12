@@ -1,3 +1,4 @@
+import { createV1, useV1 } from "./v1";
 import type {
   Application,
   ApplicationSummary,
@@ -45,8 +46,8 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
+const USE_MOCKS = !useV1 && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
 function delay(ms: number = 300): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -56,6 +57,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE}${path}`;
   const headers = {
     "Content-Type": "application/json",
+    ...(useV1 && typeof window !== "undefined" && sessionStorage.getItem("scholarpilot_api_key") ? { "X-API-Key": sessionStorage.getItem("scholarpilot_api_key")! } : {}),
     ...(options.headers || {}),
   };
 
@@ -68,6 +70,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       const errBody = await response.json();
       if (errBody.error) errorCode = errBody.error;
       if (errBody.message) errorMessage = errBody.message;
+      if (typeof errBody.detail === "string") errorMessage = errBody.detail;
+      else if (errBody.detail?.message) errorMessage = errBody.detail.message;
     } catch {
       // Fallback to response statusText if JSON parsing fails
       if (response.statusText) errorMessage = response.statusText;
@@ -78,7 +82,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+const v1 = createV1(request);
+
 export async function getHealth(): Promise<HealthResponse> {
+  if (useV1) { return request<HealthResponse>("/health"); }
   if (USE_MOCKS) {
     await delay();
     return mockHealth as HealthResponse;
@@ -87,6 +94,7 @@ export async function getHealth(): Promise<HealthResponse> {
 }
 
 export async function loadDemo(): Promise<IntakeResponse> {
+  if (useV1) { throw new ApiError(400, "unsupported", "Demo personas are available through the demo API."); }
   if (USE_MOCKS) {
     await delay();
     return mockIntake as IntakeResponse;
@@ -95,6 +103,7 @@ export async function loadDemo(): Promise<IntakeResponse> {
 }
 
 export async function intake(req: IntakeRequest): Promise<IntakeResponse> {
+  if (useV1) { return v1.intake(req); }
   if (USE_MOCKS) {
     await delay();
     return mockIntake as IntakeResponse;
@@ -106,6 +115,7 @@ export async function intake(req: IntakeRequest): Promise<IntakeResponse> {
 }
 
 export async function getFacts(): Promise<{ facts: Fact[]; preferences: Preferences | null }> {
+  if (useV1) { return v1.getFacts(); }
   if (USE_MOCKS) {
     await delay();
     return mockFacts as { facts: Fact[]; preferences: Preferences | null };
@@ -114,6 +124,7 @@ export async function getFacts(): Promise<{ facts: Fact[]; preferences: Preferen
 }
 
 export async function patchFact(id: string, text: string): Promise<Fact> {
+  if (useV1) { throw new ApiError(400, "source_review", "Upload corrected source evidence and review it."); }
   if (USE_MOCKS) {
     await delay();
     const existing = (mockFacts.facts as Fact[]).find((f) => f.id === id);
@@ -132,6 +143,7 @@ export async function patchFact(id: string, text: string): Promise<Fact> {
 }
 
 export async function addFact(category: string, text: string): Promise<Fact> {
+  if (useV1) { throw new ApiError(400, "source_review", "Add original evidence through the profile intake."); }
   if (USE_MOCKS) {
     await delay();
     return {
@@ -153,6 +165,7 @@ export async function startRun(
   topN: number = 2,
   liveResearch: boolean = false
 ): Promise<{ run_id: string; status: RunStatus }> {
+  if (useV1) { if (mode !== "B") throw new ApiError(400, "unsupported", "Production runs support mode B."); return request<{ run_id: string; status: RunStatus }>("/v1/runs", { method: "POST", body: JSON.stringify({ mode, top_n: topN, live_research: liveResearch }) }); }
   if (USE_MOCKS) {
     await delay();
     return { run_id: "run_20261011_001", status: "running" };
@@ -164,6 +177,7 @@ export async function startRun(
 }
 
 export async function getLatestRun(): Promise<Run> {
+  if (useV1) { return request<Run>("/v1/runs/latest"); }
   if (USE_MOCKS) {
     await delay();
     return mockRunLatest as Run;
@@ -172,6 +186,7 @@ export async function getLatestRun(): Promise<Run> {
 }
 
 export async function getRun(id: string): Promise<Run> {
+  if (useV1) { return request<Run>(`/v1/runs/${encodeURIComponent(id)}`); }
   if (USE_MOCKS) {
     await delay();
     if (id === "run_running") return mockRunRunning as Run;
@@ -184,6 +199,7 @@ export async function getRunEvents(
   id: string,
   after: number = 0
 ): Promise<{ events: AppEvent[]; last_event_no: number }> {
+  if (useV1) { return request<{ events: AppEvent[]; last_event_no: number }>(`/v1/runs/${encodeURIComponent(id)}/events?after=${after}`); }
   if (USE_MOCKS) {
     await delay();
     if (after >= 5) {
@@ -195,6 +211,7 @@ export async function getRunEvents(
 }
 
 export async function resumeRun(id: string): Promise<{ run_id: string; status: RunStatus }> {
+  if (useV1) { throw new ApiError(400, "unsupported", "Resume an individual application after completing its handoff."); }
   if (USE_MOCKS) {
     await delay();
     return { run_id: id, status: "running" };
@@ -205,6 +222,7 @@ export async function resumeRun(id: string): Promise<{ run_id: string; status: R
 }
 
 export async function getMatches(runId?: string): Promise<{ matches: Match[] }> {
+  if (useV1) { return v1.getMatches(runId); }
   if (USE_MOCKS) {
     await delay();
     return mockMatches as { matches: Match[] };
@@ -216,6 +234,7 @@ export async function getMatches(runId?: string): Promise<{ matches: Match[] }> 
 export async function getApplications(
   runId?: string
 ): Promise<{ applications: ApplicationSummary[] }> {
+  if (useV1) { return v1.getApplications(runId); }
   if (USE_MOCKS) {
     await delay();
     return mockApplications as { applications: ApplicationSummary[] };
@@ -225,6 +244,7 @@ export async function getApplications(
 }
 
 export async function getApplication(id: string): Promise<Application> {
+  if (useV1) { return v1.getApplication(id); }
   if (USE_MOCKS) {
     await delay();
     if (id === "app_2" || id.includes("awaiting")) {
@@ -245,6 +265,7 @@ export async function getApplication(id: string): Promise<Application> {
 }
 
 export async function handoffDone(id: string): Promise<{ status: AppStatus }> {
+  if (useV1) { await request(`/v1/applications/${encodeURIComponent(id)}/resume`, { method: "POST" }); return { status: "submitted" }; }
   if (USE_MOCKS) {
     await delay();
     return { status: "submitting" };
@@ -255,6 +276,7 @@ export async function handoffDone(id: string): Promise<{ status: AppStatus }> {
 }
 
 export async function getGaps(runId?: string): Promise<{ gaps: Gap[] }> {
+  if (useV1) { throw new ApiError(400, "unsupported", "Gap analysis is not available in v1."); }
   if (USE_MOCKS) {
     await delay();
     return mockGaps as { gaps: Gap[] };
@@ -264,6 +286,7 @@ export async function getGaps(runId?: string): Promise<{ gaps: Gap[] }> {
 }
 
 export async function answerGap(id: string, text: string): Promise<{ fact: Fact }> {
+  if (useV1) { throw new ApiError(400, "unsupported", "Upload source evidence through profile intake."); }
   if (USE_MOCKS) {
     await delay();
     return {
@@ -283,6 +306,7 @@ export async function answerGap(id: string, text: string): Promise<{ fact: Fact 
 }
 
 export async function getFlags(): Promise<FailureFlagsResponse> {
+  if (useV1) { throw new ApiError(400, "unsupported", "Demo failure controls are disabled in v1."); }
   if (USE_MOCKS) {
     await delay();
     return {
@@ -304,6 +328,7 @@ export async function setFlags(
   flags: Partial<FailureFlags>,
   counts?: Record<string, number>
 ): Promise<FailureFlagsResponse> {
+  if (useV1) { throw new ApiError(400, "unsupported", "Demo failure controls are disabled in v1."); }
   if (USE_MOCKS) {
     await delay();
     return {
@@ -326,7 +351,7 @@ export async function setFlags(
 }
 
 export function fileUrl(appId: string, kind: "cv" | "essay" | "checklist"): string {
-  return `${API_BASE}/api/applications/${encodeURIComponent(appId)}/files/${kind}`;
+  return `${API_BASE}/${useV1 ? "v1" : "api"}/applications/${encodeURIComponent(appId)}/files/${kind}`;
 }
 
 export const api = {
@@ -352,3 +377,58 @@ export const api = {
   fileUrl,
 };
 
+
+export async function exchangeIdentity(email: string, token: string): Promise<void> {
+  const result = await request<{ api_key: string }>("/v1/auth/keys", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ email }) });
+  sessionStorage.setItem("scholarpilot_api_key", result.api_key);
+}
+export async function reviewPendingEvidence(): Promise<void> { await v1.reviewPendingEvidence(); }
+export async function connectDevelopmentIdentity(email: string): Promise<void> {
+  const health = await request<HealthResponse>("/health");
+  if (!health.demo_mode) throw new ApiError(403, "identity_required", "A verified identity token is required.");
+  const result = await request<{ api_key: string }>("/v1/auth/keys", { method: "POST", body: JSON.stringify({ email }) });
+  sessionStorage.setItem("scholarpilot_api_key", result.api_key);
+}
+export async function connectApiKey(key: string): Promise<void> {
+  await request("/v1/profile", { headers: { "X-API-Key": key } });
+  sessionStorage.setItem("scholarpilot_api_key", key);
+}
+export async function approveApplication(id: string): Promise<void> { await request(`/v1/applications/${encodeURIComponent(id)}/approve`, { method: "POST" }); }
+export async function downloadFile(url: string, name: string): Promise<void> {
+  const base = API_BASE || window.location.origin;
+  const parsed = new URL(url, base);
+  if (parsed.origin !== new URL(base).origin || !parsed.pathname.startsWith("/v1/applications/")) throw new ApiError(400, "invalid_file", "File URL is outside the application API.");
+  const key = sessionStorage.getItem("scholarpilot_api_key");
+  const response = await fetch(parsed, { headers: key ? { "X-API-Key": key } : {} });
+  if (!response.ok) throw new ApiError(response.status, "download_failed", "Package download failed.");
+  const objectUrl = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a"); link.href = objectUrl; link.download = name; link.click();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
+export async function getAutopilot(): Promise<boolean> {
+  const value = await request<{ mode: "autopilot" | "review" }>("/v1/settings");
+  return value.mode === "autopilot";
+}
+export async function setAutopilot(enabled: boolean): Promise<void> {
+  await request("/v1/settings", { method: "PUT", body: JSON.stringify({ mode: enabled ? "autopilot" : "review" }) });
+}
+
+export async function continueApplication(id: string): Promise<void> { await request(`/v1/applications/${encodeURIComponent(id)}/continue`, { method: "POST" }); }
+export async function withdrawApplication(id: string): Promise<void> { await request(`/v1/applications/${encodeURIComponent(id)}/withdraw`, { method: "POST" }); }
+
+export interface NotificationSettings { notification_email: string | null; telegram_chat_id: string | null; email_notifications: boolean; telegram_notifications: boolean; email_ready: boolean; telegram_ready: boolean }
+export async function getNotificationSettings(): Promise<NotificationSettings> { return request("/v1/settings"); }
+export async function saveNotificationSettings(value: Pick<NotificationSettings, "notification_email" | "telegram_chat_id" | "email_notifications" | "telegram_notifications">): Promise<void> { await request("/v1/settings", { method: "PUT", body: JSON.stringify(value) }); }
+export async function testNotification(channel: "email" | "telegram"): Promise<void> { await request("/v1/settings/test-notification", { method: "POST", body: JSON.stringify({ channel }) }); }
+
+export async function beginVerifiedSignIn(): Promise<void> {
+  const value = await request<{ url: string; state: string }>("/v1/auth/authorize");
+  sessionStorage.setItem("scholarpilot_oidc_state", value.state); window.location.assign(value.url);
+}
+export async function finishVerifiedSignIn(code: string, state: string): Promise<void> {
+  if (state !== sessionStorage.getItem("scholarpilot_oidc_state")) throw new ApiError(401, "invalid_state", "Sign-in session does not match this browser.");
+  sessionStorage.removeItem("scholarpilot_oidc_state");
+  const value = await request<{ api_key: string }>("/v1/auth/callback", { method: "POST", body: JSON.stringify({ code, state }) });
+  sessionStorage.setItem("scholarpilot_api_key", value.api_key);
+}

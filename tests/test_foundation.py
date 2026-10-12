@@ -229,6 +229,6 @@ def test_exception_traceback_pii_redaction():
         log_json = json.loads(formatted)
         assert "exception" in log_json
         assert "john.doe@example.com" not in log_json["exception"]
-        assert "[REDACTED_EMAIL]" in log_json["exception"]
+        assert log_json["exception"] == "ValueError"
         assert "secret_token_1234567890" not in log_json["exception"]
 

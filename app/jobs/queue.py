@@ -34,15 +34,25 @@ async def get_redis_client():
         client = aioredis.from_url(
             settings.REDIS_URL,
             socket_connect_timeout=1.0,
+            socket_timeout=2.0,
             decode_responses=True,
         )
         await client.ping()
         _redis_client = client
-        logger.info(f"Connected to Redis broker at {settings.REDIS_URL}")
+        logger.info("Connected to the configured Redis broker.")
         return _redis_client
     except Exception:
         # Fall back gracefully to database-backed queue
+        logger.warning("Redis connection unavailable; database queue fallback selected.")
         return None
+
+
+async def close_redis_client() -> None:
+    """Release the cached broker connection at process shutdown."""
+    global _redis_client
+    if _redis_client is not None:
+        await _redis_client.aclose()
+        _redis_client = None
 
 
 def register_job_handler(job_type: str):

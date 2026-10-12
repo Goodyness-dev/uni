@@ -13,3 +13,8 @@ greenlet>=3.0.3
 playwright>=1.46.0
 pytest>=8.0.0
 neatlogs
+pypdf
+reportlab
+
+openai
+boto3

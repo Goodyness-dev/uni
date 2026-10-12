@@ -70,8 +70,7 @@ class JSONPIIRedactingFormatter(logging.Formatter):
             log_entry["extra"] = redact_pii_value(record.extra)
 
         if record.exc_info:
-            formatted_exc = self.formatException(record.exc_info)
-            log_entry["exception"] = redact_pii_value(formatted_exc)
+            log_entry["exception"] = record.exc_info[0].__name__ if record.exc_info[0] else "Exception"
 
         return json.dumps(log_entry)
 

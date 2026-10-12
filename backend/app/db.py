@@ -6,7 +6,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.config import settings
+try:
+    from app.config import settings
+except ModuleNotFoundError:
+    from backend.app.config import settings
 
 DB_PATH: Path = Path("backend/data/app.db")
 

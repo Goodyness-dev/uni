@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from pydantic import BaseModel, Field
 from app.core.config import settings
 from app.core.logging import logger
-from app.core.runtime import is_demo_portal, submissions_stopped
+from app.core.runtime import is_demo_portal, submissions_stopped, assert_submission_lease
+from app.integrations.demo_portal import read_confirmation
 
 # Directory for storing portal submission and blocker screenshots
 SCREENSHOTS_DIR = Path("storage/screenshots")
@@ -27,6 +28,7 @@ class BrowserSubmissionResult(BaseModel):
 
 # Common blocker signatures across scholarship portals
 CAPTCHA_PATTERNS = [
+    r"captcha_challenge",
     r"recaptcha",
     r"hcaptcha",
     r"turnstile",
@@ -44,6 +46,7 @@ CAPTCHA_PATTERNS = [
 ]
 
 LOGIN_WALL_PATTERNS = [
+    r"<input[^>]+type=[\"']password[\"']",
     r"sign in to continue",
     r"login required",
     r"please log in to access this application",
@@ -74,7 +77,10 @@ def detect_blockers(html_content: str, current_url: str = "") -> Optional[Tuple[
     Hard Rule: NEVER bypass, solve, or work around CAPTCHAs, bot checks, or login walls.
     Detect them immediately, stop execution, and hand off to the student.
     """
-    lower_content = html_content.lower()
+    # Static error strings in our portal's script are not displayed blockers.
+    # Keep rendered markup (including challenge IDs, password inputs and widget attributes).
+    content = re.sub(r"<(script|style)\b[^>]*>.*?</\1\s*>", " ", html_content, flags=re.I | re.S)
+    lower_content = content.lower()
     lower_url = current_url.lower()
 
     # 1. Check for CAPTCHA / bot checks
@@ -137,7 +143,7 @@ async def submit_portal(
     screenshots: List[str] = []
 
     # Early kill switch check
-    if await submissions_stopped():
+    if await submissions_stopped(applicant_data.get("_owner_id"), autonomous=bool(applicant_data.get("_autonomous"))):
         logger.warning("submit_portal aborted: global kill switch is active.")
         return BrowserSubmissionResult(
             success=False,
@@ -185,6 +191,10 @@ async def submit_portal(
     # Real Playwright Runner
     if not is_demo_portal(portal_url):
         raise ValueError("Browser submissions are restricted to the local demo portal.")
+    previous_confirmation = await read_confirmation(portal_url)
+    if previous_confirmation:
+        return BrowserSubmissionResult(success=True, confirmation_ref=previous_confirmation,
+            metadata={"portal_url": portal_url, "read_back": True})
     try:
         from playwright.async_api import async_playwright
     except ImportError:
@@ -275,7 +285,7 @@ async def submit_portal(
             screenshots.append(filled_ss)
 
             # Step 3: Submit button
-            if await submissions_stopped():
+            if await submissions_stopped(applicant_data.get("_owner_id"), autonomous=bool(applicant_data.get("_autonomous"))):
                 await browser.close()
                 return BrowserSubmissionResult(
                     success=False,
@@ -297,7 +307,7 @@ async def submit_portal(
                 try:
                     btn = page.locator(sel).first
                     if await btn.count() > 0 and await btn.is_visible():
-                        if await submissions_stopped():
+                        if await submissions_stopped(applicant_data.get("_owner_id"), autonomous=bool(applicant_data.get("_autonomous"))):
                             await browser.close()
                             return BrowserSubmissionResult(
                                 success=False,
@@ -307,6 +317,7 @@ async def submit_portal(
                                 screenshot_paths=screenshots,
                                 metadata={"portal_url": portal_url},
                             )
+                        await assert_submission_lease()
                         await btn.click()
                         submitted = True
                         break
@@ -339,9 +350,8 @@ async def submit_portal(
                     blocker_type=blocker[0], blocker_message=blocker[1],
                     screenshot_paths=screenshots, metadata={"portal_url": portal_url})
             # Extract confirmation code
-            ref_match = re.search(r"(?:confirmation|reference|application\s*id|app\s*id)\s*[:#\s]?\s*([A-Z0-9\-_]{6,30})", post_content, re.IGNORECASE)
-            if ref_match:
-                confirmation_code = ref_match.group(1)
+            confirmation_code = await read_confirmation(portal_url)
+            if confirmation_code:
                 await browser.close()
                 return BrowserSubmissionResult(
                     success=True,

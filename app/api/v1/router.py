@@ -8,6 +8,8 @@ from app.api.v1.matches import router as matches_router
 from app.api.v1.applications import router as applications_router
 from app.api.v1.settings import router as settings_router
 from app.api.v1.account import router as account_router
+from app.api.v1.runs import router as runs_router
+from app.api.v1.onboarding import router as onboarding_router
 
 api_v1_router = APIRouter(
     prefix="/v1",
@@ -22,3 +24,6 @@ api_v1_router.include_router(matches_router)
 api_v1_router.include_router(applications_router)
 api_v1_router.include_router(settings_router)
 api_v1_router.include_router(account_router)
+api_v1_router.include_router(runs_router)
+
+api_v1_router.include_router(onboarding_router)

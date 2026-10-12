@@ -90,7 +90,7 @@ async def send_telegram_message(
 
     if not token or token.lower() in ("mock", "test", "none"):
         logger.info(f"Telegram notification dispatched [MOCK to chat {chat_id}]: {text[:60]}...")
-        return {"ok": True, "mock": True, "chat_id": chat_id, "text": text}
+        return {"ok": False, "mock": False, "error": "telegram_not_configured"}
 
     api_url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {

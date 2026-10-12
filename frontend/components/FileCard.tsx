@@ -1,3 +1,7 @@
+"use client";
+import { useState } from "react";
+import { downloadFile } from "../lib/api";
+import { useV1 } from "../lib/v1";
 import { FileText, Download } from "lucide-react";
 
 interface FileCardProps {
@@ -15,6 +19,8 @@ export function FileCard({
   url,
   className = "",
 }: FileCardProps) {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const iconColor =
     type === "pdf"
       ? "text-[#7AA2FF]"
@@ -39,7 +45,8 @@ export function FileCard({
         </div>
       </div>
 
-      {url ? (
+      {error && <p role="alert" className="text-xs text-red-400">{error}</p>}
+      {url && useV1 ? <button disabled={loading} className="text-xs px-2 py-1 bg-[#262932] rounded disabled:opacity-50" onClick={async () => { setLoading(true); setError(""); try { await downloadFile(url, name); } catch (cause) { setError(cause instanceof Error ? cause.message : "Download failed."); } finally { setLoading(false); } }}>{loading ? "Downloading…" : "Download"}</button> : url ? (
         <a
           href={url}
           download

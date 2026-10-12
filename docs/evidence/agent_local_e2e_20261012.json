@@ -1,0 +1,197 @@
+{
+  "captured_at_utc": "2026-10-12T07:40:07.770788+00:00",
+  "fictional_fixture": "Tobi Adeyemi",
+  "postgresql_version": "16.11",
+  "redis_version": "7.4.9",
+  "migration": "003_audit_guards",
+  "audit_guards": {
+    "update_denied": true,
+    "delete_denied": true
+  },
+  "reviewed_documents": 3,
+  "reviewed_source_facts": 33,
+  "redis_lease_excluded_competitor": true,
+  "redis_lease_released": true,
+  "jobs": [
+    {
+      "id": "f31e0265-be32-46c9-a323-cc23097ec78a",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "5b8d2ad9-9d17-4c10-acf7-b9688317884c",
+      "type": "submit_application",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "ac7eae64-756e-419f-a5fd-8f31553aa379",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "27d153da-37cf-4cc7-a251-47146ca7c890",
+      "type": "submit_application",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "c4a537fc-c5cc-4367-ba3e-cfe3fb9cfa4e",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "dab55daa-d8e6-4207-a82d-c2bef718eb80",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "e9e8f249-a1b0-4e2d-91e1-751b0934fde5",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "972adfdc-9b4b-4484-abf5-e1e709938d86",
+      "type": "application_batch",
+      "status": "completed",
+      "attempts": 1
+    },
+    {
+      "id": "22e66678-3bb4-4b3b-ae53-a45c539743eb",
+      "type": "submit_application",
+      "status": "completed",
+      "attempts": 1
+    }
+  ],
+  "applications": [
+    {
+      "id": "fd0fc9f4-5487-48b8-81f8-e0fcfe7d8d24",
+      "status": "submitted",
+      "confirmation_ref": "DEMO4907",
+      "submitted_at": "2026-10-12T04:22:47.377209+00:00",
+      "portal_receipt": {
+        "submitted": true,
+        "confirmation_code": "DEMO4907"
+      },
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "bytes": 149,
+          "sha256": "09bd8a50ab425d257044fbf9196a3b7f927ec6de17afa59142fb875ed27ae5cf"
+        },
+        {
+          "name": "cv.pdf",
+          "bytes": 2746,
+          "sha256": "5a352324d4d7005fda31fba0c0b492320f91cdcdb746969cb99c109f2baed8d4"
+        },
+        {
+          "name": "essay.txt",
+          "bytes": 1913,
+          "sha256": "ebaef0136af184ca4d6aaf6372d06cb72611a1d88a4042c33ba6a87c816875d4"
+        }
+      ]
+    },
+    {
+      "id": "b32ebee0-1fa9-4095-a914-f3a97b506f15",
+      "status": "submitted",
+      "confirmation_ref": "DEMO1668",
+      "submitted_at": "2026-10-12T04:25:17.966852+00:00",
+      "portal_receipt": {
+        "submitted": true,
+        "confirmation_code": "DEMO1668"
+      },
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "bytes": 149,
+          "sha256": "09bd8a50ab425d257044fbf9196a3b7f927ec6de17afa59142fb875ed27ae5cf"
+        },
+        {
+          "name": "cv.pdf",
+          "bytes": 2746,
+          "sha256": "ea9e6f4ab3b4243b9f3b7325ff6ce27e1ce28ecee9f7463aa38349c40fdeeabd"
+        },
+        {
+          "name": "essay.txt",
+          "bytes": 1913,
+          "sha256": "ebaef0136af184ca4d6aaf6372d06cb72611a1d88a4042c33ba6a87c816875d4"
+        }
+      ]
+    },
+    {
+      "id": "f63c7ca8-d9bf-48f1-96d6-3026491c2fb6",
+      "status": "failed",
+      "confirmation_ref": null,
+      "submitted_at": null,
+      "portal_receipt": null,
+      "package_files": []
+    },
+    {
+      "id": "38b7b4f5-ddde-4f8a-b8f3-174234ca7029",
+      "status": "failed",
+      "confirmation_ref": null,
+      "submitted_at": null,
+      "portal_receipt": null,
+      "package_files": []
+    },
+    {
+      "id": "d1765d73-2614-424e-8cc1-162b598bef39",
+      "status": "ready_for_review",
+      "confirmation_ref": null,
+      "submitted_at": null,
+      "portal_receipt": null,
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "bytes": 149,
+          "sha256": "09bd8a50ab425d257044fbf9196a3b7f927ec6de17afa59142fb875ed27ae5cf"
+        },
+        {
+          "name": "cv.pdf",
+          "bytes": 1948,
+          "sha256": "2b472026d28cb503c6f70fe011011d094a25177a110d99009d8f7568e0f75723"
+        },
+        {
+          "name": "essay.txt",
+          "bytes": 834,
+          "sha256": "7e67c429b43c215d2ef2a119c988e14eccadd68c18b6833c6c423fbdf36f4e13"
+        }
+      ]
+    },
+    {
+      "id": "0a10f49a-da06-4bed-9127-0c23ba3c2285",
+      "status": "submitted",
+      "confirmation_ref": "DEMO1584",
+      "submitted_at": "2026-10-12T07:25:03.392066+00:00",
+      "portal_receipt": {
+        "submitted": true,
+        "confirmation_code": "DEMO1584"
+      },
+      "package_files": [
+        {
+          "name": "checklist.txt",
+          "bytes": 149,
+          "sha256": "09bd8a50ab425d257044fbf9196a3b7f927ec6de17afa59142fb875ed27ae5cf"
+        },
+        {
+          "name": "cv.pdf",
+          "bytes": 2126,
+          "sha256": "4485eee9111a3c737fd9178d22e96709679c1b903a4adbe801b541c29ee48cbe"
+        },
+        {
+          "name": "essay.txt",
+          "bytes": 530,
+          "sha256": "2928202982f0653ef190a1d03d68954302f97c3d3c0b4273110dfcc621d138ca"
+        }
+      ]
+    }
+  ],
+  "llm_drafting_enabled": true,
+  "live_public_research_enabled": false,
+  "scope": "Local fictional integration only; live paid model calls in agent mode; no real scholarship or external notification."
+}

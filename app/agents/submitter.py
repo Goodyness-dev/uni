@@ -7,9 +7,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
-from app.core.runtime import submission_lease
+from app.core.runtime import submission_lease, submissions_stopped
 from app.core.tracing import agent_span
 from app.integrations.telegram import format_blocker_alert, send_telegram_message
+from app.integrations.demo_portal import prepare_draft
 from app.core.logging import logger
 from app.core.security import decrypt_credential
 from app.db.models import Application, ApplicationEvent, Draft, Job, Profile, Scholarship, User
@@ -96,6 +97,8 @@ async def _run_submitter(
     scholarship = await session.get(Scholarship, application.scholarship_id)
     if not scholarship:
         raise ValueError(f"Scholarship {application.scholarship_id} not found for application {application_id}.")
+    if not mock_mode and (scholarship.eligibility_rules or {}).get("ai_policy", "unknown") not in {"allowed", "disclose"}:
+        raise IllegalStateTransitionError("Unknown or restricted AI policy requires manual writing and submission.")
 
     # If application is in review mode and still in ready_for_review, do not submit!
     if application.status == "ready_for_review":
@@ -107,6 +110,12 @@ async def _run_submitter(
         raise ValueError("The applicant is inactive or missing.")
     if application.mode_used == "review" and application.status == "drafting":
         raise IllegalStateTransitionError("Review approval is required.")
+
+    if application.mode_used == "autopilot" and user.mode != "autopilot" and application.status == "drafting":
+        application.mode_used = "review"
+        await transition_application(application, "ready_for_review", "agent",
+            {"message": "Autopilot turned off; automatic submission paused for review."}, session)
+        return SubmitterOutput(application_id=application.id, status="ready_for_review")
 
     # 3. Transition to 'submitting' if currently in drafting or approved
     if application.status in ("drafting", "approved", "needs_human"):
@@ -128,13 +137,15 @@ async def _run_submitter(
     draft = (
         await session.execute(
             select(Draft)
-            .where(Draft.application_id == application.id)
+            .where(Draft.application_id == application.id, Draft.kind.in_(("essay", "statement")))
             .order_by(Draft.version.desc())
         )
     ).scalars().first()
 
     personal = profile.personal_details if profile and profile.personal_details else {}
     applicant_data = {
+        "_owner_id": str(user.id),
+        "_autonomous": application.mode_used == "autopilot",
         "email": user.email if user else "",
         "first_name": personal.get("first_name", ""),
         "last_name": personal.get("last_name", ""),
@@ -163,6 +174,13 @@ async def _run_submitter(
 
     # 5. Execute browser submission via Playwright runner
     portal_url = getattr(scholarship, "application_url", "https://demo.scholarpilot.internal/portal")
+    if not mock_mode:
+        if await submissions_stopped(str(user.id), autonomous=application.mode_used == "autopilot"):
+            raise KillSwitchActiveError("Submission stopped by shared runtime or account erasure.")
+        portal_url = await prepare_draft(portal_url, str(application.id), {
+            "full_name": personal.get("full_name") or " ".join(part for part in (applicant_data["first_name"], applicant_data["last_name"]) if part),
+            "email": applicant_data["email"], "summary": "", "essay": draft_content,
+        })
 
     browser_result: BrowserSubmissionResult = await submit_portal(
         portal_url=portal_url,
@@ -189,6 +207,7 @@ async def _run_submitter(
                 "blocker_message": browser_result.blocker_message,
                 "screenshot_paths": browser_result.screenshot_paths,
                 "storage_state_path": browser_result.metadata.get("storage_state_path"),
+                "portal_url": portal_url,
             },
             session=session,
         )
@@ -246,6 +265,7 @@ async def _run_submitter(
             payload={
                 "error": browser_result.blocker_message or "Unknown submission error",
                 "acceptance_unknown": True,
+                "portal_url": portal_url,
                 "screenshot_paths": browser_result.screenshot_paths,
             },
             session=session,

@@ -1,5 +1,7 @@
 "use client";
 
+import { reviewPendingEvidence } from "../../lib/api";
+import { useV1 } from "../../lib/v1";
 import { useState } from "react";
 import { Fact, SourceKind } from "../../lib/types";
 import { CheckCircle2, Lock, Sparkles } from "lucide-react";
@@ -17,11 +19,14 @@ export function ParsedFactsCard({
   onPatchFact,
   className = "",
 }: ParsedFactsCardProps) {
+  const [reviewError, setReviewError] = useState("");
+  const [reviewing, setReviewing] = useState(false);
   const [filter, setFilter] = useState<"all" | SourceKind>("all");
   const [editingTexts, setEditingTexts] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
 
   const filteredFacts = facts.filter((f) => {
+    if (f.sensitive) return false;
     if (filter === "all") return true;
     return f.source === filter;
   });
@@ -44,6 +49,7 @@ export function ParsedFactsCard({
 
   return (
     <section className={`rounded-xl bg-[#121318] border border-[#262932] p-6 flex flex-col gap-6 ${className}`}>
+      {useV1 && facts.some(f => f.id.startsWith("U_")) && <div className="text-xs flex flex-col gap-2"><p>Read the source facts below. Confirm only if they accurately reproduce your documents.</p><button disabled={reviewing} className="p-2 rounded bg-[#262932] disabled:opacity-50" onClick={async () => { setReviewing(true); setReviewError(""); try { await reviewPendingEvidence(); window.location.reload(); } catch (error) { setReviewError(error instanceof Error ? error.message : "Review failed."); } finally { setReviewing(false); } }}>{reviewing ? "Saving review…" : "Confirm source facts"}</button>{reviewError && <p role="alert">{reviewError}</p>}</div>}
       {/* Header & Filter */}
       <div className="border-b border-[#262932] pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -52,7 +58,7 @@ export function ParsedFactsCard({
             <span className="text-[#626877]">•</span>
             <span className="text-[11px] font-mono text-[#49e095] flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
-              {facts.length} Verified
+              {facts.filter(f => !f.sensitive).length} source facts
             </span>
           </div>
           <h2 className="text-xl font-semibold tracking-tight text-[#ECEDF0]">Parsed facts</h2>
@@ -148,6 +154,7 @@ export function ParsedFactsCard({
                 {/* Editable Text */}
                 <div className="flex-1 min-w-0 relative">
                   <input
+                    readOnly={useV1}
                     type="text"
                     value={currentText}
                     onChange={(e) => handleTextChange(fact.id, e.target.value)}
@@ -176,7 +183,7 @@ export function ParsedFactsCard({
                 ) : (
                   <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#626877]">
                     <CheckCircle2 className="w-3.5 h-3.5 text-[#49e095]" />
-                    <span>VERIFIED</span>
+                    <span>{useV1 ? (fact.id.startsWith("U_") ? "REVIEW NEEDED" : "SOURCE REVIEWED") : "VERIFIED"}</span>
                   </div>
                 )}
               </div>

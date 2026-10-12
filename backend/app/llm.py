@@ -7,25 +7,46 @@ from pydantic import BaseModel, ValidationError
 import openai
 from openai import OpenAI
 
-from app.config import settings
-from app.db import consume_flag, add_event
-from app.errors import (
-    RunContext,
-    ScholarPilotError,
-    RateLimitError,
-    TimeoutError_,
-    ModelNotFoundError,
-    BadJSONError,
-)
-from app.models import LLMResult
-from app.prompts import REPAIR_SYSTEM
-from app.tracing import (
-    llm_call_span,
-    recovery_decision,
-    wrap_client,
-    set_attrs,
-    log_event,
-)
+try:
+    from app.config import settings
+    from app.db import consume_flag, add_event
+    from app.errors import (
+        RunContext,
+        ScholarPilotError,
+        RateLimitError,
+        TimeoutError_,
+        ModelNotFoundError,
+        BadJSONError,
+    )
+    from app.models import LLMResult
+    from app.prompts import REPAIR_SYSTEM
+    from app.tracing import (
+        llm_call_span,
+        recovery_decision,
+        wrap_client,
+        set_attrs,
+        log_event,
+    )
+except ModuleNotFoundError:
+    from backend.app.config import settings
+    from backend.app.db import consume_flag, add_event
+    from backend.app.errors import (
+        RunContext,
+        ScholarPilotError,
+        RateLimitError,
+        TimeoutError_,
+        ModelNotFoundError,
+        BadJSONError,
+    )
+    from backend.app.models import LLMResult
+    from backend.app.prompts import REPAIR_SYSTEM
+    from backend.app.tracing import (
+        llm_call_span,
+        recovery_decision,
+        wrap_client,
+        set_attrs,
+        log_event,
+    )
 
 _primary_client: Any = None
 _fallback_client: Any = None
@@ -463,3 +484,30 @@ def call_llm(
             attempts=attempt,
             json_repaired=json_repaired,
         )
+
+
+async def provider_completion(api_key: str, base_url: str, model: str, messages: list[dict[str, str]], temperature: float, capture: bool, timeout: float) -> dict[str, Any]:
+    """Real async provider transport; SDK imports remain confined to this module."""
+    raw = openai.AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=timeout, max_retries=0)
+    original_create = raw.chat.completions.create
+
+    async def normalized_create(**kwargs: Any) -> Any:
+        response = await original_create(**kwargs)
+        usage = response.usage
+        if usage is not None and isinstance(usage.total_tokens, int) and isinstance(usage.prompt_tokens, int):
+            # Gemini-compatible responses may omit thinking tokens from completion_tokens.
+            # Normalize BEFORE Neatlogs reads usage so its totals match the provider total.
+            billed_output = usage.total_tokens - usage.prompt_tokens
+            if billed_output >= usage.completion_tokens:
+                usage.completion_tokens = billed_output
+        return response
+
+    raw.chat.completions.create = normalized_create
+    client = wrap_client(raw)
+    try:
+        options: dict[str, Any] = {"reasoning_effort": "none"} if model.startswith("gemini-2.5-flash") else {"reasoning_effort": "minimal"} if model.startswith("gemini-3") else {}
+        result = await client.chat.completions.create(model=model, messages=messages,
+            temperature=temperature, max_tokens=4096, response_format={"type": "json_object"}, **options)
+        return result.model_dump()
+    finally:
+        await raw.close()

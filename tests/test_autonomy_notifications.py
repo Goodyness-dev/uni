@@ -232,7 +232,7 @@ def test_daily_scheduler_cycle_end_to_end():
 
             # Add an upcoming urgent deadline scholarship
             now = datetime.now(timezone.utc)
-            schol = (await session.execute(select(Scholarship))).scalars().first()
+            schol = (await session.execute(select(Scholarship).where(Scholarship.eligibility_rules["is_mock"].as_boolean() == True))).scalars().first()
             schol.deadline = now + timedelta(days=2)  # within 3d window
             session.add(schol)
             await session.commit()

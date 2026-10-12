@@ -82,7 +82,7 @@ def test_account_export_and_gdpr_deletion():
 
             from app.core.security import hash_api_key
             plain_key = "sp_live_hardening_test_key_123"
-            api_key = ApiKey(user_id=user.id, hashed_key=hash_api_key(plain_key), scopes=["*"])
+            api_key = ApiKey(user_id=user.id, hashed_key=hash_api_key(plain_key), scopes=["read", "write"])
             session.add(api_key)
 
             profile = Profile(

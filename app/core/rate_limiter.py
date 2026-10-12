@@ -1,8 +1,20 @@
 """Sliding window in-memory rate limiter for API protection and abuse prevention."""
 import time
+import hashlib
+import uuid
 from collections import defaultdict
 from typing import Callable, Dict, List
 from fastapi import HTTPException, Request, status
+from app.core.config import settings
+from app.jobs.queue import get_redis_client
+
+WINDOW_SCRIPT = """
+redis.call('zremrangebyscore', KEYS[1], '-inf', ARGV[1])
+if redis.call('zcard', KEYS[1]) >= tonumber(ARGV[2]) then return 0 end
+redis.call('zadd', KEYS[1], ARGV[3], ARGV[4])
+redis.call('expire', KEYS[1], ARGV[5])
+return 1
+"""
 
 
 class SlidingWindowRateLimiter:
@@ -42,14 +54,30 @@ def rate_limit_dependency(max_requests: int = 60, window_seconds: int = 60) -> C
     """FastAPI dependency factory enforcing rate limits on endpoint routes."""
     limiter = SlidingWindowRateLimiter(max_requests=max_requests, window_seconds=window_seconds)
 
-    async def dependency(request: Request):
+    async def dependency(request: Request) -> None:
         # Identify by client API key if present, otherwise by client IP
         client_key = request.headers.get("X-API-Key")
         if not client_key:
             client_key = request.client.host if request.client else "unknown"
 
-        if not limiter.is_allowed(client_key):
-            retry_sec = limiter.retry_after(client_key)
+        if settings.ENVIRONMENT == "production":
+            broker = await get_redis_client()
+            if broker is None:
+                raise HTTPException(status_code=503, detail="Shared rate limiting is unavailable.")
+            # Do not retain raw credentials or trust forwarding headers supplied by clients.
+            hashed = hashlib.sha256(client_key.encode()).hexdigest()
+            now = time.time()
+            address = request.client.host if request.client else "unknown"
+            ip_hash = hashlib.sha256(address.encode()).hexdigest()
+            allowed = True
+            for bucket in {"credential:" + hashed, "address:" + ip_hash}:
+                accepted = await broker.eval(WINDOW_SCRIPT, 1, "scholarpilot:rate:" + bucket,
+                    now - window_seconds, max_requests, now, uuid.uuid4().hex, window_seconds)
+                allowed = allowed and bool(accepted)
+        else:
+            allowed = limiter.is_allowed(client_key)
+        if not allowed:
+            retry_sec = window_seconds if settings.ENVIRONMENT == "production" else limiter.retry_after(client_key)
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Rate limit exceeded. Please slow down your requests.",

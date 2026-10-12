@@ -1,0 +1,243 @@
+{
+  "captured_at_utc": "2026-10-12T09:12:52.129141+00:00",
+  "fictional": true,
+  "scope": "Curated regression set, not representative accuracy or a zero-hallucination guarantee.",
+  "mode": "deterministic_only",
+  "metrics": {
+    "counts": {
+      "supported_accepted": 10,
+      "unsupported_rejected": 9,
+      "unsupported_accepted": 12,
+      "supported_rejected": 1
+    },
+    "cases": [
+      {
+        "id": "literal-degree",
+        "category": "literal",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "gpa-inflated",
+        "category": "numbers",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "false-causation",
+        "category": "causation",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "future-accomplishment",
+        "category": "aspiration",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "future-mixed-sources",
+        "category": "aspiration",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "goal-paraphrase",
+        "category": "aspiration",
+        "expected": true,
+        "predicted": false,
+        "correct": false
+      },
+      {
+        "id": "future-plan",
+        "category": "aspiration",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "literal-possessive",
+        "category": "literal",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "negation-inverted",
+        "category": "negation",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "negation-literal",
+        "category": "negation",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "role-promotion",
+        "category": "role",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "literal-role",
+        "category": "role",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "member-leader",
+        "category": "role",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "intern-founder",
+        "category": "role",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "year-changed",
+        "category": "dates",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "unsupported-name",
+        "category": "entities",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "missing-sources",
+        "category": "missing",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "number-word",
+        "category": "numbers",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "unit-swapped",
+        "category": "units",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "literal-units",
+        "category": "units",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "unproven-benefit",
+        "category": "impact",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "guaranteed-outcome",
+        "category": "impact",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      },
+      {
+        "id": "association-literal",
+        "category": "causation",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "project-inflated",
+        "category": "scope",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "course-degree",
+        "category": "qualification",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "sensitive-no-inference",
+        "category": "sensitive",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "literal-skills",
+        "category": "literal",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "certificate-year",
+        "category": "dates",
+        "expected": true,
+        "predicted": true,
+        "correct": true
+      },
+      {
+        "id": "foreign-language",
+        "category": "scope",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "goal-not-achieved",
+        "category": "aspiration",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "causation-paraphrase",
+        "category": "causation",
+        "expected": false,
+        "predicted": true,
+        "correct": false
+      },
+      {
+        "id": "unknown-hours",
+        "category": "numbers",
+        "expected": false,
+        "predicted": false,
+        "correct": true
+      }
+    ],
+    "total": 32,
+    "correct": 19
+  },
+  "model_usage": []
+}

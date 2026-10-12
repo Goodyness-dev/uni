@@ -1,0 +1,12 @@
+.git
+.env*
+**/.env*
+**/.venv
+**/__pycache__
+**/node_modules
+**/.next
+storage
+backend/data/vault
+backend/data/packages
+backend/data/app.db
+docs/evidence

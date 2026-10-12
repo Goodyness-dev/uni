@@ -68,6 +68,10 @@ async def get_current_user(
             },
         )
 
+    required_scope = "read" if request.method in {"GET", "HEAD", "OPTIONS"} else "write"
+    if required_scope not in api_key_record.scopes:
+        raise HTTPException(status_code=403, detail="API key lacks the required scope.")
+
     # Update last_used_at
     api_key_record.last_used_at = datetime.now(timezone.utc)
     await db.commit()

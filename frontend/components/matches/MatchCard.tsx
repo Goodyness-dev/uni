@@ -1,3 +1,4 @@
+import { useV1 } from "../../lib/v1";
 import Link from "next/link";
 import { ArrowRight, Eye, AlertTriangle } from "lucide-react";
 import { Match } from "@/lib/types";
@@ -20,7 +21,7 @@ export function MatchCard({ match }: MatchCardProps) {
   const canView = !isEarlyStage;
   const isAwaitingUser = match.status === "awaiting_user";
 
-  const ruleEntries: { label: string; pass: boolean }[] = [
+  const ruleEntries: { label: string; pass: boolean }[] = useV1 ? [] : [
     { label: "Country", pass: match.hard_rule_results?.country ?? true },
     { label: "Level", pass: match.hard_rule_results?.level ?? true },
     { label: "GPA", pass: match.hard_rule_results?.gpa ?? true },

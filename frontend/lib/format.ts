@@ -7,6 +7,7 @@ export function parseDate(s: string): Date {
   if (!s) return new Date();
   // Handle "YYYY/MM/DD HH:MM:SS" or "YYYY/MM/DD"
   const clean = s.trim().replace(/\//g, "-");
+  if (/^\d{4}-\d{2}-\d{2}T/.test(clean)) return new Date(clean);
   if (clean.includes(" ")) {
     const [datePart, timePart] = clean.split(" ");
     return new Date(`${datePart}T${timePart}Z`);

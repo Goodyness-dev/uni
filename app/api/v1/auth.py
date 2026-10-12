@@ -1,23 +1,26 @@
 """Authentication & API Key management endpoints."""
 import uuid
 from datetime import datetime, timezone
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, Literal
+import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_request_id
 from app.core.security import generate_api_key
 from app.core.config import settings
 from app.db.base import get_db_session
-from app.db.models import ApiKey, User
+from app.db.models import ApiKey, User, Profile
+from app.core.identity import verify_identity
+from cryptography.exceptions import InvalidSignature
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 class CreateKeyRequest(BaseModel):
     email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", description="Valid email address")
-    scopes: Optional[List[str]] = ["read", "write"]
+    scopes: List[Literal["read", "write"]] = Field(default_factory=lambda: ["read", "write"], min_length=1)
 
 
 class CreateKeyResponse(BaseModel):
@@ -39,23 +42,44 @@ async def create_api_key(
     req: CreateKeyRequest,
     db: Annotated[AsyncSession, Depends(get_db_session)],
     x_request_id: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None),
 ) -> CreateKeyResponse:
     """Creates a new API key for a student or developer account."""
     req_id = get_request_id(x_request_id)
 
-    if settings.ENVIRONMENT == "production":
-        raise HTTPException(status_code=403, detail="Production key issuance requires a verified identity flow.")
+    subject = None
+    if settings.ENVIRONMENT == "production" or authorization:
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="A verified identity token is required.")
+        try:
+            subject = await verify_identity(authorization[7:], req.email)
+        except (ValueError, KeyError, TypeError, InvalidSignature):
+            raise HTTPException(status_code=401, detail="Identity token validation failed.")
+        except httpx.HTTPError:
+            raise HTTPException(status_code=503, detail="Identity provider is unavailable.")
 
     # Find or create user by email
-    stmt = select(User).where(User.email == req.email)
+    canonical_email = req.email.strip().lower()
+    stmt = select(User).where(func.lower(User.email) == canonical_email).with_for_update()
     user = (await db.execute(stmt)).scalar_one_or_none()
-    if user is not None:
+    if user is not None and subject is None:
         raise HTTPException(status_code=409, detail="An existing identity cannot be recovered by email alone.")
+    if user is not None and user.status != "active":
+        raise HTTPException(status_code=403, detail="The identity is inactive.")
     if not user:
-        user = User(email=req.email, mode="autopilot", status="active")
+        user = User(email=canonical_email, mode="autopilot", status="active")
         db.add(user)
-        await db.commit()
-        await db.refresh(user)
+        await db.flush()
+
+    if subject:
+        profile = (await db.execute(select(Profile).where(Profile.user_id == user.id))).scalar_one_or_none()
+        if profile is None:
+            profile = Profile(user_id=user.id, personal_details={"_identity_subject": subject})
+            db.add(profile)
+        elif profile.personal_details.get("_identity_subject") not in (None, subject):
+            raise HTTPException(status_code=403, detail="Identity subject does not match this account.")
+        else:
+            profile.personal_details = {**profile.personal_details, "_identity_subject": subject}
 
     plain_key, hashed_key = generate_api_key()
     api_key_record = ApiKey(

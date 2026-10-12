@@ -53,6 +53,20 @@ export function TimelineItem({ event, className = "" }: TimelineItemProps) {
 
   const formattedTime = formatTime(event.at);
 
+  if (event.type === "agent_decision" || event.type === "tool_observation" || event.type === "neatlogs_trace" || event.type === "model_usage") {
+    const action = typeof event.data.action === "string" ? event.data.action : typeof event.data.tool === "string" ? event.data.tool : "";
+    const traceId = typeof event.data.trace_id === "string" ? event.data.trace_id : "";
+    const calls = (Array.isArray(event.data.usage) ? event.data.usage : Array.isArray(event.data.calls) ? event.data.calls : []) as { tokens_in?: number; tokens_out?: number; model?: string }[];
+    const tokens = calls.reduce((total, call) => total + (call.tokens_in ?? 0) + (call.tokens_out ?? 0), 0);
+    return <div className={`p-3 rounded-lg border border-[#7AA2FF]/40 bg-[#14171F] text-xs ${className}`}>
+      <div className="flex justify-between text-[#7AA2FF] font-semibold"><span>{event.type === "agent_decision" ? "Agent decision" : event.type === "neatlogs_trace" ? "Neatlogs trace identity" : event.type === "model_usage" ? "Measured model usage" : "Tool result"}{action ? ` · ${action}` : ""}</span><span>{formattedTime}</span></div>
+      <p className="mt-2 text-[#ECEDF0]">{event.message}</p>
+      {traceId && <p className="mt-2 font-mono break-all text-[#9AA0AE]">Trace ID: {traceId}. Open Neatlogs to inspect ingestion, spans and replay.</p>}
+      {calls.length > 0 && <p className="mt-2 text-[#9AA0AE]">{calls.length} model calls · {tokens.toLocaleString()} reported tokens · {[...new Set(calls.map(call => call.model).filter(Boolean))].join(", ")}</p>}
+      {event.type === "tool_observation" && <p className="mt-2 text-[#9AA0AE]">Research facts: {String(event.data.research_count ?? 0)} · Selected evidence: {String(event.data.selected_count ?? 0)} · Draft ready: {event.data.draft_exists === true ? "yes" : "no"}</p>}
+    </div>;
+  }
+
   // Dedicated Card for Recovery Decisions
   if (isRecovery) {
     const trigger = typeof event.data?.trigger === "string" ? event.data.trigger : undefined;

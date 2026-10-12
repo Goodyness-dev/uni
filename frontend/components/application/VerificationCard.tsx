@@ -26,6 +26,14 @@ export function VerificationCard({ report, factsMap, loading = false }: Verifica
     );
   }
 
+  if ("mode" in report && ["extractive", "original_evidence_notes"].includes(String(report.mode))) {
+    return <section className="p-4 rounded-xl bg-[#181A20] border border-[#262932] text-xs flex flex-col gap-2">
+      <h3 className="text-sm font-semibold">Source review</h3>
+      <p>The package uses original source text with deterministic support checks. AI generation and Challenger calls were disabled for this run.</p>
+      <p>Review the documents before submitting. Source alignment does not certify document authenticity.</p>
+    </section>;
+  }
+
   const {
     claims = [],
     removed_claims = [],
@@ -62,10 +70,10 @@ export function VerificationCard({ report, factsMap, loading = false }: Verifica
           <CheckCircle2 className="w-5 h-5 text-[#49e095] shrink-0 mt-0.5" />
           <div>
             <h4 className="text-xs font-bold text-[#49e095] uppercase tracking-wide">
-              All claims verified
+              Retained claims checked
             </h4>
             <p className="text-xs text-[#ECEDF0] mt-0.5 leading-relaxed">
-              Every sentence is backed by your CV, your personal file or a public source. Zero ungrounded claims made.
+              Retained text passed the configured source checks. Review it before submission.
             </p>
           </div>
         </div>

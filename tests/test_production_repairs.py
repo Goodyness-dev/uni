@@ -5,6 +5,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
+import httpx
 from sqlalchemy import select, text
 from httpx import ASGITransport, AsyncClient
 
@@ -188,6 +189,10 @@ def test_shared_kill_switch_blocks_another_process(offline_services):
         assert await submissions_stopped() is False
         await offline_services.set("scholarpilot:kill_switch", "1")
         assert await submissions_stopped() is True
+        await offline_services.delete("scholarpilot:kill_switch")
+        await offline_services.set("scholarpilot:user_deleted:fictional_owner", "1")
+        assert await submissions_stopped("fictional_owner") is True
+        assert await submissions_stopped("fictional_other") is False
     asyncio.run(run())
 
 
@@ -214,4 +219,25 @@ def test_erasure_preserves_external_files_and_handles_audit_foreign_key(tmp_path
             assert outside.exists()
             assert (await session.execute(select(ApplicationEvent))).scalars().all() == []
             assert (await session.execute(select(Application))).scalars().all() == []
+    asyncio.run(run())
+
+
+def test_demo_confirmation_is_read_back_not_invented(monkeypatch):
+    from app.integrations import demo_portal
+    original_client = httpx.AsyncClient
+    portal_state = {"submitted": False, "confirmation_code": None}
+    def handle(request):
+        if request.method == "POST":
+            return httpx.Response(201, json={"draft_url": "http://localhost:8000/portal/draft/fictional123"})
+        return httpx.Response(200, json=portal_state)
+    def client(**kwargs):
+        return original_client(transport=httpx.MockTransport(handle), **kwargs)
+    monkeypatch.setattr(demo_portal.httpx, "AsyncClient", client)
+    async def run():
+        draft_url = await demo_portal.prepare_draft("http://localhost:8000/portal/apply/fictional", "fictional_app", {"essay": "Original fictional fixture"})
+        assert await demo_portal.read_confirmation(draft_url) is None
+        portal_state.update(submitted=True, confirmation_code="confirmation required")
+        assert await demo_portal.read_confirmation(draft_url) is None
+        portal_state["confirmation_code"] = "DEMO1234"
+        assert await demo_portal.read_confirmation(draft_url) == "DEMO1234"
     asyncio.run(run())

@@ -32,6 +32,7 @@ export interface IntakeRequest {
   cv_text?: string;
   cv_pdf_base64?: string;
   transcript_text?: string;
+  transcript_pdf_base64?: string;
   preferences: Preferences;
   vault_sections: Record<string, string>;
   vault_text?: string;
@@ -44,12 +45,12 @@ export interface IntakeResponse {
 }
 
 export interface HardRuleResults {
-  country: boolean;
-  level: boolean;
-  gpa: boolean;
-  field: boolean;
-  deadline: boolean;
-  nationality: boolean;
+  country: boolean | null;
+  level: boolean | null;
+  gpa: boolean | null;
+  field: boolean | null;
+  deadline: boolean | null;
+  nationality: boolean | null;
 }
 
 export interface Match {

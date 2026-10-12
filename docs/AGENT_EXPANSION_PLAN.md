@@ -1,0 +1,14 @@
+# AGENT_EXPANSION_V1 — authorized implementation plan
+
+User authorized evaluations, real catalog research/discovery, adaptive actions, file uploads, reliability, both notification channels and local/AWS deployment on 2026/10/12. Keep the existing four screens and current schema where possible. Document any v1 extensions. Real portals are opened through verified handoff adapters; fictional fixtures never become real applicants and CAPTCHA/login require human action.
+
+1. tests/fixtures/factuality_cases.json and scripts/evaluate_factuality.py: diverse labelled fictional cases, honest before/after confusion matrices, optional live judge/Challenger batch with real usage and Neatlogs spans. Harden deterministic source checks only from observed failure patterns.
+2. app/services/discovery.py and backend/data/research_sources.json: bounded public HTTPS official-source crawling, full URL provenance/digests, dated status/deadline observations, AI-policy confirmation; unverified leads cannot become confirmed eligibility. app/agents/researcher.py persists bounded page snapshots in existing completed Job records and cross-checks multiple pages.
+3. app/agents/planner.py: retry_research, reselect_evidence, request_evidence, skip_opportunity, revise_and_verify with per-tool bounds, persisted decision counts, safe checkpoint resume. Existing application events hold requests; existing profile upload/review supplies answers. Add documented owned continue endpoint and UI control.
+4. File UX: real PDF/text CV/transcript drops, size/errors, backend source review, downloadable Tobi fixture files; use api.ts for all calls. No invented applicant facts.
+5. Reliability: cancellation markers checked before tools/submit, stale worker recovery and external reconciliation tests; real notification delivery jobs with explicit unavailable/failure states, saved user settings and opt-in. SMTP/Telegram keys remain private.
+6. Onboarding/deployment: documented OIDC operator config, fix container SDK/path/storage problems, runnable local stack, AWS CloudFormation template and deployment preflight in selected Region. AWS execution depends on project credentials, Region, paid-plan/spend confirmation. Do not claim cloud deployment until verified.
+
+Tests: fixture matrix; official-link SSRF/blocker/date ambiguity; persisted cache across sessions; retry/reselection bounds; missing evidence/resume ownership; cancellation/restart/duplicate outcomes; absent notification keys fail honestly; file bytes/profile review. Run root suite, backend quick check, frontend type/lint.
+
+Neatlogs: existing WORKFLOW root; factuality_evaluation WORKFLOW, discovery/research RETRIEVER, adaptive TOOL decisions and verification GUARDRAIL; recovery decisions/events/logs for retry, changed strategy and human handoff. No applicant content capture for real identities.

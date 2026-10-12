@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install python wheels
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --user -r requirements.txt
+    pip install --no-cache-dir --target=/opt/python -r requirements.txt
 
 
 # Final runtime stage
@@ -45,8 +45,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy installed wheels from builder
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
+COPY --from=builder /opt/python /opt/python
+ENV PYTHONPATH=/opt/python:/app
+ENV PATH=/opt/python/bin:$PATH
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -58,12 +59,14 @@ RUN python -m playwright install --with-deps chromium
 COPY app/ /app/app/
 COPY scripts/ /app/scripts/
 COPY backend/data/listings.json /app/backend/data/listings.json
-COPY backend/app/tracing.py /app/backend/app/tracing.py
+COPY backend/app/ /app/backend/app/
+COPY backend/data/synthetic/ /app/backend/data/synthetic/
+COPY backend/data/research_sources.json /app/backend/data/research_sources.json
 COPY alembic.ini /app/alembic.ini
 
 # Create non-root user and runtime directories
 RUN useradd -m -u 1000 scholarpilot && \
-    mkdir -p /app/storage/screenshots /app/storage/documents && \
+    mkdir -p /app/storage/screenshots /app/storage/documents /app/storage/packages /app/storage/portal && \
     chown -R scholarpilot:scholarpilot /app
 
 USER scholarpilot

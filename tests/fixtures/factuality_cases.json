@@ -1,0 +1,293 @@
+{
+  "fictional": true,
+  "scope": "Curated regression set; not representative accuracy benchmark.",
+  "cases": [
+    {
+      "id": "literal-degree",
+      "category": "literal",
+      "sources": [
+        "I earned a BSc in Computer Engineering in 2025."
+      ],
+      "claim": "I earned a BSc in Computer Engineering in 2025.",
+      "supported": true
+    },
+    {
+      "id": "gpa-inflated",
+      "category": "numbers",
+      "sources": [
+        "My CGPA is 4.30 out of 5.00."
+      ],
+      "claim": "My CGPA is 4.90 out of 5.00.",
+      "supported": false
+    },
+    {
+      "id": "false-causation",
+      "category": "causation",
+      "sources": [
+        "Eight of my students later entered a state science fair."
+      ],
+      "claim": "My teaching resulted in eight students entering a state science fair.",
+      "supported": false
+    },
+    {
+      "id": "future-accomplishment",
+      "category": "aspiration",
+      "sources": [
+        "I want to build solar forecasting systems."
+      ],
+      "claim": "I built solar forecasting systems.",
+      "supported": false
+    },
+    {
+      "id": "future-mixed-sources",
+      "category": "aspiration",
+      "sources": [
+        "I want to build solar forecasting systems.",
+        "I earned a BSc in 2025."
+      ],
+      "claim": "I built solar forecasting systems.",
+      "supported": false
+    },
+    {
+      "id": "goal-paraphrase",
+      "category": "aspiration",
+      "sources": [
+        "I want to study energy systems."
+      ],
+      "claim": "My goal is to study energy systems.",
+      "supported": true
+    },
+    {
+      "id": "future-plan",
+      "category": "aspiration",
+      "sources": [
+        "I want to design low cost solar sensors."
+      ],
+      "claim": "I plan to design low cost solar sensors.",
+      "supported": true
+    },
+    {
+      "id": "literal-possessive",
+      "category": "literal",
+      "sources": [
+        "I was on the Dean's list for 2 sessions."
+      ],
+      "claim": "I was on the Dean's list for 2 sessions.",
+      "supported": true
+    },
+    {
+      "id": "negation-inverted",
+      "category": "negation",
+      "sources": [
+        "I did not win the departmental prize."
+      ],
+      "claim": "I won the departmental prize.",
+      "supported": false
+    },
+    {
+      "id": "negation-literal",
+      "category": "negation",
+      "sources": [
+        "I did not win the departmental prize."
+      ],
+      "claim": "I did not win the departmental prize.",
+      "supported": true
+    },
+    {
+      "id": "role-promotion",
+      "category": "role",
+      "sources": [
+        "I was assistant coordinator of the campus club."
+      ],
+      "claim": "I was coordinator of the campus club.",
+      "supported": false
+    },
+    {
+      "id": "literal-role",
+      "category": "role",
+      "sources": [
+        "I was assistant coordinator of the campus club."
+      ],
+      "claim": "I was assistant coordinator of the campus club.",
+      "supported": true
+    },
+    {
+      "id": "member-leader",
+      "category": "role",
+      "sources": [
+        "I was a member of the engineering club."
+      ],
+      "claim": "I led the engineering club.",
+      "supported": false
+    },
+    {
+      "id": "intern-founder",
+      "category": "role",
+      "sources": [
+        "I was an intern at Fictional Solar."
+      ],
+      "claim": "I founded Fictional Solar.",
+      "supported": false
+    },
+    {
+      "id": "year-changed",
+      "category": "dates",
+      "sources": [
+        "I graduated in 2025."
+      ],
+      "claim": "I graduated in 2024.",
+      "supported": false
+    },
+    {
+      "id": "unsupported-name",
+      "category": "entities",
+      "sources": [
+        "I studied at Fictional State University."
+      ],
+      "claim": "I studied at Imaginary Tech University.",
+      "supported": false
+    },
+    {
+      "id": "missing-sources",
+      "category": "missing",
+      "sources": [],
+      "claim": "I earned a degree.",
+      "supported": false
+    },
+    {
+      "id": "number-word",
+      "category": "numbers",
+      "sources": [
+        "I tested firmware on 12 sensor boards."
+      ],
+      "claim": "I tested firmware on twelve sensor boards.",
+      "supported": true
+    },
+    {
+      "id": "unit-swapped",
+      "category": "units",
+      "sources": [
+        "I taught 40 students over 200 hours."
+      ],
+      "claim": "I taught 200 students over 40 hours.",
+      "supported": false
+    },
+    {
+      "id": "literal-units",
+      "category": "units",
+      "sources": [
+        "I taught 40 students over 200 hours."
+      ],
+      "claim": "I taught 40 students over 200 hours.",
+      "supported": true
+    },
+    {
+      "id": "unproven-benefit",
+      "category": "impact",
+      "sources": [
+        "I made a dashboard showing panel output."
+      ],
+      "claim": "My dashboard provided actionable insights.",
+      "supported": false
+    },
+    {
+      "id": "guaranteed-outcome",
+      "category": "impact",
+      "sources": [
+        "I want to support small businesses."
+      ],
+      "claim": "My work guaranteed small businesses success.",
+      "supported": false
+    },
+    {
+      "id": "association-literal",
+      "category": "causation",
+      "sources": [
+        "Eight students later entered a science fair."
+      ],
+      "claim": "Eight students later entered a science fair.",
+      "supported": true
+    },
+    {
+      "id": "project-inflated",
+      "category": "scope",
+      "sources": [
+        "I built a prototype solar monitor."
+      ],
+      "claim": "I deployed a commercial solar monitor.",
+      "supported": false
+    },
+    {
+      "id": "course-degree",
+      "category": "qualification",
+      "sources": [
+        "I completed an online certificate in data science."
+      ],
+      "claim": "I earned a degree in data science.",
+      "supported": false
+    },
+    {
+      "id": "sensitive-no-inference",
+      "category": "sensitive",
+      "sources": [
+        "I volunteered at a school."
+      ],
+      "claim": "I overcame serious financial hardship.",
+      "supported": false
+    },
+    {
+      "id": "literal-skills",
+      "category": "literal",
+      "sources": [
+        "My skills include Python, C, SQL and Git."
+      ],
+      "claim": "My skills include Python, C, SQL and Git.",
+      "supported": true
+    },
+    {
+      "id": "certificate-year",
+      "category": "dates",
+      "sources": [
+        "I earned a certificate in 2022."
+      ],
+      "claim": "I earned a certificate in 2022.",
+      "supported": true
+    },
+    {
+      "id": "foreign-language",
+      "category": "scope",
+      "sources": [
+        "I speak basic French."
+      ],
+      "claim": "I speak fluent French.",
+      "supported": false
+    },
+    {
+      "id": "goal-not-achieved",
+      "category": "aspiration",
+      "sources": [
+        "My goal is to work on smart grids."
+      ],
+      "claim": "I work on smart grids.",
+      "supported": false
+    },
+    {
+      "id": "causation-paraphrase",
+      "category": "causation",
+      "sources": [
+        "Students later entered a science fair."
+      ],
+      "claim": "My teaching caused students to enter a science fair.",
+      "supported": false
+    },
+    {
+      "id": "unknown-hours",
+      "category": "numbers",
+      "sources": [
+        "I volunteered as a teacher."
+      ],
+      "claim": "I volunteered as a teacher for 200 hours.",
+      "supported": false
+    }
+  ]
+}

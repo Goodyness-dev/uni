@@ -299,6 +299,44 @@ Gap endpoints exist from B08. Add the Telegram gap message and make sure answeri
 
 Only after everything else. Implement the Crustdata path in `fetch_live` using the Crustdata docs, 8 credits per scholarship budget, record `credits_used`. Never use the human mode option. Time box 45 minutes. Commit: `feat(research): crustdata live research [B28]`.
 
+## PROD_REPAIR. [x] Production audit safety repair batch (user-authorized 2026/10/12)
+
+Scope: the user's 22-claim audit repair request. Plan and remaining acceptance work: `PRODUCTION_REPAIR_PLAN.md`.
+Completed: safety gates, queue/scheduler repairs, conservative evidence handling, migration path, demo confirmation readback, account stop keys, truthful README and regression tests.
+Validation: root suite 57 passing; original backend quick check 99 passing; frontend type check/lint passing; isolated SQLite forward migration passing.
+Pending: real PostgreSQL/Redis/Docker/Chromium validation, verified identity/document workflows, immutable audit retention policy, full LLM Challenger/package generation and sponsor evidence. This checkbox marks the validated repair batch, not production readiness or completion of all roadmap items.
+Commit: `fix(production): enforce safe demo confirmation and account erasure [PROD_REPAIR]`.
+
 ## Critical path summary
 
 B01, B02, B03, B04, B07, B08 (Saturday), then B09, B10, B11, B12, B13, B14 (RUN A), B15, B16 (RUN B), B17, B18 to B22, B24, B25. If time runs out, cut B28, B27, B26, B23 in that order. Never cut B14 to B17, B21, B22.
+
+## PROD_REPAIR_V1. [x] Approved production repair extension (2026/10/12)
+
+Scope: the user's approved continuation of the 22-claim repair plan and identity/frontend contract extension. Implemented source review, identity-token exchange/scopes, bounded generation/judge/Challenger/revision, owned packages, audit guards/migration 003, shared rate windows, renewable submission leases, local export/erasure and existing-screen v1 adapter. Acceptance matrix and pending deployment work: `PRODUCTION_REPAIR_PLAN.md`; contract: `PRODUCTION_V1_CONTRACT.md`.
+
+Validation: offline root regressions, original backend quick check, frontend type check/lint and isolated SQLite migration. This checkbox records implementation and offline validation, not completion of live PostgreSQL/Redis/Chromium/provider/sponsor evidence.
+Commit: `feat(production): add reviewed evidence and approved v1 workflow [PROD_REPAIR_V1]`.
+
+## PROD_REPAIR_V1 integration acceptance. [x] Real local fictional application
+
+User authorized frontend/API/worker/PostgreSQL/Redis/demo portal integration on 2026/10/12. Real local servers, migration 003, source review, packages, approval, worker browser submission and authoritative confirmation completed. Receipt DEMO1668; a separate confirmation-only handoff run produced DEMO4907. Evidence and limitations: `PRODUCTION_REPAIR_PLAN.md`, `evidence/fictional_e2e_20261012.json`.
+Commit: `fix(integration): connect v1 frontend and verify fictional local workflow [PROD_REPAIR_V1]`.
+
+## AGENT_LIVE_V1. [x] User-approved bounded live agent and Neatlogs evidence
+
+Scope: approved agent implementation order in `AGENT_LIVE_PLAN.md`; reuse existing endpoints/models/four screens. Implement real provider gateway, bounded allowlisted planner, reviewed evidence selection, owned-page research, grounded drafting/judge/Challenger/revision, source regression guards, visible decisions and actual trace links. Capture only fictional full content; retain human approval and demo-only submission.
+
+Validation: 84 root tests, 99 original backend checks, strict frontend types/lint; actual PostgreSQL/Redis/worker/Chromium receipt DEMO1584. Neatlogs finalized 112 spans/11 LLM calls; six detection rules and actual Replay exercised. Evidence: `NEATLOGS_AGENT_DEMO.md`, `evidence/agent_after_source_review_20261012.json`. Investigate summary connection failure and selective MCP pagination capability remain external limitations; Evals not configured. Commit checkpoint pending the installed Entire hook.
+Commit: `feat(agent): add bounded tools and verified Neatlogs demo [AGENT_LIVE_V1]`.
+
+## AGENT_AUTOPILOT_V1. [x] Remove unconditional approval pause (user-authorized)
+
+Plan: `AGENT_LIVE_PLAN.md` follow-up. Reuse existing mode settings, visible profile switch, shared owner pause marker, checked-draft finish and real demo-only submission. Tests cover automatic queueing, review/unsafe portal pause, unchecked draft rejection, deduplication and owner-specific automatic stop. Retain source review and CAPTCHA handoff.
+Commit: `fix(agent): honor user autopilot and submission pause [AGENT_AUTOPILOT_V1]`.
+
+Validation: 89 root tests; frontend types/lint; real automatic receipt DEMO2985 without an approval event. The Profile off switch persisted Review and its shared Redis owner pause marker. Live proof: `evidence/autopilot_e2e_20261012.json`.
+
+## AGENT_EXPANSION_V1. [ ] User-authorized agent expansion
+
+Scope, files/signatures/tests/spans: AGENT_EXPANSION_PLAN.md. Implement the five requested capability areas and frontend source-file workflow; both local and AWS deployment; Telegram and email. Record external setup blockers explicitly. Commit: feat(agent): add live research and adaptive recovery [AGENT_EXPANSION_V1].
