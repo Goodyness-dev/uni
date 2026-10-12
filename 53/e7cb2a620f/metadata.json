@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "53e7cb2a620f",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 13,
+  "files_touched": [
+    "Dockerfile",
+    "README.md",
+    "app/agents/researcher.py",
+    "app/agents/submitter.py",
+    "app/api/v1/settings.py",
+    "app/core/rate_limiter.py",
+    "app/db/base.py",
+    "app/integrations/telegram.py",
+    "app/jobs/queue.py",
+    "requirements.txt"
+  ],
+  "sessions": [
+    {
+      "metadata": "/53/e7cb2a620f/0/metadata.json",
+      "transcript": "/53/e7cb2a620f/0/full.jsonl",
+      "content_hash": "/53/e7cb2a620f/0/content_hash.txt",
+      "prompt": "/53/e7cb2a620f/0/prompt.txt"
+    }
+  ]
+}
