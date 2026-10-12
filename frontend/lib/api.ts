@@ -76,6 +76,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       // Fallback to response statusText if JSON parsing fails
       if (response.statusText) errorMessage = response.statusText;
     }
+    if (useV1 && errorMessage.startsWith("Missing API key")) {
+      errorMessage = "Connect first using Start demo or Sign in at the top of the page, then upload your documents.";
+    }
     throw new ApiError(response.status, errorCode, errorMessage);
   }
 
