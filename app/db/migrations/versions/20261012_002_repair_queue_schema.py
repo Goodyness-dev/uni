@@ -16,6 +16,12 @@ def upgrade() -> None:
     if "payload" not in {column["name"] for column in inspector.get_columns("jobs")}:
         op.add_column("jobs", sa.Column("payload", sa.JSON(), nullable=False, server_default="{}"))
     if connection.dialect.name != "postgresql":
+        if connection.dialect.name == "sqlite":
+            convention = {"fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s"}
+            with op.batch_alter_table("application_events", naming_convention=convention) as batch:
+                batch.drop_constraint("fk_application_events_application_id_applications", type_="foreignkey")
+                batch.create_foreign_key("fk_application_events_application_id_applications", "applications",
+                    ["application_id"], ["id"], ondelete="RESTRICT")
         return
     # Drop dependent foreign keys before casting UUID identifiers, then recreate.
     foreign_keys = [(table, fk) for table in tables for fk in inspector.get_foreign_keys(table)]

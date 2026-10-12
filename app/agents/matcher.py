@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.matches import evaluate_eligibility_and_fit
 from app.db.models import Job, Match, Profile, Scholarship
 from app.jobs.queue import register_job_handler
+from app.core.tracing import agent_span
 
 
 class MatcherInput(BaseModel):
@@ -29,6 +30,7 @@ class MatcherOutput(BaseModel):
     matches: List[MatchItem]
 
 
+@agent_span("matcher", role="Eligibility Matcher", goal="Filter catalog against supplied eligibility evidence")
 async def run_matcher(user_id: uuid.UUID, session: AsyncSession) -> MatcherOutput:
     """Executes matching logic against all active catalog scholarships."""
     stmt = select(Profile).where(Profile.user_id == user_id)
