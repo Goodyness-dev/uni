@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "789e73645cd6",
+  "session_id": "20913eee-50d1-4122-9d89-6b1ecc83101e",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-12T19:50:44.8594113Z",
+  "branch": "codex/neatlogs-improvement",
+  "checkpoints_count": 2,
+  "save_step_count": 1,
+  "files_touched": [
+    "app/core/config.py",
+    "app/core/llm_gateway.py"
+  ],
+  "agent": "Antigravity",
+  "model": "",
+  "turn_id": "ad964b9526ce",
+  "session_metrics": {
+    "turn_count": 15
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-12T19:50:43.560545Z",
+    "agent_lines": 0,
+    "agent_removed": 1,
+    "human_added": 492,
+    "human_modified": 111,
+    "human_removed": 0,
+    "total_committed": 596,
+    "total_lines_changed": 640,
+    "agent_percentage": 0.15625,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

@@ -1,0 +1,573 @@
+yoo i udated and addde new md files re read then very welll , and give me the plan , do not write any code
+
+---
+
+okay , so before we stast hav you figured out how to use entire and neat logs or you need me to help
+
+---
+
+what should i do here
+
+---
+
+im good?
+
+---
+
+okay , make 2 detailed commits per phase with entire ,and any where you use neat log , say it explcitly in the commit , create an implementation file for evrery phase and give me an extended summary of what you;ve just done , why you did it and what i should expect per phase , lets go phase 0
+
+---
+
+give me the implenamtation plan for phase 1 first
+
+---
+
+# Trace an AI agent with Neatlogs
+
+Set up Neatlogs tracing in this working directory. Follow these steps in order.
+
+## Step 1: Set up Neatlogs access
+
+Neatlogs project ID: `72601136-9c61-4e1b-8644-8f9d7a83aedf`
+
+Set `NEATLOGS_API_KEY` to the key below in the shell the user will run the app from,
+for example `export NEATLOGS_API_KEY="REDACTED"`. If the app loads a
+`.env` file, add it there instead. Do not commit the key to version control.
+
+```
+REDACTED
+```
+
+Never replace this key with a guessed or invented one. This is an SDK project key, not a public API CLI credential. SDK Doctor verification can use it without CLI login. CLI readback requires browser/device approval or a service-account token; if neither is available, mark that step "waiting on a human" and continue SDK verification.
+
+The CLI host is the dashboard origin `https://app.neatlogs.com`, not the ingest endpoint. Use this host explicitly on every CLI command.
+
+## Step 2: Detect the language and stack
+
+Look at the workspace and determine the language and which LLM providers / agent frameworks it uses. If the project spans more than one language, instrument each one. If the project is a monorepo, check the git root to get oriented, but only ever instrument services in or below the current working directory — never a sibling or parent app outside it, even if a workspace/compose config references one.
+
+**Finding independent services.** A monorepo can bundle several independently-deployable services; each one that reaches an LLM/agent/tool call gets treated as its own entry point later (own workflow name in Step 4) — skip health/readiness/CRUD-only services that never call a model entirely. Check these signals in order and stop at the first one that finds more than one service directory:
+
+1. **Workspace config** (most authoritative) — a `workspaces` field in the root `package.json`, or a `packages` field in `pnpm-workspace.yaml`. Resolve those glob patterns to directories, then keep only the ones that actually have their own manifest (`package.json`, `pyproject.toml`, `go.mod`, etc.) — a glob can match a plain non-package directory too.
+2. **docker-compose** — `docker-compose.yml`/`docker-compose.yaml`/`compose.yml`/`compose.yaml` at the root. Each entry under `services:` whose `build` (a plain string, or an object's `context` field) resolves to an existing directory is one service.
+3. **Scattered manifests** (fallback, only if neither signal above found more than one) — search for manifest files (`package.json`, `pyproject.toml`, `go.mod`, etc.) up to 4 directories deep, excluding `node_modules`, `.git`, `dist`, `build`, `.next`, `venv`, `.venv`, `__pycache__`, `target`, `.turbo`, `vendor`. Drop the repo root's own manifest (that's the whole-repo language, not a separate service) and drop any candidate directory that's nested inside another candidate — a service's own internal shared-lib subpackage is not a separate service.
+
+Edge case: if exactly one of these signals finds exactly one nested service, and the repo root itself has no manifest/language of its own, use that single nested directory as the actual service root instead of the top-level directory — it IS the real service, just not living at the repo root (e.g. a `services/api/` with nothing else at the top level).
+
+If none of the three signals finds more than one candidate, treat the whole repo at the current working directory as a single service — this is the common case, and nothing else here changes for it. For every service found this way, only keep it if it reaches an LLM/agent/tool call — drop the rest, per the CRUD/health-check exclusion above.
+
+**Identifying entry points within each service.** A single service usually has several independent, separately-triggerable capabilities — these are the actual entry points, not the service as a whole. Typical shapes: an HTTP route, a CLI command/subcommand, a cron/scheduled job, a queue/stream consumer (Kafka/SQS/Celery/RabbitMQ/BullMQ — one entry point per message/task type, not one for the whole consumer loop), a webhook/event handler, an agent-loop iteration, or a public library API function. Two things commonly get this wrong:
+
+- **Altitude** — an internal helper the entry point calls into (`run_pipeline`, `process_document`, `process_chunk`) is NOT itself an entry point; the entry point is the outer route/command/job that calls it.
+- **Multiplexed entry** — if one transport dispatches to several different capabilities (a single `/run` route branching on a `task_type` field, a Celery task branching by job kind, an argparse dispatcher, a Kafka consumer loop branching on `msg.topic`/`event_type`), treat EACH BRANCH as its own entry point — never the shared dispatcher as one entry point covering all of them.
+
+For each entry point, also note its process kind — it changes how you initialize and where spans root:
+
+- **One-shot script**: initialize once near the top, and end by flushing/shutting down the SDK (its process exits immediately after, and unflushed spans batched in memory are otherwise lost).
+- **Long-running server**: initialize once at process startup — never inside a request handler — and only flush/shut down on process shutdown, not per request. Root each request under its own span (e.g. a `WORKFLOW` on the handler) so concurrent requests don't share one trace.
+- **Concurrent operations within one entry point** (goroutines, worker threads, manual thread pools — not plain `async`/`await` in the same coroutine, which propagates context on its own): context does not always propagate automatically across a new thread or goroutine. Check Step 3's reference for whether this language/runtime requires threading the trace context through explicitly (Go always does) or handles it for you.
+
+Neatlogs has a native SDK for Python, TypeScript, and Go — if the detected language is one of those, continue to Step 3. For any OTHER language, there is no Neatlogs SDK; pick ONE of these two paths instead, and skip Step 3 (its SDK integration-mechanism guidance is not applicable here):
+
+- **Default: the dependency-free HTTP endpoint.** Use this unless the app already has OpenTelemetry, or the language's OTel support is clearly the more idiomatic fit (e.g. Java, .NET). Follow https://docs.neatlogs.com/sdk/http-injection exactly, but send to the regional URL `https://ingest.neatlogs.com/v1/trace` instead of any default host shown in the guide. The mechanism is fundamentally different from Steps 3–4 below: build ONE nested JSON tree (an object with a `children` array) as the code for one entry-point invocation runs, then send it as a SINGLE `POST /v1/trace` when that invocation completes — success or error, so wrap the send in this language's try/finally-equivalent. Never POST once per span; that violates the endpoint's contract and produces disconnected traces instead of one.
+- **OpenTelemetry / OTLP-gRPC, when the app already emits OpenTelemetry spans** (its own `tracer.start_span()`-style setup, an OTel Collector, or a GenAI-instrumented framework) **or you're setting one up now:** if there's no existing OTel SDK for this language yet, find and install the official one from https://opentelemetry.io/docs/languages/ (its own site — Neatlogs doesn't ship or document per-language OTel setup beyond Python/TS/Go) and add a standard gRPC trace exporter. Either way, point the exporter at Neatlogs: endpoint `ingest.neatlogs.com:443`, gRPC protocol, and the project key sent as the `x-api-key` gRPC metadata key — NOT an `Authorization: Bearer` header. Standard: emit spans following the official OpenTelemetry GenAI semantic conventions (https://opentelemetry.io/docs/specs/semconv/gen-ai/) — `gen_ai.system`, `gen_ai.request.model`, `gen_ai.operation.name`, token/usage attributes, etc. (If this happens to be a TypeScript app already using the Vercel AI SDK's own built-in `experimental_telemetry` rather than the Neatlogs SDK, its native `ai.*` attribute format — `ai.prompt`, `ai.response.text`, `ai.operationId`, etc. — is also recognized directly; no need to convert it to `gen_ai.*`.) Spans that don't follow either of these two shapes still get ingested, but arrive as generic, unparsed spans — no model name, no token counts, no LLM-specific rendering in the dashboard. Full transport detail (including the "flush before the process exits or batched spans are silently dropped" footgun): https://docs.neatlogs.com/sdk/opentelemetry.
+
+## Step 3: Follow the SDK's instrumentation reference
+
+Python, TypeScript, or Go only — skip this step if you took one of the two paths above instead.
+
+For each language, read the matching page and follow it exactly for HOW to capture LLM/framework calls — it lists, per provider and per framework, whether that one needs `wrap()`, `instrumentations=[...]`, or a dedicated integration helper, and that list changes as the SDK evolves, so don't guess or reuse a pattern from a different provider.
+
+| Language | Guide |
+| --- | ------|
+| Python | https://docs.neatlogs.com/sdk/python |
+| TypeScript | https://docs.neatlogs.com/sdk/typescript |
+| Go | https://docs.neatlogs.com/sdk/go |
+
+Use the regional Neatlogs ingest endpoint `https://ingest.neatlogs.com` for SDK initialization. Follow the language guide for the exact endpoint parameter.
+
+## Step 4: Install and initialize the SDK
+
+Python, TypeScript, or Go only — if you took the OpenTelemetry or HTTP-injection path in Step 2, follow that page's own setup instructions instead of this step.
+
+- Install the SDK using this language's own package manager (`pip`/`poetry` for Python, `npm`/`pnpm`/`yarn` for TypeScript, `go get` for Go — see Step 3's reference for the exact package/module name). Look up and install the latest version rather than pinning to a specific one. Verify the install succeeded.
+- Initialize the SDK once, near the app's entry point — the exact call signature (parameter names, casing, whether the API key is passed explicitly or read from the environment automatically) differs by language, so use Step 3's reference for the precise syntax rather than guessing from another language's example. Whatever the signature, never hardcode the API key. Set the workflow name to describe the specific task or pipeline this process runs — e.g. `invoice-ocr`, `support-agent`, `checkout-flow` — not the repo or app name; the project (selected by the API key) already identifies the app. If the repo has multiple independent entry points that each reach an LLM/agent/tool, give each its own workflow name describing what THAT one does.
+- Calling `init()` again with the same configuration is idempotent; calling it with conflicting configuration raises a configuration error until the current SDK generation is shut down. Never add a second `init()` to switch projects inside one running process. Almost every independent entry point you find stays on the same project and is distinguished by its own workflow root. Use a secondary client only when telemetry genuinely belongs to a different Neatlogs project (for example, explicit multi-tenant routing), and confirm that ownership decision with the user rather than inferring it from code structure.
+- Capture each LLM/framework call using the mechanism Step 3's reference says to use for that specific provider or framework — do not wrap something the guide says to instrument a different way, and never apply two mechanisms to the same call (e.g. `wrap()` a client AND also list it in `instrumentations=[...]`).
+- `wrap()`/`instrumentations=[...]`/framework integrations only capture library calls. Add a manual `@neatlogs.span(kind="WORKFLOW")` / `trace()` around a feature entry point only when you need to GROUP several of those calls under one named trace — not as an alternative way to capture a single call.
+
+## Step 5: Verify instrumentation and ingestion
+
+Use the language guide to run the installed SDK's `doctor --local` and `doctor --probe` commands with the SDK project key and regional ingest endpoint. These are SDK commands, not subcommands of `neatlogs-cli`. Do not guess the Python, TypeScript, or Go invocation. For HTTP/OTLP-only integrations, follow their guide's verification path instead.
+
+Do not run the application yourself. Ask the user to run an instrumented entry point and provide its trace ID or result. A synthetic Doctor probe verifies the telemetry pipeline; report it separately from verification of the user's actual application trace. Do not claim application instrumentation passed based only on a synthetic probe. With only the SDK project key, use Doctor readback and mark CLI readback "waiting on a human".
+
+## Step 6: Optional public API CLI readback
+
+Install `neatlogs-cli` using `npm install --global neatlogs-cli` and check `neatlogs --version` (Node.js 22 or 24). The SDK key must remain available to the application, but it must not override CLI authentication.
+
+Use the dashboard-specific profile `setup-https---app-neatlogs-com` consistently for login and every read. Before signing in, inspect `neatlogs --host https://app.neatlogs.com profile list`. Reuse this name only if it is unused or already belongs to this exact dashboard origin; otherwise choose an unused name and replace it in every command below. Login creates the profile when needed. Do not rebind an authenticated profile from another dashboard or rely on the default/active profile.
+
+For human OAuth, the following POSIX-shell commands exclude SDK/environment credentials only from each CLI process; they do not unset the application's key. In other shells, launch the CLI in an environment without those variables. A CLI version exposing `--credential-source profile` in `--help` can use that option instead of excluding the two credential variables.
+
+```bash
+env -u NEATLOGS_API_KEY -u NEATLOGS_TOKEN neatlogs --host https://app.neatlogs.com --profile setup-https---app-neatlogs-com auth login --device
+# The user must approve the displayed code in their browser.
+env -u NEATLOGS_API_KEY -u NEATLOGS_TOKEN -u NEATLOGS_PROJECT_ID neatlogs --host https://app.neatlogs.com --profile setup-https---app-neatlogs-com projects list
+env -u NEATLOGS_API_KEY -u NEATLOGS_TOKEN neatlogs --host https://app.neatlogs.com --profile setup-https---app-neatlogs-com --project 72601136-9c61-4e1b-8644-8f9d7a83aedf whoami
+env -u NEATLOGS_API_KEY -u NEATLOGS_TOKEN neatlogs --host https://app.neatlogs.com --profile setup-https---app-neatlogs-com --project 72601136-9c61-4e1b-8644-8f9d7a83aedf traces list --limit 10
+env -u NEATLOGS_API_KEY -u NEATLOGS_TOKEN neatlogs --host https://app.neatlogs.com --profile setup-https---app-neatlogs-com --project 72601136-9c61-4e1b-8644-8f9d7a83aedf traces get <trace-id>
+```
+
+Confirm the project UUID against `projects list`; discovery must not receive `--project` or `NEATLOGS_PROJECT_ID`. A service-account token supplied securely via `NEATLOGS_TOKEN` can replace interactive login: exclude only `NEATLOGS_API_KEY` for those invocations, or use `--credential-source token` when supported. It needs `context:read` for discovery/whoami and `observability:read` for trace reads, plus access to the selected project. Never ask the user to paste tokens into chat.
+
+Use the project-scoped `whoami` and actual trace read as the authoritative check. Older CLI versions can report `auth status` as authenticated just because a key is present. The command is `traces get`, not `trace get`. Trace detail returns status, token totals and span counts; use `traces spans list <trace-id>` with the same host/profile/project/credential setup for individual spans. A nonexistent trace should return `NOT_FOUND`.
+
+## Rules
+
+- Add only tracing. Do not set up detections, alerts, evals, or anything else.
+- Make only the code changes needed to add tracing. Do not run the application yourself, and do not break or meaningfully modify existing code.
+- Do not use the Neatlogs wizard CLI (`npx @neatlogs/wizard@latest`) — that's a separate, more thorough path; this prompt is the manual alternative for when it isn't available.
+
+Full documentation index: https://docs.neatlogs.com/llms.txt
+
+If any framework detected in Step 2 has a dedicated skill at https://github.com/neatlogs/skills (check that repo's `skill-menu.json` for the matching package, e.g. a CrewAI or LangChain project), fetch and read it before instrumenting that framework — it carries gotcha-level detail Step 3's reference doesn't (e.g. exact span-double-firing traps, per-framework attachment rules) and is worth the extra step for that framework's correctness.
+
+
+go ahead and implement , these are the neatlog credentials
+
+---
+
+go ahead , also do you need neat logs or entires;s full docs , i can provide them
+
+---
+
+yes
+
+---
+
+go ahead skill , you dont neeed my pernission for any downloads or installations
+
+---
+
+we didnt use neat log?
+
+---
+
+go ahead , alway put it in the commit ,whenever you use neat logs
+
+---
+
+lets go phase 5
+
+---
+
+are you puhing to git hub at all
+
+---
+
+you were meant to ne pushing to git hub after every phase ,, plesae as from now on push to git hubafter very phsae , and find a way to talk about neatlogs , also how many phases are left
+
+---
+
+lets go , also what i meant it that fir eact git hub push , in the commit say how we used netlogs
+
+---
+
+are you stuck
+
+---
+
+okay once that is done proceed to pharse 7 and 8 respectivly , you dont need to show me the implementation plan files
+
+---
+
+so explain what we've built t me now , extensivley
+
+---
+
+whats next
+
+---
+
+give me 3 x posts to post in order
+
+---
+
+# Scholarship Agent: Demo to Production Brief
+
+This file is the single source of truth for Antigravity. Read all of it before writing any code. When something here conflicts with your own assumptions, this file wins. If something is missing, stop and list your assumptions in `DECISIONS.md` before continuing.
+
+## 1. Mission
+
+Build an autonomous agent that helps Nigerian and African students find, prepare and submit scholarship applications with minimal human effort. The problem is real: students miss deadlines, never discover scholarships they qualify for, and spend weeks on repetitive forms.
+
+Scope is scholarships only. No jobs, no admissions, no general chat assistant.
+
+## 2. Current state (demo)
+
+* Scholarship listings live in a local JSON file
+* Telegram is used for notifications
+* A Researcher agent looks up school and professor details
+* A Profile Vault stores user data
+* An Edge Finder agent picks the strongest angle for each application automatically, with no user approval
+* Auto submission is the main agentic layer
+* CAPTCHAs are detected and handed to the user, never bypassed
+* Team: one person on agent and backend, one on UI, frontend and tech lead
+
+## 3. Target state (production)
+
+A multiuser system where a student signs up, fills the Profile Vault once, and the agent runs on its own every day: discovers matching scholarships, researches them, drafts materials, submits or queues for review, and reports through Telegram and the web app. Everything is observable, recoverable and safe with student data.
+
+## 4. Hard rules (mandatory, never break)
+
+1. Never bypass, solve or evade a CAPTCHA, bot check or identity verification. Detect it, pause the job, notify the user, resume after the human acts.
+2. Never fabricate facts about a user. Essays and answers may only use data from the Profile Vault or user supplied documents. If a required fact is missing, ask the user.
+3. Never submit an application in Review mode without explicit user approval.
+4. Never store passwords for scholarship portals in plain text. Encrypt at rest or do not store.
+5. Never log personal data (full names, emails, phone numbers, ID numbers, essay text) in plain application logs.
+6. Never delete or overwrite a user's submitted application record. Records are append only.
+7. Every external action (submit, send message, write to a portal) must be idempotent and traceable to a job ID.
+
+## 5. Architecture
+
+Components:
+
+* **API service:** FastAPI app exposing the public and internal endpoints
+* **Worker service:** runs agent jobs from a task queue
+* **Scheduler:** triggers the daily discovery and matching run per user
+* **Database:** Postgres is the system of record
+* **Queue and cache:** Redis (task queue, locks, rate limits)
+* **Browser runner:** Playwright in an isolated container for form filling
+* **Object storage:** uploaded documents (transcripts, CVs, essays) in an S3 compatible bucket
+* **Notifier:** Telegram bot first, email second, webhooks third
+* **LLM gateway:** one module that wraps every model call so models, retries, costs and logging live in a single place
+
+Defaults above are suggestions. If the existing demo uses a different stack, keep it where it works and record the reason in `DECISIONS.md`. Do not rewrite for taste.
+
+## 6. Repository layout
+
+Create this structure:
+
+* `app/` main package
+  * `api/` route modules and request and response schemas
+  * `agents/` researcher, edge_finder, drafter, submitter, matcher
+  * `core/` config, security, logging, llm_gateway
+  * `db/` models, migrations, repositories
+  * `jobs/` task definitions, state machine, scheduler
+  * `integrations/` telegram, email, webhooks, browser runner
+  * `services/` profile_vault, scholarship_catalog, application_service
+* `tests/` unit, integration and end to end tests
+* `docs/` API docs, runbooks, architecture notes
+* `scripts/` seed data, import tools, local dev helpers
+* `DECISIONS.md` log of every assumption and tradeoff
+* `README.md` setup in under ten minutes
+
+## 7. Data model
+
+Design tables with UUID primary keys, created_at and updated_at on everything.
+
+* **users:** id, email, telegram_chat_id, timezone, mode (autopilot or review), status
+* **profiles:** user_id, personal details, education history, grades, test scores, achievements, financial need info, target countries, target fields of study, completeness score
+* **documents:** id, user_id, type, storage_key, uploaded_at, verified flag
+* **scholarships:** id, title, provider, country, level, field, amount, currency, deadline, eligibility rules (structured), application_url, requires_essay, source, last_verified_at, status
+* **matches:** id, user_id, scholarship_id, fit_score, urgency_score, reasons (structured), created_at
+* **applications:** id, user_id, scholarship_id, status, mode_used, submitted_at, confirmation_ref, outcome
+* **application_events:** append only log of every state change and agent action with actor, timestamp and payload reference
+* **drafts:** id, application_id, kind (essay, statement, answer), content, version, source_facts (list of profile fields used)
+* **jobs:** id, type, status, attempts, last_error, scheduled_for, locked_by
+* **api_keys:** id, user_id, hashed_key, scopes, last_used_at, revoked_at
+* **webhooks:** id, user_id, url, secret, events subscribed, failure count
+
+Rules: use migrations for every schema change, never edit the database by hand. Add indexes on deadline, user_id plus status, and scholarship_id.
+
+## 8. Agent specifications
+
+Each agent is a module with a clear input and output schema validated with Pydantic. No agent may call another agent directly. They communicate through jobs and stored results.
+
+### 8.1 Matcher
+* Input: a profile and the scholarship catalog
+* Output: ranked matches with fit_score, urgency_score and a plain language reason list
+* Step one is deterministic eligibility filtering (country, level, field, deadline not passed). Only after that, use the model for soft scoring.
+* Never recommend a scholarship the user is hard ineligible for.
+
+### 8.2 Researcher
+* Input: a match
+* Output: structured facts about the school, department, programme and relevant professors, each with a source URL and retrieved_at
+* Every claim must carry a source. Unsourced claims are dropped before reaching the Drafter.
+* Cache results for seven days to control cost.
+
+### 8.3 Edge Finder
+* Input: profile, scholarship, research facts
+* Output: the strongest angles for this application (for example a relevant project, a leadership record, a hardship story, a fit with the programme), ranked, with the profile facts that support each
+* It decides automatically with no user approval, but it must store its reasoning so the user can see why an angle was chosen.
+* Store which angles led to accepted or rejected outcomes so later runs improve.
+
+### 8.4 Drafter
+* Input: chosen angles, profile facts, scholarship prompts and word limits
+* Output: drafts with version numbers and a list of source_facts
+* Enforce word limits in code, not in the prompt.
+* Run a grounding check: every factual sentence must map to a profile field or document. Flag any sentence that does not.
+* Match tone to the prompt and keep the user's voice consistent across versions.
+
+### 8.5 Submitter
+* Input: an approved application with final drafts and documents
+* Uses the Playwright runner to fill the portal form
+* Take a screenshot at every step and store it with the job
+* On CAPTCHA, login challenge, email or phone verification, payment request, or any layout it does not recognise: stop, set status to needs_human, notify the user with a direct link and the exact reason
+* After submission, capture the confirmation reference and a final screenshot
+* Never click anything that charges money or agrees to terms on behalf of the user without explicit approval recorded in application_events.
+
+## 9. Autonomy modes and state machine
+
+Two modes per user, changeable per application:
+
+* **Autopilot:** the agent runs the full loop and submits on its own, notifying after the fact
+* **Review:** the agent stops before submission and waits for approval
+
+Application states:
+
+1. discovered
+2. matched
+3. researching
+4. drafting
+5. ready_for_review (Review mode only)
+6. approved
+7. submitting
+8. needs_human
+9. submitted
+10. failed
+11. expired
+12. withdrawn
+
+Rules: transitions are enforced in one state machine module. Illegal transitions raise errors. Every transition writes an application_events row. A deadline passing moves any unsubmitted application to expired and notifies the user.
+
+Add a global kill switch (environment flag plus admin endpoint) that pauses all submissions instantly.
+
+## 10. Daily autonomous loop
+
+Run per user at a time chosen in their timezone:
+
+1. Refresh the catalog view for the user
+2. Run the Matcher and store new matches
+3. For high scoring matches, enqueue research, edge finding and drafting
+4. Depending on mode, enqueue submission or send a review request
+5. Send one Telegram summary: new matches, drafts ready, submissions made, blockers, upcoming deadlines
+6. Send deadline warnings at seven days, three days and one day for unfinished applications
+
+The scheduler must be safe to run twice. Use locks and idempotency keys so duplicate runs create no duplicate work.
+
+## 11. API specification
+
+Version everything under `/v1`. Use JSON. Return consistent error bodies with a code, a message and a request ID.
+
+Auth: API key in a header for developers, session token for the web app. Keys are hashed in the database and shown once at creation.
+
+Endpoints:
+
+* `POST /v1/auth/keys` create a key, `DELETE /v1/auth/keys/{id}` revoke it
+* `GET /v1/profile` and `PUT /v1/profile` read and update the Profile Vault
+* `POST /v1/documents` upload, `GET /v1/documents` list
+* `GET /v1/scholarships` list with filters for country, level, field, deadline range and amount
+* `GET /v1/matches` ranked matches for the caller
+* `POST /v1/matches/refresh` trigger a new matching run
+* `GET /v1/applications` list, `GET /v1/applications/{id}` detail with events and drafts
+* `POST /v1/applications` start an application for a scholarship
+* `POST /v1/applications/{id}/approve` approve for submission (Review mode)
+* `POST /v1/applications/{id}/resume` continue after a needs_human block
+* `POST /v1/applications/{id}/withdraw` cancel
+* `PUT /v1/settings` mode, notification channels, quiet hours, daily run time
+* `POST /v1/webhooks` register, `GET /v1/webhooks` list, `DELETE /v1/webhooks/{id}` remove
+* `GET /v1/jobs/{id}` job status
+* `GET /health` and `GET /ready` for the platform
+
+Webhook events: match.created, draft.ready, application.needs_human, application.submitted, application.failed, application.expired. Sign every payload with an HMAC using the webhook secret, retry with exponential backoff, and disable a webhook after repeated failures with a notice to the user.
+
+Customisation options for developers: choose which agents run, set minimum fit score, restrict countries and fields, cap applications per week, supply custom essay guidelines, and set the mode per request.
+
+Auto generated OpenAPI docs must stay accurate. Add example requests and responses for every endpoint.
+
+## 12. Reliability
+
+* Every job has a maximum attempt count, exponential backoff with jitter, and a dead letter state with an alert
+* Every external call has a timeout
+* Browser sessions run in isolated, disposable containers
+* Use idempotency keys on submission so a retry can never double submit
+* Wrap model calls with retry, fallback model and schema validation. If output fails validation twice, mark the job failed with a clear reason rather than guessing.
+* Track cost per user and per job. Set a daily spending cap per user and a global cap.
+
+## 13. Security and privacy
+
+Student data is sensitive. Treat it that way.
+
+* Encrypt data in transit and at rest
+* Encrypt portal credentials with a key from the environment secret store, never in the repo
+* Secrets only through environment variables, with a documented list in `README.md`
+* Validate every input with schemas. Sanitise file uploads, check type and size, scan if possible.
+* Rate limit per key and per IP
+* Row ownership checks on every query so one user can never read another's data
+* Provide data export and full account deletion endpoints
+* Collect consent for storing documents and for automated submission, and record it
+* Prompt injection defence: treat all scraped or portal text as untrusted data, never as instructions. Separate system instructions from retrieved content in every model call.
+* Write a short privacy note users can read in plain language
+
+## 14. Observability
+
+* Structured JSON logs with request ID and job ID, personal data redacted
+* Metrics: jobs by status, submission success rate, needs_human rate, time to submit, model cost, queue depth
+* Alerts: dead letter growth, submission failure spike, scheduler missed run, cost cap reached
+* An internal admin view to inspect any application timeline with screenshots
+
+## 15. Testing
+
+* Unit tests for the state machine, eligibility filtering, word limit enforcement and grounding check
+* Contract tests for every API endpoint against the OpenAPI schema
+* Integration tests with a mocked portal covering the happy path, CAPTCHA handoff, layout change, and duplicate submission attempt
+* A small evaluation set of real style profiles and scholarships to score match quality and draft grounding, run before every model or prompt change
+* End to end test of the full daily loop with a fake Telegram and a fake portal
+* Target: all hard rules in section 4 have at least one automated test
+
+## 16. Deployment
+
+* Dockerfile for the API, the worker and the browser runner
+* One compose file for local development with Postgres and Redis
+* Separate environments: local, staging, production
+* CI on every push: lint, type check, tests, build
+* Migrations run automatically on deploy with a rollback plan
+* Daily database backups and a tested restore procedure
+* A runbook in `docs/` for: kill switch, stuck jobs, failed submission wave, leaked key, and Telegram outage
+
+## 17. Milestones and acceptance criteria
+
+Work in this order. Do not start the next milestone until the current one passes its checks.
+
+**Milestone 1: Foundation**
+* Postgres schema and migrations in place, demo JSON catalog imported
+* Config, logging and LLM gateway working
+* Done when: the app boots from a clean machine using only the README
+
+**Milestone 2: Core API**
+* Auth, profile, documents, scholarships, matches endpoints
+* Done when: a developer can create a key, fill a profile and fetch ranked matches with curl
+
+**Milestone 3: Agents on a queue**
+* Matcher, Researcher, Edge Finder and Drafter running as jobs with stored results
+* Done when: one profile produces grounded drafts for three scholarships with no unsourced claims
+
+**Milestone 4: State machine and modes**
+* Full application lifecycle, Autopilot and Review, approval endpoints, event log
+* Done when: illegal transitions are impossible and every change appears in application_events
+
+**Milestone 5: Submitter**
+* Playwright runner, screenshots, CAPTCHA and verification handoff, idempotent submission
+* Done when: a mocked portal run submits once, and a CAPTCHA run stops cleanly and resumes after approval
+
+**Milestone 6: Autonomy and notifications**
+* Scheduler, daily loop, deadline warnings, Telegram summaries, webhooks
+* Done when: a full day cycle runs unattended in staging with a correct summary
+
+**Milestone 7: Hardening**
+* Rate limits, cost caps, redaction, export and delete, alerts, runbooks, load test
+* Done when: every hard rule has a passing test and the runbooks are reviewed
+
+**Milestone 8: Launch**
+* Production environment, backups verified, small closed beta with real students
+* Done when: ten real users complete onboarding and at least one real application is submitted with a verified confirmation
+
+## 18. Out of scope for now
+
+* Jobs, internships and admissions
+* Payments and paid tiers
+* Mobile apps
+* Scraping sources that forbid it. Catalog growth comes through a manual import tool and approved partner sources.
+* Any attempt to defeat bot protection
+
+## 19. Working agreement for Antigravity
+
+1. Work one milestone at a time and keep each change small and reviewable.
+2. Before each milestone, write a short plan. After it, summarise what changed, what is untested and what you assumed.
+3. Write tests alongside code, not after.
+4. Do not add dependencies without noting why in `DECISIONS.md`.
+5. If a requirement is unclear or risky, stop and ask rather than guess. Student data and real submissions are not the place for experiments.
+6. Keep the frontend contract stable. Any API change must update the OpenAPI docs and be flagged for the frontend developer.
+
+## 20. Open questions for the team
+
+* Which portals will be supported first, and do we have permission to automate them?
+* Hosting provider and budget per month
+* Which model providers and what daily cost cap per user
+* Do we collect a verification step for new users to prevent abuse?
+* Legal review of the privacy note and consent wording before beta
+
+---
+
+yes
+
+---
+
+populate the json file with thse , and lest run a full test 
+
+sk-L16uEC7jcA8Ci2wQYN3AnA
+
+this is clause api key , lets test with gemini for now then we switch to claude later , so make provsiong for us switching to claue
+
+---
+
+gemini key = REDACTED
+
+---
+
+so whats next now , where do we deploy this , do we need docker , waht other api keys do you need
+
+---
+
+Done! Congratulations on your new bot. You will find it at t.me/UNIHSCKHO_bot. You can now add a description, about section and profile picture for your bot, see /help for a list of commands. By the way, when you've finished creating your cool bot, ping our Bot Support if you want a better username for it. Just make sure the bot is fully operational before you do this.
+
+Use this token to access the HTTP API:
+8763887377:REDACTED
+Keep your token secure and store it safely, it can be used by anyone to control your bot.
+
+For a description of the Bot API, see this page: https://core.telegram.org/bots/api
+Set up Agent Toolkit for AWS by following instructions:
+https://raw.githubusercontent.com/aws/agent-toolkit-for-aws/refs/heads/main/setup-instructions/setup.md
+
+Your AWS Region is: eu-north-1
+AWS experience: The new AWS experience
+
+---
+
+before we proceed can we do this on a free account
+
+---
+
+use "UNI"
+
+---
+
+use "UNI"
+
+, proceed and install
+
+---
+
+are you done
+
+---
+
+high , so whats next everything is set hun , no mock data , no hallucination?
+
+---
+
+continue sorry
+
+---
+
+hmm lets do path b
+
+---
+
+i've made quite a number of changes and i need you to push them to git hub , that all just push the latest changes to github
+
+---
+
+i made quit a number of changes  push to git hub with detaild commits, also remove all test files , and md file from the repo

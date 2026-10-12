@@ -1,0 +1,19 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "789e73645cd6",
+  "strategy": "manual-commit",
+  "branch": "codex/neatlogs-improvement",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "app/core/config.py",
+    "app/core/llm_gateway.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/78/9e73645cd6/0/metadata.json",
+      "transcript": "/78/9e73645cd6/0/full.jsonl",
+      "content_hash": "/78/9e73645cd6/0/content_hash.txt",
+      "prompt": "/78/9e73645cd6/0/prompt.txt"
+    }
+  ]
+}
