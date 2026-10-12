@@ -175,9 +175,11 @@ export default function MatchesPage() {
   // Polling loop
   const runId = run?.run_id;
   const runStatus = run?.status;
+  const awaitingUser = applications.some(application => application.status === "awaiting_user");
+  const pendingApplications = applications.some(application => ["tailored", "verified", "ready", "submitting", "awaiting_user"].includes(application.status));
 
   useEffect(() => {
-    if (!runId || !runStatus || isFinalRun(runStatus)) {
+    if (!runId || !runStatus || (isFinalRun(runStatus) && !pendingApplications)) {
       if (pollTimerRef.current) {
         clearInterval(pollTimerRef.current);
         pollTimerRef.current = null;
@@ -192,6 +194,7 @@ export default function MatchesPage() {
       try {
         const updatedRun = await getRun(runId);
         setRun(updatedRun);
+        window.dispatchEvent(new CustomEvent("scholarpilot-run-updated", { detail: updatedRun }));
 
         // Fetch events with after = lastEventNoRef.current
         const eventsRes = await getRunEvents(runId, lastEventNoRef.current);
@@ -206,7 +209,7 @@ export default function MatchesPage() {
         }
 
         // Fetch matches and applications on each poll
-        if (hasNewEvents || updatedRun.application_ids.join() !== overviewApplicationIds.current || isFinalRun(updatedRun.status)) {
+        if (hasNewEvents || updatedRun.application_ids.join() !== overviewApplicationIds.current || (isFinalRun(updatedRun.status) && updatedRun.status !== runStatus)) {
         const [matchesRes, appsRes] = await Promise.all([
           getMatches(runId),
           getApplications(runId),
@@ -219,10 +222,6 @@ export default function MatchesPage() {
         // Check if run has reached final state
         setError(null);
         if (isFinalRun(updatedRun.status)) {
-          if (pollTimerRef.current) {
-            clearInterval(pollTimerRef.current);
-            pollTimerRef.current = null;
-          }
           // One final fetch for final consistency
           const finalGaps = await getGaps(runId).catch(() => ({ gaps: [] }));
           setGaps(finalGaps.gaps || []);
@@ -235,7 +234,7 @@ export default function MatchesPage() {
       }
     };
 
-    pollTimerRef.current = setInterval(pollTick, 2000);
+    pollTimerRef.current = setInterval(pollTick, awaitingUser ? 4000 : 2000);
 
     return () => {
       if (pollTimerRef.current) {
@@ -243,7 +242,7 @@ export default function MatchesPage() {
         pollTimerRef.current = null;
       }
     };
-  }, [runId, runStatus]);
+  }, [runId, runStatus, pendingApplications, awaitingUser]);
 
   // Resume handler for interrupted runs
   const handleResume = async () => {
@@ -265,10 +264,11 @@ export default function MatchesPage() {
   const ineligibleMatches = matches.filter((m) => m.status === "skipped");
 
   const batchComplete = run?.status === "completed";
-  const isCompleted = batchComplete && (!useV1 || (applications.length > 0 && applications.every(application => ["submitted", "prepared", "failed", "skipped"].includes(application.status))));
+  const isCompleted = batchComplete && (!useV1 || !pendingApplications);
   const isFailed = run?.status === "failed";
   const isInterrupted = run?.status === "interrupted";
   const isRunning = run?.status === "running";
+  const needsDetailedStatus = useV1 && applications.some(application => ["failed", "awaiting_user"].includes(application.status));
 
   const currentStage = isCompleted
     ? 6
@@ -397,13 +397,13 @@ export default function MatchesPage() {
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#5b8cff] animate-pulse" />
                 <span className="text-[#b2c5ff]">
-                  Stage {currentStage} of 6 active
+                  {needsDetailedStatus ? "Check individual application outcomes below" : `Stage ${currentStage} of 6 active`}
                 </span>
               </>
             ) : isCompleted ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#49e095]" />
-                <span className="text-[#49e095]">Pipeline complete</span>
+                <span className="text-[#49e095]">Batch finished</span>
               </>
             ) : (
               <span className="text-[#626877]">{useV1 && batchComplete ? "Preparation complete; review pending" : `Status: ${run?.status ?? "unknown"}`}</span>
@@ -411,11 +411,11 @@ export default function MatchesPage() {
           </div>
         </div>
 
-        <StageTracker
+        {needsDetailedStatus ? <p className="text-xs text-[#9AA0AE]">Some applications failed or need your input. Open each application or handoff for its actual outcome; batch completion does not mean every application succeeded.</p> : <StageTracker
           currentStage={currentStage}
           isCompleted={isCompleted}
           isFailed={isFailed}
-        />
+        />}
       </section>
 
       {/* SUMMARY & METRICS STRIP */}
@@ -457,7 +457,7 @@ export default function MatchesPage() {
             </div>
           ) : (
             eligibleMatches.map((match) => (
-              <MatchCard key={match.application_id || match.listing_id} match={match} />
+              <MatchCard key={match.application_id || match.listing_id} match={match} batchFinished={batchComplete} />
             ))
           )}
 

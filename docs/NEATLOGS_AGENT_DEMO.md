@@ -9,7 +9,7 @@ backend/.venv/Scripts/python.exe scripts/local_demo.py start --agent
 This uses the real PostgreSQL/Redis services and fictional portal described in
 the README. Gemini and Neatlogs keys come from ignored local configuration.
 The default demo model is `gemini-3.5-flash-lite`, with
-`gemini-3-flash-preview` as backup. `AGENT_MODEL` in the ignored root `.env`
+`gemini-3.1-flash-lite` as backup. `AGENT_MODEL` in the ignored root `.env`
 can override the primary, but it must have an explicit pricing entry.
 These models were checked with completion requests; listing a model alone
 does not prove it can answer. Redis reserves and settles model budgets.

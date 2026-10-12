@@ -14,7 +14,7 @@ from app.core.tracing import tool_span, recovery_decision, current_application_i
 from app.db.base import AsyncSessionLocal
 from app.db.models import ApplicationEvent
 from uuid import UUID
-from backend.app.llm import provider_completion
+from backend.app.llm import provider_completion, provider_error_status
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -185,6 +185,8 @@ async def call_llm(
     if settings.AGENT_ENABLED:
         models_to_try = [(settings.GEMINI_MODEL, settings.GEMINI_API_KEY or settings.PRIMARY_API_KEY, "gemini", False),
             (settings.AGENT_FALLBACK_MODEL, settings.GEMINI_API_KEY or settings.PRIMARY_API_KEY, "gemini_backup", True)]
+        if models_to_try[0][:2] == models_to_try[1][:2]:
+            models_to_try = models_to_try[:1]
     last_error: Optional[Exception] = None
     total_in, total_out, total_cost = 0, 0, 0.0
     gateway_started = time.perf_counter()
@@ -204,6 +206,7 @@ async def call_llm(
         for attempt in range(settings.LLM_MAX_RETRIES + 1):
             reservation = None
             billed_cost = None
+            provider_started = False
             try:
                 if settings.ENVIRONMENT == "production" or settings.AGENT_ENABLED:
                     if not api_key or model_name.lower() not in MODEL_PRICING:
@@ -213,7 +216,8 @@ async def call_llm(
                 # If no real API key configured in dev/test, generate deterministic fallback structure
                 if not api_key:
                     raise ValueError("No provider key configured; use an explicit mock_response in tests.")
-                elif settings.AGENT_ENABLED and provider_type.startswith("gemini"):
+                provider_started = True
+                if settings.AGENT_ENABLED and provider_type.startswith("gemini"):
                     res_json = await provider_completion(api_key, settings.GEMINI_BASE_URL, model_name,
                         [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
                         temperature, settings.NEATLOGS_CAPTURE_CONTENT, settings.LLM_TIMEOUT_SECONDS)
@@ -316,10 +320,16 @@ async def call_llm(
 
             except (httpx.HTTPStatusError, httpx.RequestError, Exception) as err:
                 last_error = err
+                status_code = provider_error_status(err)
+                blocked = not provider_started or isinstance(err, LLMSpendLimitExceeded)
+                permanent = blocked or status_code in {400, 401, 403, 404, 422}
+                overloaded = status_code in {502, 503, 504}
+                has_backup = not is_fallback and len(models_to_try) > 1
+                retry = attempt < settings.LLM_MAX_RETRIES and not permanent and not (overloaded and has_backup)
                 logger.warning("Provider call failed; prompt and response excluded from logs.")
                 if settings.AGENT_ENABLED:
-                    chosen = "retry" if attempt < settings.LLM_MAX_RETRIES else "fallback_model" if not is_fallback else "stop"
-                    reason = f"{model_name} failed with {type(err).__name__} on attempt {attempt + 1}; {chosen}."
+                    chosen = "retry" if retry else "fallback_model" if has_backup and not blocked else "stop"
+                    reason = f"{model_name} failed with {type(err).__name__}, HTTP {status_code or 'unavailable'}, on attempt {attempt + 1}; {chosen}."
                     with recovery_decision("provider_failure", ["retry", "fallback_model", "stop"]) as recovery:
                         recovery.decide(chosen, reason)
                         recovery.finish("requested")
@@ -330,15 +340,19 @@ async def call_llm(
                                 event_type="recovery_decision", payload={"trigger": "provider_failure", "chosen": chosen,
                                 "reason": reason, "outcome": "requested", "options": ["retry", "fallback_model", "stop"]}))
                             await event_session.commit()
-                if attempt < settings.LLM_MAX_RETRIES:
-                    await asyncio.sleep(0.2 * (2 ** attempt))
+                if retry:
+                    await asyncio.sleep(min(2.0 * (2 ** attempt), 5.0))
                 else:
                     # Refund estimated cost and trip circuit breaker on final attempt failure
                     if settings.ENVIRONMENT != "production" and not settings.AGENT_ENABLED:
                         spend_tracker.reconcile(user_id, est_cost, 0.0)
                     circuit_breaker.record_failure(provider_type)
+                    if blocked and api_key:
+                        raise
+                    break
 
-    raise RuntimeError("All model providers failed; no generated output is available.") from None
+    final_status = provider_error_status(last_error) if last_error else None
+    raise RuntimeError(f"All model providers failed; no generated output is available. Last HTTP status: {final_status or 'unavailable'}.") from None
 
 
 def set_active_llm_provider(provider: str) -> None:

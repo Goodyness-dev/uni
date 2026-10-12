@@ -14,6 +14,43 @@ interface NativeApplication {
 interface NativeMatch { scholarship_id: string; fit_score: number; reasons: string[] }
 
 export const useV1 = process.env.NEXT_PUBLIC_API_VERSION === "v1";
+
+export function documentPreferences(facts: Fact[], current: Preferences): { preferences: Preferences; notes: string[] } {
+  const text = facts.filter(fact => !fact.sensitive && fact.source !== "vault").map(fact => fact.text).join("\n");
+  const preferences = { ...current, fields: [...current.fields] };
+  const notes: string[] = [];
+  const unique = (values: string[]): string | undefined => {
+    const choices = [...new Set(values.map(value => value.trim()).filter(Boolean))];
+    return choices.length === 1 ? choices[0] : undefined;
+  };
+  const email = unique(text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g) ?? []);
+  if (email && !preferences.email) preferences.email = email;
+  const names = [...text.matchAll(/(?:Full name\s*:\s*|Transcript summary for\s+)([A-Z][\p{L}'-]+(?: [A-Z][\p{L}'-]+){1,3})(?=\s+(?:CGPA|GPA)|\n|$)/gu)].map(match => match[1]);
+  if (email) {
+    const parts = email.split("@")[0].split(".");
+    if (parts.length >= 2 && parts.every(part => /^[A-Za-z]+$/.test(part))) {
+      const pattern = new RegExp("\\b" + parts.join(" ") + "\\b", "i");
+      const literal = text.match(pattern)?.[0];
+      if (literal) names.push(literal);
+    }
+  }
+  const name = unique(names);
+  if (name && !preferences.full_name) preferences.full_name = name;
+  const grades = [...text.matchAll(/\b(?:CGPA|GPA)\s*[:=]?\s*(\d+(?:\.\d+)?)\s*(?:out of|\/)\s*(\d+(?:\.\d+)?)/gi)].map(match => `${Number(match[1])}/${Number(match[2])}`);
+  const grade = unique(grades);
+  if (grade) {
+    const [gpa, scale] = grade.split("/").map(Number);
+    if (gpa > 0 && gpa <= scale && scale > 0) {
+      if (!preferences.gpa) { preferences.gpa = gpa; preferences.gpa_scale = scale; }
+      else if (preferences.gpa !== gpa || preferences.gpa_scale !== scale) notes.push(`Your documents state GPA ${gpa}/${scale}; check the different value in your profile.`);
+    }
+  } else if (grades.length) notes.push("The documents contain conflicting GPA values. Confirm the correct value yourself.");
+  const subject = unique([...text.matchAll(/\b(?:BSc|BEng|B\.Sc\.?|Bachelor of Science|Bachelor of Engineering)\s+(?:in\s+)?([A-Za-z][A-Za-z &-]{2,70})(?=,|\s+at\b)/gi)].map(match => match[1]));
+  if (subject && !preferences.fields.length) { preferences.fields = [subject.toLowerCase()]; notes.push("Your documented subject is the starting study field; edit it if your target subject differs."); }
+  const nationality = unique([...text.matchAll(/\bNationality\s*:\s*([A-Za-z]+)(?=\s|[,.;]|$)/gi)].map(match => match[1]));
+  if (nationality && !preferences.nationality) preferences.nationality = nationality;
+  return { preferences, notes };
+}
 const states: Record<string, AppStatus> = { discovered: "found", matched: "matched", researching: "researched", drafting: "tailored", ready_for_review: "ready", approved: "ready", submitting: "submitting", needs_human: "awaiting_user", submitted: "submitted", failed: "failed", withdrawn: "skipped", expired: "skipped" };
 const status = (value: string): AppStatus => states[value] ?? "unconfirmed";
 const demo = (url: string): boolean => { try { const parsed = new URL(url); return ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname) && parsed.pathname.startsWith("/portal/"); } catch { return false; } };
@@ -42,7 +79,12 @@ export function createV1(send: Requester) {
   }
   async function intake(input: IntakeRequest): Promise<IntakeResponse> {
     const p = input.preferences;
-    if (!input.cv_text?.trim() && !input.cv_pdf_base64) throw new Error("Provide a CV source before processing documents.");
+    if (!input.cv_text?.trim() && !input.cv_pdf_base64) {
+      const prior = await getFacts();
+      if (!prior.facts.some(fact => fact.source === "cv")) throw new Error("Provide a CV source before processing documents.");
+      const hasContext = input.vault_text?.trim() || Object.values(input.vault_sections).some(value => value.trim()) || input.transcript_text?.trim() || input.transcript_pdf_base64;
+      if (!hasContext) throw new Error("Your documents are already processed. Add missing context or select a replacement document before parsing again.");
+    }
     await savePreferences(p);
     const encode = (text: string): string => { const bytes = new TextEncoder().encode(text); let binary = ""; for (const byte of bytes) binary += String.fromCharCode(byte); return btoa(binary); };
     const uploads = [

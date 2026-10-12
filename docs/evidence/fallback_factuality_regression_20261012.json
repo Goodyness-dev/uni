@@ -1,0 +1,162 @@
+{
+  "fictional": true,
+  "model": "gemini-3.1-flash-lite",
+  "trace_id": "e5e525195720515db4dcbce15618c788",
+  "cases": [
+    {
+      "id": "literal-degree",
+      "expected_supported": true,
+      "actual_supported": true,
+      "correct": true
+    },
+    {
+      "id": "gpa-inflated",
+      "expected_supported": false,
+      "actual_supported": false,
+      "correct": true
+    },
+    {
+      "id": "false-causation",
+      "expected_supported": false,
+      "actual_supported": false,
+      "correct": true
+    },
+    {
+      "id": "future-accomplishment",
+      "expected_supported": false,
+      "actual_supported": false,
+      "correct": true
+    },
+    {
+      "id": "future-mixed-sources",
+      "expected_supported": false,
+      "actual_supported": false,
+      "correct": true
+    },
+    {
+      "id": "goal-paraphrase",
+      "expected_supported": true,
+      "actual_supported": true,
+      "correct": true
+    }
+  ],
+  "claims": [
+    {
+      "id": "literal-degree",
+      "text": "I earned a BSc in Computer Engineering in 2025.",
+      "section": "essay",
+      "segment_index": 0,
+      "source_ids": [
+        "CASE_0_0"
+      ],
+      "verdict": "supported",
+      "reason": "The text matches the source CASE_0_0 exactly.",
+      "deterministic_pass": true,
+      "llm_pass": true,
+      "challenger_pass": true,
+      "challenged": true,
+      "overturned": false
+    },
+    {
+      "id": "gpa-inflated",
+      "text": "My CGPA is 4.90 out of 5.00.",
+      "section": "essay",
+      "segment_index": 1,
+      "source_ids": [
+        "CASE_1_0"
+      ],
+      "verdict": "unsupported",
+      "reason": "Deterministic source checks failed.",
+      "deterministic_pass": false,
+      "llm_pass": false,
+      "challenger_pass": false,
+      "challenged": true,
+      "overturned": false
+    },
+    {
+      "id": "false-causation",
+      "text": "My teaching resulted in eight students entering a state science fair.",
+      "section": "essay",
+      "segment_index": 2,
+      "source_ids": [
+        "CASE_2_0"
+      ],
+      "verdict": "unsupported",
+      "reason": "Deterministic source checks failed.",
+      "deterministic_pass": false,
+      "llm_pass": false,
+      "challenger_pass": false,
+      "challenged": true,
+      "overturned": false
+    },
+    {
+      "id": "future-accomplishment",
+      "text": "I built solar forecasting systems.",
+      "section": "essay",
+      "segment_index": 3,
+      "source_ids": [
+        "CASE_3_0"
+      ],
+      "verdict": "unsupported",
+      "reason": "Deterministic source checks failed.",
+      "deterministic_pass": false,
+      "llm_pass": false,
+      "challenger_pass": false,
+      "challenged": true,
+      "overturned": false
+    },
+    {
+      "id": "future-mixed-sources",
+      "text": "I built solar forecasting systems.",
+      "section": "essay",
+      "segment_index": 4,
+      "source_ids": [
+        "CASE_4_0",
+        "CASE_4_1"
+      ],
+      "verdict": "unsupported",
+      "reason": "Deterministic source checks failed.",
+      "deterministic_pass": false,
+      "llm_pass": false,
+      "challenger_pass": false,
+      "challenged": true,
+      "overturned": false
+    },
+    {
+      "id": "goal-paraphrase",
+      "text": "My goal is to study energy systems.",
+      "section": "essay",
+      "segment_index": 5,
+      "source_ids": [
+        "CASE_5_0"
+      ],
+      "verdict": "supported",
+      "reason": "The source CASE_5_0 states the applicant wants to study energy systems, which aligns with the stated goal.",
+      "deterministic_pass": true,
+      "llm_pass": true,
+      "challenger_pass": true,
+      "challenged": true,
+      "overturned": false
+    }
+  ],
+  "usage": [
+    {
+      "tokens_in": 735,
+      "tokens_out": 330,
+      "cost_usd": 0.000679,
+      "latency_seconds": 4.9311,
+      "fallback_used": false,
+      "model": "gemini-3.1-flash-lite"
+    },
+    {
+      "tokens_in": 728,
+      "tokens_out": 341,
+      "cost_usd": 0.000693,
+      "latency_seconds": 1.7634,
+      "fallback_used": false,
+      "model": "gemini-3.1-flash-lite"
+    }
+  ],
+  "all_correct": true,
+  "limit": "Six curated cases; not a general factuality guarantee."
+}

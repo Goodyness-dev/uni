@@ -97,6 +97,7 @@ export function StickyActionBar({
                   onChange={(e) => setTopN(parseInt(e.target.value, 10))}
                   className="bg-[#121318] border border-[#262932] rounded px-2 py-0.5 text-xs text-[#ECEDF0] focus:outline-none"
                 >
+                  <option value={1}>Top 1</option>
                   <option value={2}>Top 2</option>
                   <option value={3}>Top 3</option>
                   <option value={4}>Top 4</option>

@@ -91,7 +91,7 @@ class Settings(BaseSettings):
     SMTP_APP_PASSWORD: Optional[str] = None
     SMTP_FROM: Optional[str] = None
     AGENT_ENABLED: bool = Field(default=False)
-    AGENT_FALLBACK_MODEL: str = Field(default="gemini-3-flash-preview")
+    AGENT_FALLBACK_MODEL: str = Field(default="gemini-3.1-flash-lite")
     NEATLOGS_CAPTURE_CONTENT: bool = Field(default=False, description="Explicit fictional-demo prompt capture")
 
     # Storage (S3 Compatible)

@@ -1,5 +1,16 @@
 # 13_TASKS_BACKEND.md
 
+## User-authorized reliability follow-up (2026/10/12)
+
+- [x] Classify provider status through `backend/app/llm.py::provider_error_status(error) -> int | None`, preserving the SDK import boundary.
+- [x] Switch an overloaded primary to a configured backup, allow bounded backup retries, avoid duplicate candidates and halt after pre-provider budget denial. Every attempt still reserves budget; recovery spans/events/logs preserve status without source content.
+- [x] Validate gemini-3.1-flash-lite with a real structured call; do not use the model that returned 404 despite being listed.
+- [x] Six live fallback regression cases passed the unchanged three-gate path: two supported accepted, four unsupported rejected. Evidence: docs/evidence/fallback_factuality_regression_20261012.json. Full root suite: 147 passed; frontend type/lint checks passed. These curated results are not a general reliability guarantee.
+- [x] `request_writing_evidence(application, session)` transitions an empty verified essay to existing missing-evidence handoff, without submission or relaxed judge/Challenger gates. Planner treats word limits as maxima.
+- [x] Offline regression coverage for overload recovery, fallback retry, budget denial and missing-essay handoff; original backend quick check passed 106 tests. Live fictional receipt DEMO4898 and trace/verification evidence are saved in docs/evidence/document_prefill_flow_20261012.json.
+
+No dependency, endpoint or public data-model changes. Runtime reliability remains bounded; both model candidates share one provider and failures are retained rather than staged as success.
+
 Backend and agent task cards for Memeshi. Do them in order. One Antigravity conversation per card, using the master prompt in `12_ANTIGRAVITY_RULES.md` section 6.1.
 
 Card format: Goal, Depends, Time box, Read (spec sections), Create or change (files), Requirements, Tests, Acceptance (run by hand), Commit.

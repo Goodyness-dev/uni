@@ -511,3 +511,12 @@ async def provider_completion(api_key: str, base_url: str, model: str, messages:
         return result.model_dump()
     finally:
         await raw.close()
+
+
+def provider_error_status(error: Exception) -> int | None:
+    """Expose transport status without importing the model SDK outside this module."""
+    if isinstance(error, openai.APIStatusError):
+        return error.status_code
+    response = getattr(error, "response", None)
+    status = getattr(response, "status_code", None)
+    return status if isinstance(status, int) else None

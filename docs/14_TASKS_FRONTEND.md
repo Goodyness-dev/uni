@@ -141,6 +141,13 @@ Commit: `feat(frontend): layout and shared components [F02]`.
 
 ### User-requested v1 flow repair (2026/10/12)
 
+Follow-up scope authorized by the user: reduce questions using CV/transcript evidence. `documentPreferences(facts, current)` fills only unambiguous literal name, email, GPA/scale, explicit nationality and a suggested documented subject. Existing entries are preserved and conflicting grades are flagged. Nationality is never inferred from university location. Completed details collapse; personal-history sections are optional. New document selections block Run until parsing completes. No API/data-model changes or new dependencies. Tests cover contradictory grades, sensitive sources, existing edits and missing preferences, plus browser PDF intake. Model availability and worker recovery are validated separately; existing verification admission remains deterministic AND judge AND Challenger.
+
+- [x] Document prefill and conflict handling; completed detail, context and notification controls collapse.
+- [x] Existing profiles accept additional original context without another CV upload; dirty sources and pending review disable Run.
+- [x] Continue polling active applications after the batch completes; use four-second polling while awaiting user input.
+- [x] Browser run reached authoritative receipt DEMO4898 with eight supported claims passing all three gates. Final smoke test used stored research and the fixture's explicit study plans; earlier failed live-discovery attempts remain recorded in evidence/document_prefill_flow_20261012.json.
+
 - [x] Include `transcript_pdf_base64` in intake; keep explicit source review.
 - [x] Refresh reviewed facts through `onReviewed() -> Promise<void>` without reloading or clearing unsaved form inputs.
 - [x] Save current preferences through the existing profile endpoint before Run agent; reject missing matching inputs with a visible explanation.

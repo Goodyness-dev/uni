@@ -4,6 +4,81 @@ ScholarPilot is a scholarship application assistant built for neatHack, October 
 
 **Current status: development prototype with production repair work in progress. It is not ready for real applicant data or real scholarship submissions.**
 
+## The problem we are working on
+
+ScholarPilot is built around a practical problem for students in Nigeria: finding suitable scholarships and preparing multiple applications takes research, repeated writing and careful attention to deadlines. Speed and application volume matter, but a faster application is harmful if it invents grades, accomplishments or eligibility. Our goal is to help students reuse their actual evidence, research opportunities and prepare grounded applications with a visible trail of decisions.
+
+The hackathon demonstrates this with **fictional applicants, real public scholarship research and an owned demo application portal**. A confirmed demo receipt demonstrates the software workflow; it does not mean a university received an application. Scholarship selection, applicant authenticity and admissions outcomes are not guaranteed.
+
+## Neatlogs: observing and improving the agent
+
+Neatlogs is a central part of our development and evaluation workflow. It connects the agent's tool calls and model responses to the evidence we use to understand failures, test changes and manage the drafting prompt. ScholarPilot executes its own bounded planner and tools; Neatlogs makes those runs inspectable and provides the evaluation and prompt-management layer.
+
+### 1. Tracing the actual application workflow
+
+The shared tracing helpers initialize the SDK once per process and wrap the model clients. Workflow, agent, tool, guardrail and recovery spans expose scholarship research, evidence selection, drafting, verification, revision and submission decisions. Application records retain actual trace identifiers so the frontend can link a result to its Neatlogs trace. Shutdown hooks flush and close tracing.
+
+For example, one completed fictional run has **112 spans, 11 LLM calls, 33,537 tokens and 116.568 seconds of execution**, with estimated model cost **$0.0246933**. These are measurements of that particular run, not a promised average price or latency. The [saved run evidence](docs/evidence/agent_after_source_review_20261012.json) records the result. Some older traces have incomplete usage metadata; missing or zero telemetry must not be presented as free model usage.
+
+### 2. Replay, detections and diagnosis
+
+We exercised Neatlogs Replay on a real recorded run to inspect the order of model and tool steps. Six ScholarPilot detection rules were created through Neatlogs MCP; their setup is recorded in [detection evidence](docs/evidence/neatlogs_detection_setup.json). Recovery spans make retries, fallback and handoff decisions visible rather than hiding them behind a final status.
+
+This mattered during development: source review found unsupported causal wording in an earlier draft that both model checks had accepted. The recorded workflow gave us the concrete claim, source and verification decisions to inspect. We then tightened the checks and added regression cases. Tracing helps locate mistakes; it does not establish that every claim is true, and a configured detection rule is not proof that every future failure will be detected.
+
+### 3. Factuality Evals on linked fictional traces
+
+We launched real Neatlogs evaluations using recorded fictional-case traces and a source-grounded rubric. The cases include faithful statements alongside inflated GPA, unsupported causation and future goals incorrectly described as completed accomplishments. The evaluator checks the actual verdict against the provided claim and sources.
+
+The corrected six-case batch completed **six AI reviews, all matching the expected outcomes**: the underlying checks accepted two supported cases and rejected four unsupported cases. Here, an evaluation result of `pass` means the decision was correct; it does not mean an unsupported applicant claim was accepted. [Saved results](docs/evidence/neatlogs_corrected_evals_20261012.json) contain the case identifiers, trace links, verdicts and reasoning.
+
+We also preserve the first 13-item batch, which returned four passes, eight failures and one insufficient-evidence result. A sampled failure incorrectly judged display formatting: structured JSON had been rendered as readable text in the dashboard. We corrected the evaluation scope instead of reporting those results as factuality accuracy. See [the original readback](docs/evidence/neatlogs_evals_readback_20261012.json). These small, curated evaluations are regression evidence, not a general accuracy benchmark or a zero-hallucination guarantee.
+
+### 4. Managed prompts, validation and promotion
+
+The drafting prompt is stored in Neatlogs as `scholarpilot-drafting`. The backend resolves its `production` label and records the selected version and digest. Versions 1 and 2 were compared against fictional sources; both produced zero unsupported segments in that small comparison, so we do **not** claim that version 2 demonstrated superior accuracy.
+
+Version 2 was promoted, used in a subsequent actual model call, and fetched by the AWS runtime with a matching digest. [Prompt comparison and run evidence](docs/evidence/neatlogs_prompt_and_cases_20261012.json) and [AWS readback](docs/evidence/aws_managed_prompt_20261012.json) document this. Rollback is available by moving the production label to the previous saved version. The resolver has an explicit fallback when the managed prompt is unavailable, and mandatory local grounding instructions remain enforced.
+
+Prompt promotion cannot disable our verification requirements. **A deterministic check, an independent judge and the Challenger must all pass before a generated claim is admitted.** Neatlogs Evals supplement those runtime checks; they do not replace them.
+
+### 5. Fixes review and the unfinished dispatch loop
+
+We reviewed an actual Neatlogs Fixes suggestion through MCP. Its proposed deterministic-only acceptance or threshold bypass would weaken verification, so we rejected that approach. The resulting repository work adds diagnostic counts and regression coverage while preserving all three checks. [Fixes readback](docs/evidence/neatlogs_fixes_readback_20261012.json) and [the review PR](https://github.com/Goodyness-dev/uni/pull/2) make that distinction reviewable.
+
+**Native Neatlogs cloud coding-agent dispatch is incomplete.** The PR was created by this Codex session after MCP review. It was not produced by Neatlogs cloud dispatch. Connecting coding-agent credentials does not prove a dispatched job can run: the Claude Code and Codex cloud options were marked “Coming soon” in the inspected dashboard. Investigate also repeatedly lost its connection, including with a configured model provider. We have no completed native investigation-to-dispatched-PR result to claim.
+
+### What Neatlogs changes for this project
+
+The useful loop is concrete: inspect a real run, identify the failing claim or decision, turn it into a regression case, evaluate the change, promote a validated prompt and check what the next run actually used. That makes improvements easier to inspect and repeat. Neatlogs was our chosen integrated platform for this loop; we do not claim it is the only observability product that could support a scholarship agent.
+
+## Work in progress: what the demo does not establish
+
+| Area | Demonstrated so far | Still unfinished or limited |
+| --- | --- | --- |
+| Applicant intake | PDF/text upload, source review and literal prefill of clear names, emails, GPA/scale and documented subjects; completed details and optional questions collapse | Users run **Parse Facts** and confirm source alignment. Conflicts stay unresolved; nationality is never inferred from university location. Destinations, funding and study plans still need the user's intent. Real-document authenticity and broad document-format coverage are unproven. |
+| Agent decisions | Bounded tool selection, research memory, missing-evidence continuation, verification and revisions | This is a bounded agent, not unrestricted autonomous browsing. Broader strategy changes and difficult cases need more evaluation. |
+| Scholarship research | Refreshes supplied official sources and records failures and unverified leads | Coverage is limited; blocked pages, changing deadlines and ambiguous eligibility require review. It is not exhaustive live scholarship search. |
+| Factuality | Three runtime checks, curated live regression cases and completed Neatlogs Evals | Both model checks have previously accepted an unsupported claim. Larger, diverse and independently reviewed evaluations remain necessary. |
+| Neatlogs improvement loop | Real traces, Replay, detection setup, Evals, managed prompt promotion and MCP Fixes review | Investigate completion and a native cloud dispatch producing a tested PR remain incomplete. |
+| Portal actions | Confirmed submissions to our owned fictional demo portal | Real scholarship submission is deliberately prohibited. Login and CAPTCHA require human handoff; automated bypass is prohibited. |
+| Operations | Local PostgreSQL/Redis integration, a private AWS prototype, selected recovery checks and provider-accepted notification tests | Public production deployment, high availability, total-host recovery and reliable operation at scale are unverified. Provider acceptance does not prove inbox delivery. |
+| Identity and privacy | Cognito integration, verified identity evidence, ownership controls and privacy-erasure paths | Sign-in remains dependent on successful verification and callback configuration. Real applicant security, retention, regulatory compliance and production usability require further review. |
+
+Our next priorities are intake and sign-in usability, more adversarial factuality cases, broader authoritative-source research, durable recovery testing and a supported native Fixes dispatch. None of these improvements should weaken the independent judge or Challenger. Treat the current project as a demonstrable hackathon prototype with an evidence trail, not a production scholarship service.
+
+### Latest frontend-to-agent repair
+
+The frontend now sends both PDFs, saves current preferences before matching, preserves form edits during review and continues polling while the separate submission worker is active. Adding missing context to an existing profile no longer requires uploading the CV again. New source edits disable Run until parsing and review are complete. Optional personal-history and notification controls are collapsed.
+
+Provider overload, authentication errors and budget denial are handled separately. An overloaded primary can switch to the configured fallback; the fallback has bounded retries, and a failed budget reservation stops provider execution. The configured backup is `gemini-3.1-flash-lite`, validated with an actual structured completion. A listed `gemini-2.5-flash-lite` model returned 404 for this key, so it was not retained as the backup. Both candidates currently use Gemini: this is model fallback, not an independent provider failover or an uptime guarantee.
+
+The backup also passed a live six-case regression through the same deterministic, judge and Challenger path: two supported claims were retained and four unsupported claims rejected. [Saved fallback results](docs/evidence/fallback_factuality_regression_20261012.json) include actual model usage and a trace ID. Six curated cases do not establish general accuracy or equivalence between models.
+
+A new frontend-driven fictional run completed with owned-portal receipt **DEMO4898**. Its final report contains eight supported claims and zero unsupported final claims; every supported claim passed deterministic, independent judge and Challenger checks. The final smoke test used stored research and the existing fictional fixture's original study-plan context. Earlier live-discovery attempts that failed remain recorded. This is one successful application, not a general factuality benchmark. See [the receipt, verification and trace evidence](docs/evidence/document_prefill_flow_20261012.json).
+
+If no supported essay survives, the agent requests original missing evidence through the existing handoff and continuation flow. It does not fill missing motivations or future plans from grades. A scholarship word limit is treated as a maximum, not a made-up minimum.
+
 ## Two implementations
 
 * `backend/`: the original SQLite/FastAPI demo, `/api/*`, synthetic persona, local demo portal, LLM drafting and verification experiments.
@@ -79,7 +154,7 @@ Run `backend/.venv/Scripts/python.exe scripts/local_demo.py start --agent` to en
 
 The improved fictional application completed with receipt **DEMO1584**. Neatlogs finalized trace `7aeb442a172e5c5179639b86fa39f867`: **112 spans, 11 LLM calls, 33,537 tokens, 116.568 seconds**, estimated model cost **$0.0246933**. Replay was exercised on this actual trace. The earlier draft remained unsubmitted after manual review found unsupported causal wording; regression checks and stricter judges were added before the new run. This pair is an improvement example, not an accuracy benchmark.
 
-See [Neatlogs agent demo](docs/NEATLOGS_AGENT_DEMO.md) and [live evidence](docs/evidence/agent_after_source_review_20261012.json). Investigate loaded the real traces but its summary lost connection after a pagination loop; no completed investigation or AI evaluation is claimed. Production deployment, real applicant safety and model reliability remain unverified.
+See [Neatlogs agent demo](docs/NEATLOGS_AGENT_DEMO.md) and [live evidence](docs/evidence/agent_after_source_review_20261012.json). Investigate loaded the real traces but its summary lost connection after a pagination loop; no completed investigation is claimed. Neatlogs AI evaluations were subsequently completed as described above. Production readiness, real applicant safety and general model reliability remain unverified.
 
 ### Neatlogs improvement loop
 
