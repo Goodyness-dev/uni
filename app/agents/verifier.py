@@ -40,7 +40,7 @@ def deterministic_check(claim_text: str, source_facts: List[str]) -> bool:
         return False
     if "assistant coordinator" in source_blob and "coordinator" in claim_norm and "assistant" not in claim_norm:
         return False
-    promotions = ("founded", "founder", "led", "president", "fluent", "commercial", "deployed")
+    promotions = ("founded", "founder", "led", "leader", "leadership", "manager", "managed", "supervised", "president", "fluent", "commercial", "deployed")
     if any(re.search(r"\b" + word + r"\b", claim_norm) and not re.search(r"\b" + word + r"\b", source_blob) for word in promotions):
         return False
     if "degree" in claim_norm and "certificate" in source_blob and "degree" not in source_blob:
