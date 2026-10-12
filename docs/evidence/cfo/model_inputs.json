@@ -1,0 +1,76 @@
+{
+  "evidence": [
+    {
+      "run_id": "run_20261011_009",
+      "source_file": "run_B_1.json",
+      "mode": "B",
+      "completed_applications": 0,
+      "tokens_total": 0,
+      "llm_calls": 0,
+      "run_cost_usd": 0.0,
+      "cost_per_completed_application_usd": null,
+      "measurement_status": "usage_unavailable",
+      "trace_url": null
+    },
+    {
+      "run_id": "run_20261011_010",
+      "source_file": "run_B_2.json",
+      "mode": "B",
+      "completed_applications": 0,
+      "tokens_total": 0,
+      "llm_calls": 0,
+      "run_cost_usd": 0.0,
+      "cost_per_completed_application_usd": null,
+      "measurement_status": "usage_unavailable",
+      "trace_url": null
+    },
+    {
+      "run_id": "run_20261011_229",
+      "source_file": "run_B_3.json",
+      "mode": "B",
+      "completed_applications": 1,
+      "tokens_total": 0,
+      "llm_calls": 0,
+      "run_cost_usd": 0.0,
+      "cost_per_completed_application_usd": null,
+      "measurement_status": "usage_unavailable",
+      "trace_url": "https://app.neatlogs.com/traces?tags=run_20261011_229"
+    }
+  ],
+  "live_cfo_page": null,
+  "limitation": "Run-level LLM cost includes shared workflow overhead, not total service cost.",
+  "assumptions": {
+    "currency": "USD",
+    "application_price": 4.99,
+    "season_price": 19.99,
+    "season_limit": 10,
+    "starting_cash": 10000,
+    "fixed_cost_monthly": 300,
+    "review_minutes": 5,
+    "review_hourly_cost": 10,
+    "payment_percent": 0.029,
+    "payment_fixed": 0.3
+  },
+  "required_inputs": [
+    "Verified LLM unit cost",
+    "Free-preview cost",
+    "Refund rate",
+    "Acquisition cost",
+    "Hosting quote",
+    "Actuals cutoff"
+  ],
+  "scenarios": {
+    "Main": {
+      "paying_users": 150,
+      "monthly_growth": 0.25
+    },
+    "Growth": {
+      "paying_users": 400,
+      "monthly_growth": 0.4
+    },
+    "Conservative": {
+      "paying_users": 50,
+      "monthly_growth": 0.15
+    }
+  }
+}

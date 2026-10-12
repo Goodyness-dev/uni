@@ -10,9 +10,10 @@ import { FitScore } from "@/components/FitScore";
 
 interface MatchCardProps {
   match: Match;
+  batchFinished?: boolean;
 }
 
-export function MatchCard({ match }: MatchCardProps) {
+export function MatchCard({ match, batchFinished = false }: MatchCardProps) {
   const days = daysLeft(match.deadline);
   const isUrgent = days <= 14;
 
@@ -118,10 +119,10 @@ export function MatchCard({ match }: MatchCardProps) {
         <div>
           {isAwaitingUser ? (
             <Link
-              href={`/handoff/${match.application_id}`}
+              href={useV1 ? `/applications/${match.application_id}` : `/handoff/${match.application_id}`}
               className="h-9 px-4 rounded-lg bg-[#ECEDF0] text-[#121316] hover:bg-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
             >
-              <span>Complete handoff</span>
+              <span>{useV1 ? "View next steps" : "Complete handoff"}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           ) : canView ? (
@@ -138,8 +139,8 @@ export function MatchCard({ match }: MatchCardProps) {
               type="button"
               className="h-9 px-4 rounded-lg bg-[#181A20] border border-[#262932] text-[#626877] text-xs font-mono flex items-center justify-center gap-1.5 cursor-not-allowed opacity-75"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#5b8cff] animate-ping mr-1" />
-              <span>Synthesizing...</span>
+              {!batchFinished && <span className="w-1.5 h-1.5 rounded-full bg-[#5b8cff] animate-ping mr-1" />}
+              <span>{batchFinished ? "Not processed in this batch" : "Waiting for processing..."}</span>
             </button>
           )}
         </div>

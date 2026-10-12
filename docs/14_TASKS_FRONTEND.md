@@ -139,6 +139,25 @@ Commit: `feat(frontend): layout and shared components [F02]`.
 
 ## F03. [x] Screen 1: Upload and Profile (`/`)
 
+### User-requested v1 flow repair (2026/10/12)
+
+Follow-up scope authorized by the user: reduce questions using CV/transcript evidence. `documentPreferences(facts, current)` fills only unambiguous literal name, email, GPA/scale, explicit nationality and a suggested documented subject. Existing entries are preserved and conflicting grades are flagged. Nationality is never inferred from university location. Completed details collapse; personal-history sections are optional. New document selections block Run until parsing completes. No API/data-model changes or new dependencies. Tests cover contradictory grades, sensitive sources, existing edits and missing preferences, plus browser PDF intake. Model availability and worker recovery are validated separately; existing verification admission remains deterministic AND judge AND Challenger.
+
+- [x] Document prefill and conflict handling; completed detail, context and notification controls collapse.
+- [x] Existing profiles accept additional original context without another CV upload; dirty sources and pending review disable Run.
+- [x] Continue polling active applications after the batch completes; use four-second polling while awaiting user input.
+- [x] Browser run reached authoritative receipt DEMO4898 with eight supported claims passing all three gates. Final smoke test used stored research and the fixture's explicit study plans; earlier failed live-discovery attempts remain recorded in evidence/document_prefill_flow_20261012.json.
+
+- [x] Include `transcript_pdf_base64` in intake; keep explicit source review.
+- [x] Refresh reviewed facts through `onReviewed() -> Promise<void>` without reloading or clearing unsaved form inputs.
+- [x] Save current preferences through the existing profile endpoint before Run agent; reject missing matching inputs with a visible explanation.
+- [x] Display complete source excerpts and the next action in the existing Profile screen.
+- [x] Coalesce duplicate adapter reads, avoid full draft/profile hydration for list summaries, refresh summaries when run events change, and back off after HTTP 429 without relaxing rate limits.
+
+Files: `frontend/app/page.tsx`, `frontend/app/matches/page.tsx`, `frontend/components/profile/ParsedFactsCard.tsx`, `frontend/lib/api.ts`, `frontend/lib/v1.ts`. Existing backend spans and all independent verification gates remain unchanged; no endpoint, model, dependency or screen changes.
+
+Validation: browser uploaded both fictional Tobi PDFs and extracted 19 CV / 2 transcript excerpts. Explicit confirmation enabled Run agent without losing Germany / 2027 preference edits. Run `b76f4970-9ac6-48a9-bc05-d1a883a6c87e` reached the real worker; Gemini returned repeated HTTP 503 during drafting, and the application failed rather than submitting. This is a failed live attempt, not a successful demo receipt. Adapter checks cover coalesced requests, both PDF uploads, no implicit verification and preference persistence. TypeScript and ESLint checks run for changed frontend files. AWS update uses the existing approved release path and frontend service only; inspect deployment completion before claiming it is live.
+
 Goal: collect documents, preferences and the Vault, call intake, show editable facts, start a run.
 Depends: F02. Time box: 90 min.
 Read: `15_DESIGN_BRIEF.md` Screen 1.
@@ -245,3 +264,14 @@ Only bug fixes from the final clean run (backend B25). Seed state: the demo shou
 1. Which fields of `GET /api/applications/{id}` are filled at each stage (so you know what to skeleton)?
 2. When will `trace_url` be filled and what does it contain (full trace link or the dashboard link)?
 3. What is the exact `FRONTEND_BASE_URL` Telegram uses for the handoff link?
+
+## CFO_UI_V1. [x] User-authorized in-project cfo.ai workflow
+
+Scope: existing Matches screen only; BusinessPlanningCard.tsx, matches/page.tsx,
+lib/api.ts mock-mode export. No endpoint or data-model changes. Render run-level
+aggregate evidence with coverage/usage checks, editable pricing/review assumptions,
+copy/download Ari request, cfo.ai onboarding link and plain-language instructions.
+No LLM calls or new spans: local preparation uses the existing API data.
+User has no cfo.ai workspace; account setup/live Model creation remains pending.
+Checks: strict TypeScript, lint, browser copy/download and input validation.
+Commit: feat(cfo): add in-app Ari business planning workflow [CFO_UI_V1].

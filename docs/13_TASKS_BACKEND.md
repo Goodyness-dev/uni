@@ -1,5 +1,16 @@
 # 13_TASKS_BACKEND.md
 
+## User-authorized reliability follow-up (2026/10/12)
+
+- [x] Classify provider status through `backend/app/llm.py::provider_error_status(error) -> int | None`, preserving the SDK import boundary.
+- [x] Switch an overloaded primary to a configured backup, allow bounded backup retries, avoid duplicate candidates and halt after pre-provider budget denial. Every attempt still reserves budget; recovery spans/events/logs preserve status without source content.
+- [x] Validate gemini-3.1-flash-lite with a real structured call; do not use the model that returned 404 despite being listed.
+- [x] Six live fallback regression cases passed the unchanged three-gate path: two supported accepted, four unsupported rejected. Evidence: docs/evidence/fallback_factuality_regression_20261012.json. Full root suite: 147 passed; frontend type/lint checks passed. These curated results are not a general reliability guarantee.
+- [x] `request_writing_evidence(application, session)` transitions an empty verified essay to existing missing-evidence handoff, without submission or relaxed judge/Challenger gates. Planner treats word limits as maxima.
+- [x] Offline regression coverage for overload recovery, fallback retry, budget denial and missing-essay handoff; original backend quick check passed 106 tests. Live fictional receipt DEMO4898 and trace/verification evidence are saved in docs/evidence/document_prefill_flow_20261012.json.
+
+No dependency, endpoint or public data-model changes. Runtime reliability remains bounded; both model candidates share one provider and failures are retained rather than staged as success.
+
 Backend and agent task cards for Memeshi. Do them in order. One Antigravity conversation per card, using the master prompt in `12_ANTIGRAVITY_RULES.md` section 6.1.
 
 Card format: Goal, Depends, Time box, Read (spec sections), Create or change (files), Requirements, Tests, Acceptance (run by hand), Commit.
@@ -349,3 +360,23 @@ Scope, files/signatures/tests/spans: AGENT_EXPANSION_PLAN.md. Implement the five
 - [x] User-completed verified onboarding, cloud workflow and restart checks; external limits remain explicit in AWS_LOCAL_OPERATIONS.md.
 
 Validation: 137 root tests, 99 backend quick-check tests, frontend types/lint. Verified OIDC profile count: 1. Actual cloud demo receipt DEMO8273 and package digests survived database/cache/worker restart. Evidence: evidence/verified_onboarding_20261012.json and evidence/cloud_restart_20261012.json. Real scholarship portals remain read-only with applicant handoff.
+
+## NEATLOGS_IMPROVEMENT_V1. [ ] User-requested sponsor improvement loop
+
+Approved scope and implementation order: NEATLOGS_IMPROVEMENT_PLAN.md. Launch real factuality Evals, version/validate/promote drafting prompts, and investigate/dispatch a real fix to a connected supported coding agent. Record external setup blockers and actual evidence.
+
+- [x] Managed prompt versions, live candidate comparison, production promotion, subsequent actual model run and AWS readback.
+- [x] Real Neatlogs Evals launch/readback, with first-batch false format judgments recorded honestly.
+- [x] MCP review of actual Fixes suggestion; preserve independent gates and add diagnostic counts/regressions.
+- [ ] Native coding-agent dispatch: credentials unavailable; investigation connection failures remain explicit.
+
+## CFO_V1. [x] User-authorized cfo.ai preparation (2026/10/12)
+
+Files: backend/scripts/export_cfo.py, backend/tests/test_cfo_export.py,
+evidence/cfo bundle and evidence/business_plan.md. Functions: read_run(path: Path)
+-> dict; export_bundle(sources: list[Path], output: Path) -> None. Tests: unavailable
+usage, completed denominator, privacy whitelist, invalid/nonfinite costs. No new
+runtime spans: offline export only. User instructed direct implementation,
+overriding initial task-ID/approval pause. Native Model brief follows section 16
+with measured/assumed separation and verification/review sensitivity. Checkbox
+records local implementation only; actual cfo.ai Page and results remain pending.

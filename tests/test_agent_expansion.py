@@ -230,3 +230,48 @@ def test_stale_redis_connection_is_replaced_without_replaying_writes(monkeypatch
     monkeypatch.setattr(queue.aioredis, "from_url", lambda *args, **kwargs: healthy)
     assert asyncio.run(actual_broker_client()) is healthy
     assert calls == ["old_closed", "fresh_ping"]
+
+
+def test_managed_prompt_preserves_grounding_and_records_actual_version(monkeypatch):
+    from app.core import tracing
+    class Handle:
+        name = "scholarpilot-drafting"
+        version = 2
+        def compile(self, variables):
+            return "Write clear prose."
+    async def fetch(name, **kwargs):
+        assert name == Handle.name
+        assert kwargs == {"label": "production", "cache_ttl_seconds": 0}
+        return Handle()
+    monkeypatch.setattr(tracing, "_enabled", True)
+    monkeypatch.setattr(tracing.neatlogs, "aget_prompt", fetch)
+    system, metadata = asyncio.run(tracing.managed_drafting_prompt("Never invent facts."))
+    assert system.endswith("Never invent facts.")
+    assert "Write clear prose." in system
+    assert metadata["version"] == 2 and metadata["source"] == "neatlogs"
+
+
+def test_managed_prompt_failure_retains_local_instructions(monkeypatch):
+    from app.core import tracing
+    async def fetch(*args, **kwargs):
+        raise TimeoutError("Fictional timeout")
+    monkeypatch.setattr(tracing, "_enabled", True)
+    monkeypatch.setattr(tracing.neatlogs, "aget_prompt", fetch)
+    system, metadata = asyncio.run(tracing.managed_drafting_prompt("Never invent facts."))
+    assert system == "Never invent facts."
+    assert metadata == {"source": "local", "reason": "TimeoutError"}
+
+
+@pytest.mark.parametrize("judge_pass,challenger_pass", [(True, True), (False, True), (True, False), (False, False)])
+def test_deterministic_success_never_overrides_independent_judges(monkeypatch, judge_pass, challenger_pass):
+    from app.agents import generation
+    async def invoke(system, payload, schema, owner, usage):
+        passed = challenger_pass if "Challenger" in system else judge_pass
+        return generation.Decisions(decisions=[generation.ClaimDecision(id="S1", supported=passed, reason="Fictional verdict")])
+    monkeypatch.setattr(generation, "invoke", invoke)
+    segment = generation.GeneratedSegment(id="S1", text="I earned a BSc in Computer Engineering in 2025.", source_ids=["C1"], section="essay")
+    retained, claims = asyncio.run(generation.judge_segments([segment], [{"id": "C1", "kind": "profile", "text": segment.text}], "fictional", []))
+    assert claims[0]["deterministic_pass"]
+    assert claims[0]["challenger_pass"] == challenger_pass
+    assert bool(retained) == (judge_pass and challenger_pass)
+    assert claims[0]["verdict"] == ("supported" if judge_pass and challenger_pass else "unsupported")

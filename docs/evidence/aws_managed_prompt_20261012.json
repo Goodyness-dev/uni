@@ -1,0 +1,5 @@
+{
+  "Status": "Success",
+  "StandardOutputContent": "{\"source\": \"neatlogs\", \"name\": \"scholarpilot-drafting\", \"version\": 2, \"label\": \"production\", \"digest\": \"d7e74750ef6deab15ae220c4f113e53753a24d460be8b1c77885e5cd1188f9ff\"}\n2026-10-12 13:26:14 - neatlogs - INFO - Neatlogs SDK shutdown complete\n{\"status\":\"ready\",\"checks\":{\"database\":true,\"kill_switch\":true,\"broker\":true,\"schema\":true}}",
+  "StandardErrorContent": ""
+}

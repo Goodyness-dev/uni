@@ -31,7 +31,8 @@ def metadata_mask(snapshot: dict[str, Any]) -> dict[str, Any]:
         "neatlogs.tool.name", "guardrails_passed", "neatlogs.guardrail.passed", "prompt_version",
         "recovery.chosen", "recovery.outcome", "model", "tokens_in", "tokens_out", "cost_usd", "fallback_used",
         "source_count", "observed_state", "blocked", "digest", "channel", "read_only", "fictional",
-        "neatlogs.llm.model_name", "neatlogs.llm.model"}
+        "neatlogs.llm.model_name", "neatlogs.llm.model", "claims_deterministic_pass",
+        "claims_judge_pass", "claims_challenger_pass", "claims_checked", "claims_unsupported"}
     attributes = {key: value for key, value in attributes.items() if key in safe or key.startswith((
         "llm.token_count.", "gen_ai.usage.", "neatlogs.usage.", "code.", "neatlogs.llm.cost",
         "neatlogs.llm.token_count.", "neatlogs.llm.metrics."))}

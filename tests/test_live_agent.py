@@ -13,6 +13,66 @@ from backend.app import llm
 from app.agents.verifier import deterministic_check
 
 
+@pytest.mark.parametrize("backup_overload", [False, True])
+def test_overloaded_model_switches_once_without_bypassing_budget(monkeypatch: pytest.MonkeyPatch, backup_overload: bool) -> None:
+    import httpx
+    from app.core import llm_gateway
+    calls: list[str] = []
+    reservations: list[str] = []
+    monkeypatch.setattr(settings, "AGENT_ENABLED", True)
+    monkeypatch.setattr(settings, "GEMINI_API_KEY", "fictional-test-key")
+    monkeypatch.setattr(settings, "GEMINI_MODEL", "gemini-3.5-flash-lite")
+    monkeypatch.setattr(settings, "AGENT_FALLBACK_MODEL", "gemini-2.5-flash-lite")
+    monkeypatch.setattr(settings, "LLM_MAX_RETRIES", 3)
+    monkeypatch.setattr(llm_gateway, "circuit_breaker", llm_gateway.ProviderCircuitBreaker())
+    monkeypatch.setattr(llm_gateway, "current_application_id", lambda: None)
+
+    async def reserve(owner: str, amount: float) -> tuple[str, str, int]:
+        reservations.append(owner)
+        return ("global", "owner", 100000)
+
+    async def settle(reservation: tuple[str, str, int], amount: float) -> None:
+        return None
+
+    async def complete(key: str, url: str, model: str, messages: list[dict[str, str]], temperature: float, capture: bool, timeout: float) -> dict:
+        calls.append(model)
+        if model == "gemini-3.5-flash-lite" or (backup_overload and calls.count(model) == 1):
+            response = httpx.Response(503, request=httpx.Request("POST", "https://example.test"))
+            raise httpx.HTTPStatusError("Synthetic overload", request=response.request, response=response)
+        return {"choices": [{"message": {"content": "{}"}}], "usage": {"prompt_tokens": 2, "completion_tokens": 2}}
+
+    monkeypatch.setattr(llm_gateway, "reserve_budget", reserve)
+    monkeypatch.setattr(llm_gateway, "settle_budget", settle)
+    monkeypatch.setattr(llm_gateway, "provider_completion", complete)
+    async def sleep(seconds: float) -> None:
+        assert seconds >= 2
+    monkeypatch.setattr(llm_gateway.asyncio, "sleep", sleep)
+    result = asyncio.run(llm_gateway.call_llm("Test", "Fictional fixture", user_id="fictional-owner"))
+    assert calls == ["gemini-3.5-flash-lite", "gemini-2.5-flash-lite"] + (["gemini-2.5-flash-lite"] if backup_overload else [])
+    assert reservations == ["fictional-owner"] * len(calls)
+    assert result.fallback_used and result.model_used == "gemini-2.5-flash-lite"
+
+
+def test_budget_failure_does_not_try_another_provider(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.core import llm_gateway
+    monkeypatch.setattr(settings, "AGENT_ENABLED", True)
+    monkeypatch.setattr(settings, "GEMINI_API_KEY", "fictional-test-key")
+    monkeypatch.setattr(settings, "GEMINI_MODEL", "gemini-3.5-flash-lite")
+    monkeypatch.setattr(llm_gateway, "circuit_breaker", llm_gateway.ProviderCircuitBreaker())
+    monkeypatch.setattr(llm_gateway, "current_application_id", lambda: None)
+
+    async def reserve(owner: str, amount: float) -> tuple[str, str, int]:
+        raise RuntimeError("Daily model budget is exhausted.")
+
+    async def complete(*args: object, **kwargs: object) -> dict:
+        pytest.fail("Provider must not run after budget denial")
+
+    monkeypatch.setattr(llm_gateway, "reserve_budget", reserve)
+    monkeypatch.setattr(llm_gateway, "provider_completion", complete)
+    with pytest.raises(RuntimeError, match="budget is exhausted"):
+        asyncio.run(llm_gateway.call_llm("Test", "Fictional fixture", user_id="fictional-owner"))
+
+
 def test_tool_whitelist_requires_evidence_and_draft_before_finish():
     assert set(allowed_actions(False, False, False)) == {"research", "select_evidence"}
     assert allowed_actions(True, False, False) == ["select_evidence"]
@@ -42,6 +102,20 @@ async def fictional_application(session):
     session.add(application)
     await session.commit()
     return application, scholarship
+
+
+def test_no_supported_essay_requests_evidence_without_submission(agent_database: None) -> None:
+    async def run() -> None:
+        async with AsyncSessionLocal() as session:
+            application, _ = await fictional_application(session)
+            result = await planner.request_writing_evidence(application, session)
+            assert result["status"] == "needs_human"
+            events = (await session.execute(select(ApplicationEvent).where(ApplicationEvent.application_id == application.id))).scalars().all()
+            assert any(event.event_type == "recovery_decision" and event.payload["chosen"] == "request_evidence" for event in events)
+            assert any(event.payload.get("blocker_type") == "missing_evidence" for event in events)
+            jobs = (await session.execute(select(Job).where(Job.type == "submit_application"))).scalars().all()
+            assert not jobs
+    asyncio.run(run())
 
 
 def test_agent_rejects_premature_finish_and_records_rejection(agent_database, monkeypatch):

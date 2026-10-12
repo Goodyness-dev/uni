@@ -27,6 +27,7 @@ export function PreferencesCard({
   className = "",
 }: PreferencesCardProps) {
   const [fieldInput, setFieldInput] = useState("");
+  const [showDetails, setShowDetails] = useState(false);
 
   const update = <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
     onChange({ ...preferences, [key]: value });
@@ -81,8 +82,13 @@ export function PreferencesCard({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="md:col-span-2 text-xs text-[#9AA0AE]">
+          {preferences.full_name && <span>{preferences.full_name} · </span>}
+          {preferences.gpa > 0 && <span>GPA {preferences.gpa}/{preferences.gpa_scale} · </span>}
+          <button type="button" className="text-[#b2c5ff] underline" onClick={() => setShowDetails(value => !value)}>{showDetails ? "Hide completed details" : "Review or edit completed details"}</button>
+        </div>
         {/* Full Name & Email */}
-        <div className="flex flex-col gap-1.5">
+        <div className={`${!showDetails && preferences.full_name ? "hidden" : "flex"} flex-col gap-1.5`}>
           <label className="text-xs font-medium text-[#ECEDF0]">Full Name</label>
           <input
             type="text"
@@ -93,7 +99,7 @@ export function PreferencesCard({
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
+        <div className={`${!showDetails && preferences.email ? "hidden" : "flex"} flex-col gap-1.5`}>
           <label className="text-xs font-medium text-[#ECEDF0]">Email Address</label>
           <input
             type="email"
@@ -168,7 +174,7 @@ export function PreferencesCard({
         </div>
 
         {/* Nationality & GPA */}
-        <div className="flex flex-col gap-1.5">
+        <div className={`${!showDetails && preferences.nationality ? "hidden" : "flex"} flex-col gap-1.5`}>
           <label className="text-xs font-medium text-[#ECEDF0]">Nationality</label>
           <input
             type="text"
@@ -179,7 +185,7 @@ export function PreferencesCard({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className={`${!showDetails && preferences.gpa > 0 ? "hidden" : "grid"} grid-cols-2 gap-4`}>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-[#ECEDF0]">Cumulative GPA</label>
             <input

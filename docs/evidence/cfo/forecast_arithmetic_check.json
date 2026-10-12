@@ -1,0 +1,21 @@
+{
+  "status": "local arithmetic agrees with Ari chat readback, live tables still fail",
+  "assumption_based": true,
+  "results": [
+    {
+      "scenario": "Main",
+      "revenue": 64967.88,
+      "ending_cash": 47844.11
+    },
+    {
+      "scenario": "Growth",
+      "revenue": 444994.36,
+      "ending_cash": 290269.46
+    },
+    {
+      "scenario": "Conservative",
+      "revenue": 11586.17,
+      "ending_cash": 13791.01
+    }
+  ]
+}

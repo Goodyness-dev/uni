@@ -1,4 +1,6 @@
 """Neatlogs tracing, span helpers, guardrail audits, and recovery decisions for root app."""
+import asyncio
+import hashlib
 import functools
 import inspect
 from collections.abc import Callable, Generator
@@ -211,3 +213,25 @@ def recovery_decision(trigger: str, options: list[str]) -> Generator[_Recovery, 
     with trace_block("recovery_decision", "CHAIN") as span:
         set_attrs(span, **{"recovery.trigger": trigger, "recovery.options": options})
         yield _Recovery(span)
+
+
+async def managed_drafting_prompt(fallback: str) -> tuple[str, dict[str, Any]]:
+    """Fetch production drafting instructions; preserve local grounding constraints."""
+    if not _enabled or neatlogs is None:
+        return fallback, {"source": "local", "reason": "tracing_disabled"}
+    with trace_block("managed_prompt_fetch", "TOOL", **{"neatlogs.tool.name": "managed_prompt_fetch"}) as span:
+        try:
+            handle = await asyncio.wait_for(neatlogs.aget_prompt("scholarpilot-drafting", label="production", cache_ttl_seconds=0), timeout=10)
+            content = handle.compile({})
+            if not content.strip():
+                raise ValueError("Managed drafting prompt is empty.")
+        except (TimeoutError, ValueError, OSError, neatlogs.prompt.client.PromptClientError) as error:
+            with recovery_decision("managed_prompt_unavailable", ["local_grounded_prompt"]) as recovery:
+                recovery.decide("local_grounded_prompt", type(error).__name__)
+                recovery.finish("local_prompt_used")
+            return fallback, {"source": "local", "reason": type(error).__name__}
+        metadata = {"source": "neatlogs", "name": handle.name, "version": handle.version,
+            "label": "production", "digest": hashlib.sha256(content.encode()).hexdigest()}
+        set_attrs(span, prompt_version=str(handle.version), digest=metadata["digest"])
+        # Remote prompt is an additional instruction; it cannot remove local safety rules.
+        return content + "\nMandatory grounding constraints:\n" + fallback, metadata

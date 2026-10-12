@@ -47,7 +47,7 @@ export class ApiError extends Error {
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
-const USE_MOCKS = !useV1 && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
+export const USE_MOCKS = !useV1 && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
 function delay(ms: number = 300): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -83,6 +83,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 const v1 = createV1(request);
+
+export async function savePreferences(preferences: IntakeRequest["preferences"]): Promise<void> {
+  if (useV1) await v1.savePreferences(preferences);
+}
 
 export async function getHealth(): Promise<HealthResponse> {
   if (useV1) { return request<HealthResponse>("/health"); }

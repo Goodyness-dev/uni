@@ -33,6 +33,13 @@ function TopBarContent() {
     finally { setConnecting(false); }
   }
   const [latestRun, setLatestRun] = useState<Run | null>(null);
+  useEffect(() => {
+    const onRunUpdate = (event: Event) => {
+      if (event instanceof CustomEvent && event.detail?.run_id) setLatestRun(event.detail as Run);
+    };
+    window.addEventListener("scholarpilot-run-updated", onRunUpdate);
+    return () => window.removeEventListener("scholarpilot-run-updated", onRunUpdate);
+  }, []);
   const [demoMode, setDemoMode] = useState<boolean>(true);
   const isMock = !useV1 && typeof window !== "undefined" && process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 

@@ -10,6 +10,7 @@ interface ParsedFactsCardProps {
   facts: Fact[];
   counts: { cv: number; transcript: number; vault: number };
   onPatchFact: (id: string, text: string) => Promise<void>;
+  onReviewed: () => Promise<void>;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function ParsedFactsCard({
   facts,
   counts,
   onPatchFact,
+  onReviewed,
   className = "",
 }: ParsedFactsCardProps) {
   const [reviewError, setReviewError] = useState("");
@@ -48,8 +50,8 @@ export function ParsedFactsCard({
   };
 
   return (
-    <section className={`rounded-xl bg-[#121318] border border-[#262932] p-6 flex flex-col gap-6 ${className}`}>
-      {useV1 && facts.some(f => f.id.startsWith("U_")) && <div className="text-xs flex flex-col gap-2"><p>Read the source facts below. Confirm only if they accurately reproduce your documents.</p><button disabled={reviewing} className="p-2 rounded bg-[#262932] disabled:opacity-50" onClick={async () => { setReviewing(true); setReviewError(""); try { await reviewPendingEvidence(); window.location.reload(); } catch (error) { setReviewError(error instanceof Error ? error.message : "Review failed."); } finally { setReviewing(false); } }}>{reviewing ? "Saving review…" : "Confirm source facts"}</button>{reviewError && <p role="alert">{reviewError}</p>}</div>}
+    <section id="source-facts" className={`scroll-mt-20 rounded-xl bg-[#121318] border border-[#262932] p-6 flex flex-col gap-6 ${className}`}>
+      {useV1 && facts.some(f => f.id.startsWith("U_")) && <div className="text-xs flex flex-col gap-2"><p>Read the source facts below. Confirm only if they accurately reproduce your documents. If anything is wrong, correct the source before continuing. This confirms source alignment, not authenticity.</p><button disabled={reviewing} className="p-2 rounded bg-[#262932] disabled:opacity-50" onClick={async () => { setReviewing(true); setReviewError(""); try { await reviewPendingEvidence(); await onReviewed(); } catch (error) { setReviewError(error instanceof Error ? error.message : "Review failed."); } finally { setReviewing(false); } }}>{reviewing ? "Saving review…" : "Confirm source facts"}</button>{reviewError && <p role="alert">{reviewError}</p>}</div>}
       {/* Header & Filter */}
       <div className="border-b border-[#262932] pb-4 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -153,14 +155,14 @@ export function ParsedFactsCard({
 
                 {/* Editable Text */}
                 <div className="flex-1 min-w-0 relative">
-                  <input
+                  {useV1 ? <p className="whitespace-pre-wrap break-words text-xs text-[#ECEDF0] px-2 py-1">{fact.text}</p> : <input
                     readOnly={useV1}
                     type="text"
                     value={currentText}
                     onChange={(e) => handleTextChange(fact.id, e.target.value)}
                     onBlur={() => handleBlur(fact.id, fact.text)}
                     className="w-full bg-transparent border-none text-xs text-[#ECEDF0] focus:outline-none focus:bg-[#181A20] focus:border focus:border-[#353945] px-2 py-1 rounded transition-colors"
-                  />
+                  />}
                   {isSaving && (
                     <span className="absolute right-2 top-1 text-[10px] font-mono text-[#5b8cff] animate-pulse">
                       Saving...

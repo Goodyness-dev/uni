@@ -1,0 +1,93 @@
+{
+  "fictional_only": true,
+  "date": "2026/10/12",
+  "application_id": "c972c36c-57bd-47c9-8b7b-1365198d6222",
+  "run_id": "74a44981-abc7-4cb7-8c05-9573aac783c8",
+  "status": "submitted",
+  "receipt": "DEMO4898",
+  "portal_readback": {
+    "submitted": true,
+    "confirmation_code": "DEMO4898"
+  },
+  "supported_claims": 8,
+  "unsupported_final": 0,
+  "all_supported_claims_pass_three_gates": true,
+  "trace_ids": [
+    "c59bfc946adc9fb334e87af832908e06"
+  ],
+  "model_usage": [
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.001449,
+      "tokens_in": 3012,
+      "tokens_out": 218,
+      "fallback_used": false,
+      "latency_seconds": 1.3967
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.003772,
+      "tokens_in": 3523,
+      "tokens_out": 1086,
+      "fallback_used": false,
+      "latency_seconds": 3.0038
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.002874,
+      "tokens_in": 4146,
+      "tokens_out": 652,
+      "fallback_used": false,
+      "latency_seconds": 2.1816
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.003202,
+      "tokens_in": 4139,
+      "tokens_out": 784,
+      "fallback_used": false,
+      "latency_seconds": 2.5305
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.003564,
+      "tokens_in": 4347,
+      "tokens_out": 904,
+      "fallback_used": false,
+      "latency_seconds": 2.558
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.003369,
+      "tokens_in": 4146,
+      "tokens_out": 850,
+      "fallback_used": false,
+      "latency_seconds": 2.4853
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "cost_usd": 0.003129,
+      "tokens_in": 4139,
+      "tokens_out": 755,
+      "fallback_used": false,
+      "latency_seconds": 2.6037
+    }
+  ],
+  "research_mode": "stored sources for final smoke test; earlier live-discovery attempt retained as a failure",
+  "additional_evidence": "Existing fictional tobi_vault.json career_goals and why_abroad; these plans were not inferred from CV/transcript",
+  "earlier_failed_run": "3d3728a9-6689-4a43-8be7-9c30d743356b",
+  "fallback_probe": [
+    {
+      "model": "gemini-3.1-flash-lite",
+      "status": "success",
+      "schema_valid": true,
+      "tokens": 79,
+      "cost_usd": 9.6e-05
+    },
+    {
+      "model": "gemini-2.5-flash-lite",
+      "status": "failed",
+      "error": "All model providers failed; no generated output is available. Last HTTP status: 404."
+    }
+  ]
+}
