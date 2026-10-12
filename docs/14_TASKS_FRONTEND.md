@@ -275,3 +275,7 @@ No LLM calls or new spans: local preparation uses the existing API data.
 User has no cfo.ai workspace; account setup/live Model creation remains pending.
 Checks: strict TypeScript, lint, browser copy/download and input validation.
 Commit: feat(cfo): add in-app Ari business planning workflow [CFO_UI_V1].
+
+## CONNECTION_UX_V1. [x] User-requested easier first demo step
+
+Plan and implementation: TopBar.tsx uses the existing sign-in and fictional-development identity helpers; expose Start demo only after a successful demo-mode health response, generate a unique fictional demo-session access email, separate from the CV contact email, show Connected only after an authenticated profile read, and move API-key/token inputs under Advanced connection options. api.ts turns the missing-key message into a visible next-step instruction. No endpoints, data models, dependencies or backend authentication changes; no new spans because authentication helpers are unchanged. Validate TypeScript, lint and actual browser connection before upload. Production retains verified sign-in, and demo access is explicitly not identity verification.
