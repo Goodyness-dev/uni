@@ -30,6 +30,7 @@ import { IneligibleSection } from "@/components/matches/IneligibleSection";
 import { EventFeed } from "@/components/matches/EventFeed";
 import { RunMetricsStrip } from "@/components/matches/RunMetricsStrip";
 import { GapQuestionCard } from "@/components/matches/GapQuestionCard";
+import { BusinessPlanningCard } from "@/components/matches/BusinessPlanningCard";
 
 function getStageFromStatus(status: AppStatus): number {
   switch (status) {
@@ -283,6 +284,7 @@ export default function MatchesPage() {
             </Link>
           }
         />
+        <BusinessPlanningCard run={null} applications={[]} />
       </div>
     );
   }
@@ -415,6 +417,7 @@ export default function MatchesPage() {
       />
 
       {/* MAIN 2-COLUMN WORKSPACE (65% / 35%) */}
+      <BusinessPlanningCard run={run} applications={applications} />
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* LEFT COLUMN: MATCHES (65%) */}
         <div className="lg:col-span-8 space-y-4">

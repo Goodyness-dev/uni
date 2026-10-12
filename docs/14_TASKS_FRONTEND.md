@@ -245,3 +245,14 @@ Only bug fixes from the final clean run (backend B25). Seed state: the demo shou
 1. Which fields of `GET /api/applications/{id}` are filled at each stage (so you know what to skeleton)?
 2. When will `trace_url` be filled and what does it contain (full trace link or the dashboard link)?
 3. What is the exact `FRONTEND_BASE_URL` Telegram uses for the handoff link?
+
+## CFO_UI_V1. [x] User-authorized in-project cfo.ai workflow
+
+Scope: existing Matches screen only; BusinessPlanningCard.tsx, matches/page.tsx,
+lib/api.ts mock-mode export. No endpoint or data-model changes. Render run-level
+aggregate evidence with coverage/usage checks, editable pricing/review assumptions,
+copy/download Ari request, cfo.ai onboarding link and plain-language instructions.
+No LLM calls or new spans: local preparation uses the existing API data.
+User has no cfo.ai workspace; account setup/live Model creation remains pending.
+Checks: strict TypeScript, lint, browser copy/download and input validation.
+Commit: feat(cfo): add in-app Ari business planning workflow [CFO_UI_V1].

@@ -1,71 +1,65 @@
-# ScholarPilot Business Plan (cfo.ai Financial Model)
+# ScholarPilot business plan: cfo.ai handoff
 
-## Executive Summary
-ScholarPilot is an autonomous, verification-first scholarship application agent that eliminates hallucinated qualifications, matches applicants to eligible scholarships, extracts sourced proof from their profile vault, verifies claims with self-challenging guardrails, and completes safe submissions.
+Local import bundle implemented; live cfo.ai Model and shared Page not yet created
+or verified. Earlier measured token costs, margin, revenue and runway claims were
+unsupported by cited evidence and have been withdrawn.
 
-This business plan and financial model is built on **cfo.ai** using real unit costs measured from **Neatlogs** runtime traces during live test runs.
+Our business question is how verification and human review affect pricing,
+contribution and cash. Single-package $4.99 and ten-application season-pass $19.99
+prices are planning assumptions. Real portals remain applicant handoffs.
 
----
+The cfo folder contains whitelisted aggregate evidence, labeled assumptions and
+an Ari brief for native Variables, Dimensions, Main/Growth/Conservative Scenarios
+and verification/review sensitivity. No applicant content is exported. Run-level
+LLM cost includes shared workflow overhead; it excludes review, hosting,
+acquisition and payment costs.
 
-## 1. Unit Economics & Cost per Application (Measured)
-All execution metrics are tracked and verified through Neatlogs traces (`run_B`, `run_C`, `eval_v1`, `eval_v2`):
-- **Model Usage**: Primary: Gemini 2.0 Flash (\$0.10/1M input tokens, \$0.40/1M output tokens); Fallback: secondary OpenAI-compatible provider.
-- **Tokens per Application**: ~12,500 input tokens, ~2,200 output tokens across intake, edge-finding, tailoring, verification, revision, and challenge.
-- **Blended LLM Cost per Application**: **\$0.0021 USD** (~₦3.36 at ₦1,600/\$1).
-- **Tool & Notification Overhead**:
-  - Email (SMTP) & Telegram Bot notifications: \$0.00.
-  - SQLite local database storage & PDF generation: \$0.00.
-- **Total Unit Cost per Tailored & Verified Application**: **\$0.0025 USD** (~₦4.00).
+October 11 run files record zero LLM calls/tokens. Unit cost is unavailable, not
+zero. Newer metadata-only traces also report zero tokens/cost despite real calls.
+Financial conclusions require actual usage and missing cost inputs.
 
----
+Regenerate from repository root:
 
-## 2. Pricing Tiers (Assumptions)
-We offer three pricing tiers tailored for domestic and international higher-education scholarship applicants:
-1. **Free Tier**: Matching, eligibility breakdown, and research preview (up to 3 scholarship recommendations). \$0.00.
-2. **Pay-Per-Application (Lead Tier)**: **\$4.99 USD** (~₦8,000) for one fully researched, tailored, 100% verified application package with PDF export and direct portal/email submission.
-   - Gross Margin: **99.9%** (\$4.99 revenue vs \$0.0025 LLM cost; payment processing fee 2.9% + \$0.30 leaves \$4.54 net margin per application).
-3. **Scholar Season Pass**: **\$19.99 USD** (~₦32,000) for up to 10 verified scholarship applications within a 3-month application window.
-   - Gross Margin: **98.8%**.
-4. **Institutional / Education Coach**: **\$49.00 USD/month** for 5 student seats with team analytics and verification audit trails.
+```powershell
+backend/.venv/Scripts/python.exe backend/scripts/export_cfo.py docs/evidence/run_B_1.json docs/evidence/run_B_2.json docs/evidence/run_B_3.json --output docs/evidence/cfo
+```
 
----
+Attach cfo/run_costs.csv and cfo/model_inputs.json in cfo.ai; send ari_prompt.md.
+Supply required inputs; verify saved formulas and representative results; capture
+actual Page link, scenarios and source comparison. No cfo.ai connector is available
+in this chat. Live sponsor completion remains pending workspace access and inputs.
 
-## 3. Revenue Scenarios & Runway
-Built in cfo.ai across three distinct growth scenarios (assumed starting cash: \$10,000 USD):
-- **Conservative Scenario**:
-  - Month 1: 50 paid applications.
-  - Monthly growth: 15%.
-  - Fixed costs: \$150/month (hosting, domain, monitoring).
-  - Break-even: Month 2 (38 paid applications needed to cover fixed overhead).
-  - 12-month runway: Infinite (profitable from Month 2, cash balance reaches \$18,400 at Month 12).
-- **Base Scenario**:
-  - Month 1: 150 paid applications (\$748 revenue).
-  - Monthly growth: 25% via student referral incentives and university scholarship forums.
-  - Fixed costs: \$300/month (scalable cloud workers, managed Postgres, Neatlogs team plan).
-  - Break-even: Month 1.
-  - Year 1 Projected Revenue: **\$42,600 USD** with 88% EBITDA margin.
-- **Growth Scenario (Viral Campus Adoption)**:
-  - Month 1: 400 paid applications, partnering with university career centers.
-  - Monthly growth: 40%.
-  - Year 1 Projected Revenue: **\$148,000 USD**.
+In-app follow-up: open Matches and use Business planning. The panel automatically
+prepares an Ari request from current aggregate run metrics and editable assumptions.
+Mock/incomplete usage is never treated as measured cost. Browser verification:
+15 review minutes at $10/hour displayed $2.50; copied and downloaded request kept
+that value; negative prices disabled export. TypeScript and lint passed. User
+confirmed no cfo.ai workspace yet. Live creation requires signup and workspace
+access; this UI is an onboarding/export workflow, not an authenticated API sync.
 
----
+## Live workspace setup — 2026/10/12
 
-## 4. Sensitivity Analysis & Risks
-- **LLM Token Price Sensitivity**: If LLM API costs rise by 100% or verifier revision rounds increase from 2 to 4, cost per application rises from \$0.0025 to \$0.0050. The gross margin drops negligibly from 99.9% to 99.8%.
-- **Primary Model Outage**: If primary LLM is unavailable and 100% of calls use the fallback provider, cost rises to \$0.0080 per application (still yielding >99% margin).
-- **Key Risks**:
-  1. *Seasonality*: Scholarship deadlines concentrate between October–December and March–May. Managed by marketing Season Passes before major deadline peaks.
-  2. *Portal Anti-Bot Evolution*: Solved architecturally by ScholarPilot's human-in-the-loop handoff pattern: when CAPTCHAs or 2FA appear, the agent immediately stops and hands off to the student with clear instructions, preserving compliance and trust.
+User signed into cfo.ai and authorized continuation. Ari created Page
+99839ceb-266e-4240-997a-82c26898a638, ScholarPilot business plan, in workspace
+ayooluwa-cfoai-bdbda6b9. Native assumption/pricing/break-even tables observed.
+Model creation is still running; scenario/cash validation remains pending.
+All financial inputs are explicitly planning assumptions. Temporary LLM cost of
+$0.01/package is a demo assumption, not measured run cost. No personal applicant
+content was sent. Workspace remains private. In-app button now opens this workspace.
 
----
+Live verification issue: browser observed calculation errors on scenario totals,
+review workload/liquidity and break-even timing tables; Canvas runtime/data load
+also failed. Ari was explicitly asked to diagnose/repair before claiming completion.
+Observed baseline assumptions/pricing/break-even values: review $0.833333/package,
+blended contribution $5.096956/purchase, break-even 59 purchases/month. These agree
+with hand arithmetic, but are planning outputs only. Cash/scenario totals remain
+unverified. Workspace access is a manual deep link, not automatic API sync.
 
-## 5. Verification: What is Measured vs Assumed
-| Metric | Status | Source |
-|---|---|---|
-| Token count per application | **MEASURED** | Neatlogs runtime spans (`run_B`, `eval_v1`) |
-| LLM API price per token | **MEASURED** | Official Gemini & OpenAI API pricing tables |
-| Verification overhead (Mode B revision) | **MEASURED** | 2 revision passes logged in `docs/evidence/run_B_1.json` |
-| Fallback & retry latency | **MEASURED** | Recorded in `tests/test_recovery.py` |
-| Pricing tiers & conversion rate | **ASSUMPTION** | Benchmarked against college admissions consulting tools |
-| Monthly growth rates (15%–40%) | **ASSUMPTION** | Target growth projection for Nigerian & international students |
+Final live state: Ari confirmed its simplified-layout repair did not restore the
+browser tables or Canvas, recorded the unsuccessful recovery, and reported escalation
+to cfo.ai engineering. Native Page usability remains externally blocked. Saved
+scenario totals from Ari chat agree with independent local arithmetic (see
+cfo/forecast_arithmetic_check.json). Main revenue $64,967.88/ending cash $47,844.11;
+Growth $444,994.36/$290,269.46; Conservative $11,586.17/$13,791.01. All are assumption
+forecasts, not actuals. Proof: cfo/workspace_readback.png. No automatic API sync or
+public sharing was added. Frontend TypeScript and lint passed after workspace link.

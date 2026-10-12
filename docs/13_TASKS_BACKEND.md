@@ -358,3 +358,14 @@ Approved scope and implementation order: NEATLOGS_IMPROVEMENT_PLAN.md. Launch re
 - [x] Real Neatlogs Evals launch/readback, with first-batch false format judgments recorded honestly.
 - [x] MCP review of actual Fixes suggestion; preserve independent gates and add diagnostic counts/regressions.
 - [ ] Native coding-agent dispatch: credentials unavailable; investigation connection failures remain explicit.
+
+## CFO_V1. [x] User-authorized cfo.ai preparation (2026/10/12)
+
+Files: backend/scripts/export_cfo.py, backend/tests/test_cfo_export.py,
+evidence/cfo bundle and evidence/business_plan.md. Functions: read_run(path: Path)
+-> dict; export_bundle(sources: list[Path], output: Path) -> None. Tests: unavailable
+usage, completed denominator, privacy whitelist, invalid/nonfinite costs. No new
+runtime spans: offline export only. User instructed direct implementation,
+overriding initial task-ID/approval pause. Native Model brief follows section 16
+with measured/assumed separation and verification/review sensitivity. Checkbox
+records local implementation only; actual cfo.ai Page and results remain pending.

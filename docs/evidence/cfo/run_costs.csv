@@ -1,0 +1,4 @@
+run_id,source_file,mode,completed_applications,tokens_total,llm_calls,run_cost_usd,cost_per_completed_application_usd,measurement_status,trace_url
+run_20261011_009,run_B_1.json,B,0,0,0,0.0,,usage_unavailable,
+run_20261011_010,run_B_2.json,B,0,0,0,0.0,,usage_unavailable,
+run_20261011_229,run_B_3.json,B,1,0,0,0.0,,usage_unavailable,https://app.neatlogs.com/traces?tags=run_20261011_229
