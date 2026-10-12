@@ -51,17 +51,19 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install Playwright browser binaries
-RUN python -m playwright install --with-deps chromium || true
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
+RUN python -m playwright install --with-deps chromium
 
 # Copy application code
 COPY app/ /app/app/
 COPY scripts/ /app/scripts/
 COPY backend/data/listings.json /app/backend/data/listings.json
+COPY backend/app/tracing.py /app/backend/app/tracing.py
 COPY alembic.ini /app/alembic.ini
 
 # Create non-root user and runtime directories
 RUN useradd -m -u 1000 scholarpilot && \
-    mkdir -p /app/storage/screenshots && \
+    mkdir -p /app/storage/screenshots /app/storage/documents && \
     chown -R scholarpilot:scholarpilot /app
 
 USER scholarpilot

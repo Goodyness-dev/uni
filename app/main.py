@@ -9,6 +9,8 @@ from app.api.deps import get_request_id
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
 from app.core.logging import logger, setup_logging
+from app.core.tracing import init_tracing, shutdown_tracing
+from app.jobs.queue import get_redis_client
 from app.db.base import AsyncSessionLocal, engine, Base
 
 
@@ -16,19 +18,22 @@ from app.db.base import AsyncSessionLocal, engine, Base
 async def lifespan(app: FastAPI):
     """Application startup and shutdown hooks."""
     setup_logging(settings.LOG_LEVEL)
+    init_tracing(tags=["api"])
     logger.info(f"Starting ScholarPilot API in {settings.ENVIRONMENT} mode...")
 
-    # Ensure schema is ready in development/test
-    try:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database schema initialized.")
-    except Exception as e:
-        logger.error(f"Database initialization error: {e}")
+    # Ensure schema is ready in development/test environments
+    if settings.ENVIRONMENT != "production":
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info("Database schema initialized via metadata in non-production mode.")
+        except Exception as e:
+            logger.error(f"Database initialization error: {e}")
 
     yield
 
     logger.info("Shutting down ScholarPilot API...")
+    shutdown_tracing()
     await engine.dispose()
 
 
@@ -89,6 +94,8 @@ async def readiness_check() -> JSONResponse:
         "database": False,
         "kill_switch": not settings.KILL_SWITCH_ACTIVE,
     }
+    if settings.ENVIRONMENT == "production":
+        checks["broker"] = await get_redis_client() is not None
 
     try:
         async with AsyncSessionLocal() as session:

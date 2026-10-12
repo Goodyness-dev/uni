@@ -2,7 +2,7 @@
 import uuid
 from datetime import datetime, timezone
 from typing import Annotated, List, Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -61,7 +61,9 @@ def evaluate_eligibility_and_fit(profile: Profile, scholarship: Scholarship) -> 
 
     # 3. Country / Nationality check
     eligible_nats = rules.get("eligible_nationalities", [])
-    user_nats = profile.personal_details.get("nationalities", ["Nigeria"])
+    user_nats = profile.personal_details.get("nationalities") or []
+    if not user_nats and profile.personal_details.get("citizenship"):
+        user_nats = [profile.personal_details["citizenship"]]
     if eligible_nats:
         matched_nat = any(nat.lower() in [n.lower() for n in eligible_nats] for nat in user_nats)
         if not matched_nat:
@@ -70,9 +72,14 @@ def evaluate_eligibility_and_fit(profile: Profile, scholarship: Scholarship) -> 
 
     # 4. GPA check
     min_gpa = rules.get("min_gpa", 0.0)
-    user_gpa = profile.grades.get("gpa", 4.0)
-    if min_gpa > 0 and user_gpa < min_gpa:
-        return None  # Ineligible
+    user_gpa = profile.grades.get("gpa")
+    if min_gpa > 0:
+        scale = profile.grades.get("gpa_scale")
+        required_scale = rules.get("gpa_scale")
+        if not isinstance(user_gpa, (int, float)) or not scale or not required_scale:
+            return None
+        if user_gpa / scale < min_gpa / required_scale:
+            return None
     elif min_gpa > 0:
         reasons.append(f"GPA {user_gpa} meets minimum requirement ({min_gpa})")
 
@@ -109,10 +116,7 @@ async def refresh_matches(
     stmt = select(Profile).where(Profile.user_id == user.id)
     profile = (await db.execute(stmt)).scalar_one_or_none()
     if not profile:
-        profile = Profile(user_id=user.id, personal_details={"nationalities": ["Nigeria"]})
-        db.add(profile)
-        await db.commit()
-        await db.refresh(profile)
+        raise HTTPException(status_code=400, detail="A profile is required before matching.")
 
     # Load active scholarships
     schol_stmt = select(Scholarship).where(Scholarship.status == "active")

@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import get_current_user, get_request_id
 from app.db.base import get_db_session
 from app.db.models import Application, ApplicationEvent, Draft, Scholarship, User
+from app.jobs.queue import enqueue_job
 from app.jobs.state_machine import (
     IllegalStateTransitionError,
     KillSwitchActiveError,
@@ -84,6 +85,8 @@ async def start_application(
         )
 
     mode = req.mode or user.mode
+    if mode not in {"autopilot", "review"}:
+        raise HTTPException(status_code=400, detail="Unknown application mode.")
     app_record = Application(
         user_id=user.id,
         scholarship_id=schol.id,
@@ -104,6 +107,17 @@ async def start_application(
     db.add(init_event)
     await db.commit()
     await db.refresh(init_event)
+
+    # Enqueue coordinator pipeline to run matching, research, and drafting asynchronously
+    await enqueue_job(
+        "coordinator_pipeline",
+        {
+            "application_id": str(app_record.id),
+            "user_id": str(user.id),
+            "scholarship_id": str(schol.id),
+        },
+        session=db,
+    )
 
     return ApplicationDetailResponse(
         id=str(app_record.id),
@@ -246,6 +260,11 @@ async def approve_application(
             payload={"approval_action": "user_approved_review"},
             session=db,
         )
+        await enqueue_job(
+            "submit_application",
+            {"application_id": str(app_id)},
+            session=db,
+        )
     except (IllegalStateTransitionError, KillSwitchActiveError) as err:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -278,6 +297,11 @@ async def resume_application(
             new_status="submitting",
             actor="user",
             payload={"resume_action": "human_completed_blocker"},
+            session=db,
+        )
+        await enqueue_job(
+            "submit_application",
+            {"application_id": str(app_id)},
             session=db,
         )
     except (IllegalStateTransitionError, KillSwitchActiveError) as err:

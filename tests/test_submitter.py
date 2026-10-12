@@ -168,6 +168,9 @@ def test_captcha_run_stops_cleanly_and_resumes():
             session.add(application)
             await session.commit()
 
+            session.add(Draft(application_id=application.id, kind="essay", version=1,
+                content="Fictional applicant original statement.", source_facts=["Fictional applicant original statement."]))
+            await session.commit()
             # 1. Trigger submission with CAPTCHA blocker encountered
             res_blocked = await run_submitter(
                 application_id=application.id,
@@ -231,6 +234,10 @@ def test_review_mode_enforces_student_approval_before_submitting():
                 mode_used="review",
             )
             session.add(application)
+            await session.commit()
+
+            session.add(Draft(application_id=application.id, kind="essay", version=1,
+                content="Fictional applicant original statement.", source_facts=["Fictional applicant original statement."]))
             await session.commit()
 
             # Attempting to submit in ready_for_review must raise IllegalStateTransitionError

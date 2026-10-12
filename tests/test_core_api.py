@@ -93,11 +93,15 @@ def test_developer_e2e_journey():
             assert put_data["completeness_score"] == 100.0
             assert put_data["grades"]["gpa"] == 4.82
 
-            # 5. Upload document metadata
+            # 5. Register an owned managed file (metadata is not factual verification)
+            profile_result = await client.get("/v1/profile", headers=headers)
+            document_path = Path("storage/documents") / profile_result.json()["user_id"] / "transcript.pdf"
+            document_path.parent.mkdir(parents=True, exist_ok=True)
+            document_path.write_text("Fictional transcript test fixture")
             doc_resp = await client.post(
                 "/v1/documents",
                 headers=headers,
-                json={"type": "transcript", "storage_key": "s3://vault/tunde/transcript_official.pdf"},
+                json={"type": "transcript", "storage_key": str(document_path.resolve())},
             )
             assert doc_resp.status_code == 201
             assert doc_resp.json()["type"] == "transcript"

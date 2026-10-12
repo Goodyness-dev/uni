@@ -7,7 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from pydantic import BaseModel
 from sqlalchemy import select
 from app.core.config import settings
-from app.core.logging import redact_pii_value
+from app.core.logging import JSONPIIRedactingFormatter, redact_pii_value
 from app.core.security import (
     decrypt_credential,
     encrypt_credential,
@@ -24,7 +24,7 @@ from app.core.llm_gateway import (
     spend_tracker,
 )
 from app.db.base import AsyncSessionLocal, Base, engine
-from app.db.models import Scholarship, User
+from app.db.models import Application, ApplicationEvent, Job, Scholarship, User
 from app.main import app
 from scripts.import_catalog import import_listings
 from pathlib import Path
@@ -184,3 +184,51 @@ def test_api_health_and_ready():
             assert ready_data["checks"]["database"] is True
 
     asyncio.run(run())
+
+
+def test_job_payload_persistence():
+    """Verifies that Job model persists arbitrary input payload dictionary."""
+    async def run():
+        async with AsyncSessionLocal() as session:
+            job = Job(
+                type="researcher",
+                status="pending",
+                payload={"scholarship_id": "schol_xyz", "user_id": "user_abc", "retry_count": 2},
+            )
+            session.add(job)
+            await session.commit()
+            await session.refresh(job)
+
+            fetched = await session.get(Job, job.id)
+            assert fetched is not None
+            assert fetched.payload["scholarship_id"] == "schol_xyz"
+            assert fetched.payload["retry_count"] == 2
+
+    asyncio.run(run())
+
+
+def test_exception_traceback_pii_redaction():
+    """Verifies that exception tracebacks formatted by JSONPIIRedactingFormatter have PII scrubbed."""
+    import logging
+    formatter = JSONPIIRedactingFormatter()
+
+    try:
+        raise ValueError("Failed connecting for student john.doe@example.com with token Bearer secret_token_1234567890")
+    except ValueError:
+        import sys
+        record = logging.LogRecord(
+            name="test_logger",
+            level=logging.ERROR,
+            pathname="test.py",
+            lineno=10,
+            msg="Exception occurred",
+            args=(),
+            exc_info=sys.exc_info(),
+        )
+        formatted = formatter.format(record)
+        log_json = json.loads(formatted)
+        assert "exception" in log_json
+        assert "john.doe@example.com" not in log_json["exception"]
+        assert "[REDACTED_EMAIL]" in log_json["exception"]
+        assert "secret_token_1234567890" not in log_json["exception"]
+

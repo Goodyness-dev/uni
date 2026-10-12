@@ -1,6 +1,7 @@
 """Unified LLM Gateway: model routing, retries, cost accounting, daily spending caps, and schema validation."""
 import json
 import time
+import asyncio
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Type, TypeVar
@@ -8,6 +9,8 @@ import httpx
 from pydantic import BaseModel
 from app.core.config import settings
 from app.core.logging import logger
+from app.core.budget import reserve_budget, settle_budget
+from app.core.tracing import tool_span
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -73,8 +76,41 @@ class DailySpendTracker:
             self.user_spend[user_id] += estimated_cost
         self.global_spend += estimated_cost
 
+    def reconcile(self, user_id: Optional[str], estimated_cost: float, actual_cost: float) -> None:
+        """Reconciles actual token spend against the pre-call estimate."""
+        self._check_reset()
+        diff = actual_cost - estimated_cost
+        if user_id:
+            self.user_spend[user_id] = max(0.0, self.user_spend[user_id] + diff)
+        self.global_spend = max(0.0, self.global_spend + diff)
+
+
+class ProviderCircuitBreaker:
+    """Tracks consecutive provider failures and trips open to prevent cascading timeouts."""
+    def __init__(self, failure_threshold: int = 3, cooldown_seconds: float = 60.0):
+        self.failure_threshold = failure_threshold
+        self.cooldown_seconds = cooldown_seconds
+        self.failure_counts: Dict[str, int] = defaultdict(int)
+        self.last_failure_time: Dict[str, float] = defaultdict(float)
+
+    def is_available(self, provider: str) -> bool:
+        if self.failure_counts[provider] >= self.failure_threshold:
+            if time.time() - self.last_failure_time[provider] < self.cooldown_seconds:
+                return False
+            # Reset after cooldown period
+            self.failure_counts[provider] = 0
+        return True
+
+    def record_success(self, provider: str) -> None:
+        self.failure_counts[provider] = 0
+
+    def record_failure(self, provider: str) -> None:
+        self.failure_counts[provider] += 1
+        self.last_failure_time[provider] = time.time()
+
 
 spend_tracker = DailySpendTracker()
+circuit_breaker = ProviderCircuitBreaker()
 
 
 def calculate_cost(model_name: str, input_tokens: int, output_tokens: int) -> float:
@@ -92,6 +128,7 @@ def sanitize_untrusted_content(text: str) -> str:
     return f"<untrusted_document_content>\n{sanitized}\n</untrusted_document_content>"
 
 
+@tool_span("model_gateway", description="Provider call without prompt capture")
 async def call_llm(
     system_prompt: str,
     user_prompt: str,
@@ -139,17 +176,29 @@ async def call_llm(
     last_error: Optional[Exception] = None
 
     for model_name, api_key, provider_type, is_fallback in models_to_try:
+        # Check provider circuit breaker
+        if not circuit_breaker.is_available(provider_type):
+            logger.warning(f"Circuit breaker open for provider '{provider_type}'. Skipping candidate {model_name}.")
+            continue
+
         # Check spending limits before executing
         est_cost = calculate_cost(model_name, 1000, 500)
-        spend_tracker.check_and_record(user_id, est_cost)
+        if settings.ENVIRONMENT != "production":
+            spend_tracker.check_and_record(user_id, est_cost)
 
         start_time = time.perf_counter()
         for attempt in range(settings.LLM_MAX_RETRIES + 1):
+            reservation = None
+            billed_cost = None
             try:
+                if settings.ENVIRONMENT == "production":
+                    if not api_key or model_name.lower() not in MODEL_PRICING:
+                        raise ValueError("Production model requires a real key and configured model pricing.")
+                    input_bound = len((system_prompt + user_prompt).encode("utf-8")) + 2048
+                    reservation = await reserve_budget(user_id, calculate_cost(model_name, input_bound, 4096))
                 # If no real API key configured in dev/test, generate deterministic fallback structure
                 if not api_key:
-                    raw_content = "{}" if response_model else "Processed response."
-                    in_tokens, out_tokens = 200, 80
+                    raise ValueError("No provider key configured; use an explicit mock_response in tests.")
                 elif provider_type == "claude" or "claude" in model_name.lower():
                     # Anthropic Claude Messages API
                     endpoint = f"{settings.CLAUDE_BASE_URL.rstrip('/')}/messages"
@@ -187,6 +236,7 @@ async def call_llm(
                     payload = {
                         "model": model_name,
                         "temperature": temperature,
+                        "max_tokens": 4096,
                         "messages": [
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt},
@@ -204,6 +254,10 @@ async def call_llm(
                         in_tokens = usage.get("prompt_tokens", 250)
                         out_tokens = usage.get("completion_tokens", 100)
 
+                billed_cost = calculate_cost(model_name, in_tokens, out_tokens)
+                if reservation:
+                    await settle_budget(reservation, billed_cost)
+                    reservation = None
                 # Schema validation if requested
                 parsed_data = None
                 if response_model:
@@ -211,12 +265,17 @@ async def call_llm(
                         parsed_data = response_model.model_validate_json(raw_content)
                     except Exception as ve:
                         if attempt < settings.LLM_MAX_RETRIES:
-                            logger.warning(f"Schema validation failed on attempt {attempt}: {ve}. Retrying...")
+                            logger.warning("Provider schema validation failed; output excluded from logs.")
                             continue
                         raise LLMValidationError(f"Model output failed schema validation twice: {ve}")
 
                 latency = round(time.perf_counter() - start_time, 4)
                 actual_cost = calculate_cost(model_name, in_tokens, out_tokens)
+
+                # Reconcile spend and report circuit breaker success
+                if settings.ENVIRONMENT != "production":
+                    spend_tracker.reconcile(user_id, est_cost, actual_cost)
+                circuit_breaker.record_success(provider_type)
 
                 return LLMResponse(
                     content=raw_content,
@@ -231,11 +290,16 @@ async def call_llm(
 
             except (httpx.HTTPStatusError, httpx.RequestError, Exception) as err:
                 last_error = err
-                logger.warning(f"LLM call to {model_name} failed (attempt {attempt}): {err}")
+                logger.warning("Provider call failed; prompt and response excluded from logs.")
                 if attempt < settings.LLM_MAX_RETRIES:
-                    time.sleep(0.2 * (2 ** attempt))
+                    await asyncio.sleep(0.2 * (2 ** attempt))
+                else:
+                    # Refund estimated cost and trip circuit breaker on final attempt failure
+                    if settings.ENVIRONMENT != "production":
+                        spend_tracker.reconcile(user_id, est_cost, 0.0)
+                    circuit_breaker.record_failure(provider_type)
 
-    raise RuntimeError(f"All LLM models failed. Last error: {last_error}")
+    raise RuntimeError("All model providers failed; no generated output is available.") from last_error
 
 
 def set_active_llm_provider(provider: str) -> None:

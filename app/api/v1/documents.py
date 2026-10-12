@@ -2,13 +2,14 @@
 import uuid
 from datetime import datetime, timezone
 from typing import Annotated, List, Literal
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.db.base import get_db_session
 from app.db.models import Document, User
+from app.core.storage import managed_document_path
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -35,7 +36,12 @@ async def create_document(
     user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> DocumentResponse:
-    """Registers an uploaded document's storage key in the user's Profile Vault."""
+    """Registers an uploaded document's storage key in the user's Profile Vault and verifies facts."""
+    try:
+        managed_document_path(user.id, req.storage_key)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     doc = Document(
         user_id=user.id,
         type=req.type,

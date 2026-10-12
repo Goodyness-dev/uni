@@ -1,5 +1,7 @@
 """Student account management endpoints: NDPR/GDPR data export and permanent deletion."""
+import os
 import uuid
+from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 from fastapi import APIRouter, Depends, status
@@ -7,6 +9,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
 from app.core.logging import logger
+from app.core.storage import managed_document_path, remove_managed_file
 from app.db.base import get_db_session
 from app.db.models import (
     ApiKey,
@@ -14,6 +17,8 @@ from app.db.models import (
     ApplicationEvent,
     Document,
     Draft,
+    Job,
+    Match,
     Profile,
     User,
     Webhook,
@@ -114,6 +119,21 @@ async def export_student_account_data(
         for a in applications
     ]
 
+    # 4. Matches
+    matches_stmt = select(Match).where(Match.user_id == current_user.id)
+    matches = (await session.execute(matches_stmt)).scalars().all()
+    matches_data = [
+        {
+            "id": str(m.id),
+            "scholarship_id": str(m.scholarship_id),
+            "fit_score": m.fit_score,
+            "urgency_score": m.urgency_score,
+            "reasons": m.reasons,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+        }
+        for m in matches
+    ]
+
     return {
         "export_metadata": {
             "version": "1.0",
@@ -130,6 +150,7 @@ async def export_student_account_data(
         "documents": docs_data,
         "applications": apps_data,
         "drafts": drafts_data,
+        "matches": matches_data,
         "timeline_events": events_data,
     }
 
@@ -147,30 +168,60 @@ async def delete_student_account(
     # 1. Delete Profile
     await session.execute(delete(Profile).where(Profile.user_id == current_user.id))
 
-    # 2. Delete Documents
+    # 2. Delete Matches
+    await session.execute(delete(Match).where(Match.user_id == current_user.id))
+
+    # 3. Clean physical document files from disk & delete Document rows
+    docs_stmt = select(Document).where(Document.user_id == current_user.id)
+    documents = (await session.execute(docs_stmt)).scalars().all()
+    for doc in documents:
+        try:
+            path = managed_document_path(current_user.id, doc.storage_key)
+        except ValueError:
+            logger.warning("Legacy document reference is outside managed storage; no file removed.")
+            continue
+        remove_managed_file(path, Path("storage/documents") / str(current_user.id))
     await session.execute(delete(Document).where(Document.user_id == current_user.id))
 
-    # 3. Delete ApiKeys and Webhooks
+    # 4. Delete ApiKeys and Webhooks
     await session.execute(delete(ApiKey).where(ApiKey.user_id == current_user.id))
     await session.execute(delete(Webhook).where(Webhook.user_id == current_user.id))
 
-    # 4. Find and delete drafts for applications
+    # 5. Clean screenshots from disk and delete drafts & applications
     apps_stmt = select(Application).where(Application.user_id == current_user.id)
     applications = (await session.execute(apps_stmt)).scalars().all()
     app_ids = [a.id for a in applications]
 
     if app_ids:
+        events_stmt = select(ApplicationEvent).where(ApplicationEvent.application_id.in_(app_ids))
+        events = (await session.execute(events_stmt)).scalars().all()
+        for ev in events:
+            paths = list((ev.payload or {}).get("screenshot_paths") or [])
+            if (ev.payload or {}).get("storage_state_path"):
+                paths.append(ev.payload["storage_state_path"])
+            for artifact in paths:
+                remove_managed_file(Path(artifact), Path("storage/screenshots") / str(ev.application_id))
+
+        # Privacy erasure explicitly removes event payloads before the restricted parent.
+        await session.execute(delete(ApplicationEvent).where(ApplicationEvent.application_id.in_(app_ids)))
         await session.execute(delete(Draft).where(Draft.application_id.in_(app_ids)))
         await session.execute(delete(Application).where(Application.id.in_(app_ids)))
 
-    # 5. Anonymize user record
+    jobs = (await session.execute(select(Job))).scalars().all()
+    for job in jobs:
+        payload = job.payload or {}
+        if payload.get("user_id") == str(current_user.id) or payload.get("application_id") in {str(i) for i in app_ids}:
+            await session.delete(job)
+
+    # 6. Anonymize user record
     current_user.email = f"purged-{current_user.id.hex[:12]}@scholarpilot.internal"
     current_user.status = "deleted"
     current_user.mode = "purged"
+    current_user.telegram_chat_id = None
     await session.commit()
 
     return {
         "success": True,
-        "message": "Account, Profile Vault, and all personal documents permanently purged in compliance with NDPR and GDPR regulations.",
+        "message": "Managed profile, document, application and job records removed. External file references are not deleted.",
         "purged_user_id": str(current_user.id),
     }

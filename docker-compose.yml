@@ -6,9 +6,9 @@ services:
     environment:
       POSTGRES_DB: scholarpilot_db
       POSTGRES_USER: scholarpilot
-      POSTGRES_PASSWORD: scholarpilot_secret
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a database password before launching services}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +22,7 @@ services:
     container_name: scholarpilot-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -40,7 +40,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql+asyncpg://scholarpilot:scholarpilot_secret@db:5432/scholarpilot_db
+      DATABASE_URL: postgresql+asyncpg://scholarpilot:${POSTGRES_PASSWORD:?Set a database password}@db:5432/scholarpilot_db
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: production
       DEBUG: "false"
@@ -59,9 +59,9 @@ services:
       dockerfile: Dockerfile
     container_name: scholarpilot-worker
     restart: unless-stopped
-    command: ["python", "-c", "import asyncio; from app.services.scheduler import run_daily_scheduler_cycle; print('ScholarPilot background worker active.')"]
+    command: ["python", "-m", "app.worker"]
     environment:
-      DATABASE_URL: postgresql+asyncpg://scholarpilot:scholarpilot_secret@db:5432/scholarpilot_db
+      DATABASE_URL: postgresql+asyncpg://scholarpilot:${POSTGRES_PASSWORD:?Set a database password}@db:5432/scholarpilot_db
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: production
     depends_on:

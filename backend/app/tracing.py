@@ -3,7 +3,10 @@ from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from typing import Any
 
-from app.config import settings
+try:
+    from app.config import settings
+except ModuleNotFoundError:
+    from app.core.config import settings
 
 try:
     import neatlogs
@@ -25,16 +28,18 @@ def init_tracing(tags: list[str] | None = None) -> bool:
     global _enabled
     if _enabled:
         return True
-    if neatlogs is None or not settings.neatlogs_configured:
+    api_key = getattr(settings, "neatlogs_api_key", getattr(settings, "NEATLOGS_API_KEY", None))
+    endpoint = getattr(settings, "neatlogs_endpoint", getattr(settings, "NEATLOGS_ENDPOINT", None))
+    if neatlogs is None or not api_key:
         return False
     kwargs: dict[str, Any] = {
-        "api_key": settings.neatlogs_api_key,
+        "api_key": api_key,
         "workflow_name": "scholarpilot",
         "tags": list(tags or []),
-        "capture_logs": True,
+        "capture_logs": False,
     }
-    if settings.neatlogs_endpoint:
-        kwargs["endpoint"] = settings.neatlogs_endpoint
+    if endpoint:
+        kwargs["endpoint"] = endpoint
     try:
         neatlogs.init(**kwargs)
         _enabled = True

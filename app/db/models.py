@@ -138,7 +138,7 @@ class ApplicationEvent(Base):
     __tablename__ = "application_events"
 
     id: Mapped[uuid.UUID] = mapped_column(GUID, primary_key=True, default=uuid.uuid4, index=True)
-    application_id: Mapped[uuid.UUID] = mapped_column(GUID, ForeignKey("applications.id", ondelete="CASCADE"), index=True, nullable=False)
+    application_id: Mapped[uuid.UUID] = mapped_column(GUID, ForeignKey("applications.id", ondelete="RESTRICT"), index=True, nullable=False)
     actor: Mapped[str] = mapped_column(String(64), nullable=False)  # agent, user, system
     event_type: Mapped[str] = mapped_column(String(64), nullable=False)
     payload: Mapped[Dict[str, Any]] = mapped_column(JSONType, default=dict, nullable=False)
@@ -166,6 +166,7 @@ class Job(Base, TimestampedUUIDMixin):
 
     type: Mapped[str] = mapped_column(String(64), nullable=False)  # match, research, edge_find, draft, submit
     status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False)  # pending, running, completed, failed, dead_letter
+    payload: Mapped[Dict[str, Any]] = mapped_column(JSONType, default=dict, nullable=False)
     attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     scheduled_for: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

@@ -1,6 +1,7 @@
 """Production scheduler: daily discovery/matching loop per user timezone and proactive deadline alerts."""
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from typing import Any, Dict, List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +10,8 @@ from app.core.logging import logger
 from app.db.models import Application, Match, Profile, Scholarship, User
 from app.integrations.telegram import format_deadline_alert, send_telegram_message
 from app.integrations.webhooks import dispatch_user_webhooks
+from app.jobs.queue import enqueue_job, get_redis_client, register_job_handler
+from app.db.models import Job
 
 
 async def scan_upcoming_deadlines(
@@ -80,6 +83,8 @@ async def run_daily_discovery_and_matching(
 ) -> Dict[str, Any]:
     """Runs daily scholarship discovery and profile matching for active users."""
     stmt = select(User).where(User.status == "active")
+    if target_timezone is not None:
+        stmt = stmt.where(User.timezone == target_timezone)
     users = (await session.execute(stmt)).scalars().all()
 
     total_matches_generated = 0
@@ -126,7 +131,7 @@ async def run_daily_scheduler_cycle(
     2. Proactive deadline monitoring (7d, 3d, 1d)
     3. Signed webhook and Telegram alerts
     """
-    logger.info("Starting autonomous daily scheduler cycle")
+    logger.info(f"Starting autonomous daily scheduler cycle (target_timezone={target_timezone})")
 
     # 1. Matching
     matching_summary = await run_daily_discovery_and_matching(session, target_timezone)
@@ -138,8 +143,21 @@ async def run_daily_scheduler_cycle(
     alerts_dispatched = 0
     for alert in deadline_alerts:
         for u_id in alert["user_ids"]:
+            user_obj = await session.get(User, u_id)
+            if not user_obj:
+                continue
+            if user_obj.status != "active":
+                continue
+
+            if target_timezone is not None and user_obj.timezone != target_timezone:
+                continue
+            client = await get_redis_client()
+            key = f"scholarpilot:deadline:{u_id}:{alert['scholarship_id']}:{alert['deadline']}:{alert['bucket']}"
+            if client and not await client.set(key, "sending", nx=True, ex=60):
+                continue
+
             # Send Webhook
-            await dispatch_user_webhooks(
+            deliveries = await dispatch_user_webhooks(
                 user_id=u_id,
                 event_type="scholarship.deadline_warning",
                 payload={
@@ -152,18 +170,65 @@ async def run_daily_scheduler_cycle(
                 session=session,
             )
 
-            # Send Telegram Alert
-            msg = format_deadline_alert(
-                scholarship_title=alert["title"],
-                days_remaining=alert["days_remaining"],
-                deadline_str=alert["deadline"],
-                application_status="in_progress",
-            )
-            await send_telegram_message(chat_id=str(u_id), text=msg)
-            alerts_dispatched += 1
+            # Send Telegram Alert if user has configured telegram_chat_id
+            delivered = any(result.get("success") for result in deliveries)
+            if user_obj.telegram_chat_id:
+                msg = format_deadline_alert(
+                    scholarship_title=alert["title"],
+                    days_remaining=alert["days_remaining"],
+                    deadline_str=alert["deadline"],
+                    application_status="in_progress",
+                )
+                result = await send_telegram_message(chat_id=user_obj.telegram_chat_id, text=msg)
+                delivered = delivered or (bool(result.get("ok")) if isinstance(result, dict) else bool(result))
+
+            if delivered:
+                alerts_dispatched += 1
+                if client:
+                    await client.set(key, "delivered", ex=1728000)
+            elif client:
+                await client.delete(key)
 
     return {
         "matching": matching_summary,
         "deadline_alerts_count": len(deadline_alerts),
         "notifications_dispatched": alerts_dispatched,
     }
+
+
+async def schedule_daily_cycles(session: AsyncSession, reference_time: Optional[datetime] = None) -> int:
+    """Enqueue one catalog matching cycle per timezone/local date across workers."""
+    now = reference_time or datetime.now(timezone.utc)
+    client = await get_redis_client()
+    if client is None:
+        logger.warning("Daily scheduling requires Redis deduplication; cycle not enqueued.")
+        return 0
+    zones = (await session.execute(select(User.timezone).where(User.status == "active").distinct())).scalars().all()
+    count = 0
+    for zone in zones:
+        try:
+            tz = ZoneInfo(zone)
+        except ZoneInfoNotFoundError:
+            if zone == "Africa/Lagos":
+                tz = timezone(timedelta(hours=1))
+            elif zone in ("UTC", "GMT"):
+                tz = timezone.utc
+            else:
+                logger.warning("Invalid stored timezone; daily cycle skipped.")
+                continue
+        day = now.astimezone(tz).date().isoformat()
+        key = f"scholarpilot:daily:{zone}:{day}"
+        if await client.set(key, "scheduled", nx=True, ex=172800):
+            try:
+                await enqueue_job("daily_scheduler", {"timezone": zone}, session=session)
+            except Exception:
+                await client.delete(key)
+                raise
+            count += 1
+    return count
+
+
+@register_job_handler("daily_scheduler")
+async def daily_scheduler_job(job: Job, payload: Dict[str, Any], session: AsyncSession) -> Dict[str, Any]:
+    """Worker entry for the scheduled catalog matching and deadline cycle."""
+    return await run_daily_scheduler_cycle(session, target_timezone=payload.get("timezone"))

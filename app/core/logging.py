@@ -15,19 +15,29 @@ job_id_ctx: contextvars.ContextVar[str | None] = contextvars.ContextVar("job_id"
 SENSITIVE_KEYS = {
     "password", "secret", "token", "api_key", "full_name", "first_name",
     "last_name", "email", "phone", "phone_number", "nin", "bvn", "ssn",
-    "id_number", "essay_text", "essay", "statement", "cv_text"
+    "id_number", "essay_text", "essay", "statement", "cv_text",
+    "transcript", "address", "date_of_birth", "dob", "bank_account",
+    "content", "draft_text", "input_text", "user_prompt", "system_prompt"
 }
 
 EMAIL_REGEX = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
 PHONE_REGEX = re.compile(r"(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}")
+SSN_REGEX = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
+NIN_BVN_REGEX = re.compile(r"\b(?:NIN|BVN|National ID|ID)[\s:#_-]*([0-9]{11})\b", re.IGNORECASE)
+TOKEN_REGEX = re.compile(r"(Bearer\s+|api_key=|token=)[A-Za-z0-9_\-\.]{12,}", re.IGNORECASE)
+API_KEY_REGEX = re.compile(r"\b(?:sp_live_[A-Za-z0-9_]{16,}|sk-[A-Za-z0-9]{16,})\b")
 
 
 def redact_pii_value(val: Any) -> Any:
     """Recursively redacts PII strings and dictionary keys."""
     if isinstance(val, str):
-        # Scrub email and phone patterns in text
+        # Scrub email, phone, SSN, ID, token, and API key patterns in text
         val = EMAIL_REGEX.sub("[REDACTED_EMAIL]", val)
         val = PHONE_REGEX.sub("[REDACTED_PHONE]", val)
+        val = SSN_REGEX.sub("[REDACTED_SSN]", val)
+        val = NIN_BVN_REGEX.sub("[REDACTED_ID]", val)
+        val = TOKEN_REGEX.sub(r"\1[REDACTED_TOKEN]", val)
+        val = API_KEY_REGEX.sub("[REDACTED_KEY]", val)
         return val
     elif isinstance(val, dict):
         cleaned = {}
@@ -60,7 +70,8 @@ class JSONPIIRedactingFormatter(logging.Formatter):
             log_entry["extra"] = redact_pii_value(record.extra)
 
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
+            formatted_exc = self.formatException(record.exc_info)
+            log_entry["exception"] = redact_pii_value(formatted_exc)
 
         return json.dumps(log_entry)
 

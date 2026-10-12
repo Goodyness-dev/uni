@@ -15,6 +15,7 @@ __pycache__/
 # Databases and generated data
 backend/data/vault/
 backend/data/app.db
+backend/data/app.db-*
 backend/data/packages/
 
 # Frontend dependencies and builds

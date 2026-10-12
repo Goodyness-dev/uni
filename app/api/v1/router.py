@@ -1,5 +1,5 @@
-"""API v1 router aggregating auth, profile, documents, scholarships, matches, applications, and settings."""
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.core.rate_limiter import rate_limit_dependency
 from app.api.v1.auth import router as auth_router
 from app.api.v1.profile import router as profile_router
 from app.api.v1.documents import router as documents_router
@@ -9,7 +9,10 @@ from app.api.v1.applications import router as applications_router
 from app.api.v1.settings import router as settings_router
 from app.api.v1.account import router as account_router
 
-api_v1_router = APIRouter(prefix="/v1")
+api_v1_router = APIRouter(
+    prefix="/v1",
+    dependencies=[Depends(rate_limit_dependency(max_requests=120, window_seconds=60))],
+)
 
 api_v1_router.include_router(auth_router)
 api_v1_router.include_router(profile_router)

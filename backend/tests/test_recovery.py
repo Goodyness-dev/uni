@@ -11,6 +11,7 @@ Exercises all 7 failure flags:
 """
 import json
 import pytest
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from pydantic import BaseModel
@@ -76,6 +77,16 @@ def test_recovery_bad_json():
     class DummyOut(BaseModel):
         fit_score: int
         fit_reason: str
+
+    # Explicit fictional client: recovery must not depend on locally configured keys.
+    client = MagicMock()
+    client.chat.completions.create.return_value = SimpleNamespace(
+        choices=[SimpleNamespace(message=SimpleNamespace(content=json.dumps({
+            "fit_score": 87, "fit_reason": "Fictional matcher response for JSON repair testing."
+        })))],
+        usage=SimpleNamespace(prompt_tokens=0, completion_tokens=0),
+    )
+    set_clients_for_tests(client, client)
 
     res = call_llm(
         prompt_name="matcher_v1",

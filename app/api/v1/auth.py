@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, get_request_id
 from app.core.security import generate_api_key
+from app.core.config import settings
 from app.db.base import get_db_session
 from app.db.models import ApiKey, User
 
@@ -42,9 +43,14 @@ async def create_api_key(
     """Creates a new API key for a student or developer account."""
     req_id = get_request_id(x_request_id)
 
+    if settings.ENVIRONMENT == "production":
+        raise HTTPException(status_code=403, detail="Production key issuance requires a verified identity flow.")
+
     # Find or create user by email
     stmt = select(User).where(User.email == req.email)
     user = (await db.execute(stmt)).scalar_one_or_none()
+    if user is not None:
+        raise HTTPException(status_code=409, detail="An existing identity cannot be recovered by email alone.")
     if not user:
         user = User(email=req.email, mode="autopilot", status="active")
         db.add(user)

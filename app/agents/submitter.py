@@ -1,13 +1,18 @@
 """Submitter Agent: executes idempotent portal submissions, captures screenshots, and hands off on human blockers."""
 import uuid
+from pathlib import Path
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.config import settings
+from app.core.runtime import submission_lease
+from app.core.tracing import agent_span
+from app.integrations.telegram import format_blocker_alert, send_telegram_message
 from app.core.logging import logger
 from app.core.security import decrypt_credential
-from app.db.models import Application, Draft, Job, Profile, Scholarship, User
+from app.db.models import Application, ApplicationEvent, Draft, Job, Profile, Scholarship, User
 from app.integrations.browser_runner import BrowserSubmissionResult, submit_portal
 from app.jobs.queue import register_job_handler
 from app.jobs.state_machine import IllegalStateTransitionError, KillSwitchActiveError, transition_application
@@ -29,7 +34,24 @@ class SubmitterOutput(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
+@agent_span("submitter", role="Submitter", goal="Submit only confirmed demo applications")
 async def run_submitter(
+    application_id: uuid.UUID, session: AsyncSession, mock_mode: bool = False,
+    simulated_blocker: Optional[str] = None,
+) -> SubmitterOutput:
+    if mock_mode and settings.ENVIRONMENT == "production":
+        raise ValueError("Mock submissions are prohibited in production.")
+    current = await session.get(Application, application_id)
+    if current and (current.confirmation_ref or current.status == "submitted"):
+        return await _run_submitter(application_id, session, mock_mode, simulated_blocker)
+    if mock_mode:
+        return await _run_submitter(application_id, session, True, simulated_blocker)
+    async with submission_lease(application_id):
+        session.expire_all()
+        return await _run_submitter(application_id, session, False, simulated_blocker)
+
+
+async def _run_submitter(
     application_id: uuid.UUID,
     session: AsyncSession,
     mock_mode: bool = False,
@@ -50,6 +72,10 @@ async def run_submitter(
     if not application:
         raise ValueError(f"Application {application_id} not found.")
 
+    # 0. Kill Switch Guard
+    if settings.KILL_SWITCH_ACTIVE:
+        raise KillSwitchActiveError("Global kill switch is active. Submissions are halted.")
+
     # 1. Idempotency Guard
     if application.status == "submitted" or application.confirmation_ref is not None:
         logger.info(
@@ -62,6 +88,9 @@ async def run_submitter(
             metadata={"reason": "already_submitted"},
         )
 
+    if application.status not in {"drafting", "approved", "needs_human", "submitting"}:
+        raise IllegalStateTransitionError("Application is not in a state eligible for submission.")
+
     # 2. Mode and approval checks
     user = await session.get(User, application.user_id)
     scholarship = await session.get(Scholarship, application.scholarship_id)
@@ -73,6 +102,11 @@ async def run_submitter(
         raise IllegalStateTransitionError(
             f"Application {application_id} is in 'ready_for_review' mode. Submissions require explicit student approval."
         )
+
+    if not user or user.status != "active":
+        raise ValueError("The applicant is inactive or missing.")
+    if application.mode_used == "review" and application.status == "drafting":
+        raise IllegalStateTransitionError("Review approval is required.")
 
     # 3. Transition to 'submitting' if currently in drafting or approved
     if application.status in ("drafting", "approved", "needs_human"):
@@ -105,10 +139,27 @@ async def run_submitter(
         "first_name": personal.get("first_name", ""),
         "last_name": personal.get("last_name", ""),
         "phone": personal.get("phone", ""),
-        "nationality": personal.get("citizenship", "Nigeria"),
+        "nationality": personal.get("citizenship", ""),
         "gpa": str(profile.grades.get("gpa", "")) if profile and profile.grades else "",
     }
-    draft_content = draft.content if draft else "Statement of Purpose submitted via ScholarPilot."
+    if not draft or not draft.content.strip():
+        raise ValueError("A nonempty supported draft is required before submission.")
+    draft_content = draft.content
+
+    # Look for saved storage_state_path if resuming
+    storage_state_path = None
+    ev_stmt = (
+        select(ApplicationEvent)
+        .where(ApplicationEvent.application_id == application.id)
+        .order_by(ApplicationEvent.created_at.desc())
+    )
+    events = (await session.execute(ev_stmt)).scalars().all()
+    if any((event.payload or {}).get("acceptance_unknown") for event in events):
+        raise IllegalStateTransitionError("Prior submission acceptance is unknown; reconcile manually before retrying.")
+    for ev in events:
+        if ev.payload and ev.payload.get("storage_state_path"):
+            storage_state_path = ev.payload["storage_state_path"]
+            break
 
     # 5. Execute browser submission via Playwright runner
     portal_url = getattr(scholarship, "application_url", "https://demo.scholarpilot.internal/portal")
@@ -119,6 +170,8 @@ async def run_submitter(
         draft_content=draft_content,
         mock_mode=mock_mode,
         simulated_blocker=simulated_blocker,
+        storage_state_path=storage_state_path,
+        screenshots_dir=Path("storage/screenshots") / str(application.id),
     )
 
     # 6. Evaluate Result and transition state
@@ -135,9 +188,15 @@ async def run_submitter(
                 "blocker_type": browser_result.blocker_type,
                 "blocker_message": browser_result.blocker_message,
                 "screenshot_paths": browser_result.screenshot_paths,
+                "storage_state_path": browser_result.metadata.get("storage_state_path"),
             },
             session=session,
         )
+        if user.telegram_chat_id:
+            await send_telegram_message(user.telegram_chat_id, format_blocker_alert(
+                scholarship.title, browser_result.blocker_type or "unknown",
+                browser_result.blocker_message or "Human review required", portal_url,
+            ))
         return SubmitterOutput(
             application_id=application.id,
             status="needs_human",
@@ -182,17 +241,18 @@ async def run_submitter(
         )
         application = await transition_application(
             application=application,
-            new_status="failed",
+            new_status="needs_human",
             actor="agent",
             payload={
                 "error": browser_result.blocker_message or "Unknown submission error",
+                "acceptance_unknown": True,
                 "screenshot_paths": browser_result.screenshot_paths,
             },
             session=session,
         )
         return SubmitterOutput(
             application_id=application.id,
-            status="failed",
+            status="needs_human",
             blocker_message=browser_result.blocker_message,
             screenshot_paths=browser_result.screenshot_paths,
             metadata=browser_result.metadata,
@@ -200,12 +260,12 @@ async def run_submitter(
 
 
 @register_job_handler("submit_application")
-async def handle_submit_application_job(job: Job, session: AsyncSession) -> Dict[str, Any]:
+async def handle_submit_application_job(job: Job, payload: Dict[str, Any], session: AsyncSession) -> Dict[str, Any]:
     """Queue worker job handler for submit_application tasks."""
-    payload = job.payload
-    application_id = uuid.UUID(payload["application_id"])
-    mock_mode = payload.get("mock_mode", False)
-    simulated_blocker = payload.get("simulated_blocker")
+    effective_payload = payload or job.payload or {}
+    application_id = uuid.UUID(effective_payload["application_id"])
+    mock_mode = effective_payload.get("mock_mode", False)
+    simulated_blocker = effective_payload.get("simulated_blocker")
 
     result = await run_submitter(
         application_id=application_id,

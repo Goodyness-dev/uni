@@ -5,7 +5,9 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from pydantic import BaseModel, Field
+from app.core.config import settings
 from app.core.logging import logger
+from app.core.runtime import is_demo_portal, submissions_stopped
 
 # Directory for storing portal submission and blocker screenshots
 SCREENSHOTS_DIR = Path("storage/screenshots")
@@ -123,6 +125,7 @@ async def submit_portal(
     mock_mode: bool = False,
     simulated_blocker: Optional[str] = None,
     screenshots_dir: Path = SCREENSHOTS_DIR,
+    storage_state_path: Optional[str] = None,
 ) -> BrowserSubmissionResult:
     """Executes headless browser form submission for a scholarship application.
     
@@ -133,8 +136,22 @@ async def submit_portal(
     """
     screenshots: List[str] = []
 
+    # Early kill switch check
+    if await submissions_stopped():
+        logger.warning("submit_portal aborted: global kill switch is active.")
+        return BrowserSubmissionResult(
+            success=False,
+            is_blocked=True,
+            blocker_type="kill_switch",
+            blocker_message="Submission aborted: global kill switch is active.",
+            screenshot_paths=screenshots,
+            metadata={"portal_url": portal_url},
+        )
+
     # Fast-path for mocked/sandboxed execution (used in tests and synthetic demo runs)
-    if mock_mode or os.environ.get("MOCK_BROWSER", "").lower() in ("1", "true", "yes"):
+    if mock_mode and settings.ENVIRONMENT == "production":
+        raise ValueError("Mock browser mode is prohibited in production.")
+    if mock_mode:
         # Step 1: initial load screenshot
         initial_ss = generate_mock_screenshot("portal_loaded", screenshots_dir)
         screenshots.append(initial_ss)
@@ -166,28 +183,27 @@ async def submit_portal(
         )
 
     # Real Playwright Runner
+    if not is_demo_portal(portal_url):
+        raise ValueError("Browser submissions are restricted to the local demo portal.")
     try:
         from playwright.async_api import async_playwright
     except ImportError:
-        logger.warning("playwright is not installed or available; falling back to mock runner.")
-        return await submit_portal(
-            portal_url=portal_url,
-            applicant_data=applicant_data,
-            draft_content=draft_content,
-            credentials=credentials,
-            mock_mode=True,
-            simulated_blocker=simulated_blocker,
-            screenshots_dir=screenshots_dir,
-        )
+        raise RuntimeError("Playwright unavailable; no submission was attempted.")
 
     try:
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context()
+            if storage_state_path and os.path.exists(storage_state_path):
+                context = await browser.new_context(storage_state=storage_state_path)
+            else:
+                context = await browser.new_context()
             page = await context.new_page()
+            page.set_default_timeout(2000)
 
             # Navigate to portal
             await page.goto(portal_url, timeout=15000, wait_until="networkidle")
+            if not is_demo_portal(page.url):
+                raise ValueError("Demo portal redirected outside the permitted submission origin.")
 
             # 1. Page load screenshot
             load_ss = str((screenshots_dir / f"loaded_{uuid.uuid4().hex[:8]}.png").resolve())
@@ -199,6 +215,13 @@ async def submit_portal(
             blocker = detect_blockers(content, page.url)
             if blocker:
                 blocker_type, message = blocker
+                state_file = str((screenshots_dir / f"session_state_{uuid.uuid4().hex[:8]}.json").resolve())
+                try:
+                    await context.storage_state(path=state_file)
+                except Exception as err:
+                    logger.warning(f"Could not persist browser storage state: {err}")
+                    state_file = None
+
                 blocker_ss = str((screenshots_dir / f"blocker_{uuid.uuid4().hex[:8]}.png").resolve())
                 await page.screenshot(path=blocker_ss)
                 screenshots.append(blocker_ss)
@@ -209,7 +232,7 @@ async def submit_portal(
                     blocker_type=blocker_type,
                     blocker_message=message,
                     screenshot_paths=screenshots,
-                    metadata={"portal_url": portal_url, "url": page.url},
+                    metadata={"portal_url": portal_url, "url": page.url, "storage_state_path": state_file},
                 )
 
             # 3. Form population
@@ -252,6 +275,17 @@ async def submit_portal(
             screenshots.append(filled_ss)
 
             # Step 3: Submit button
+            if await submissions_stopped():
+                await browser.close()
+                return BrowserSubmissionResult(
+                    success=False,
+                    is_blocked=True,
+                    blocker_type="kill_switch",
+                    blocker_message="Submission aborted: global kill switch activated prior to form submission.",
+                    screenshot_paths=screenshots,
+                    metadata={"portal_url": portal_url},
+                )
+
             submit_selectors = [
                 "button[type='submit']",
                 "input[type='submit']",
@@ -263,6 +297,16 @@ async def submit_portal(
                 try:
                     btn = page.locator(sel).first
                     if await btn.count() > 0 and await btn.is_visible():
+                        if await submissions_stopped():
+                            await browser.close()
+                            return BrowserSubmissionResult(
+                                success=False,
+                                is_blocked=True,
+                                blocker_type="kill_switch",
+                                blocker_message="Submission aborted: global kill switch activated prior to form submission.",
+                                screenshot_paths=screenshots,
+                                metadata={"portal_url": portal_url},
+                            )
                         await btn.click()
                         submitted = True
                         break
@@ -288,18 +332,33 @@ async def submit_portal(
             screenshots.append(confirm_ss)
 
             post_content = await page.content()
+            blocker = detect_blockers(post_content, page.url)
+            if blocker:
+                await browser.close()
+                return BrowserSubmissionResult(success=False, is_blocked=True,
+                    blocker_type=blocker[0], blocker_message=blocker[1],
+                    screenshot_paths=screenshots, metadata={"portal_url": portal_url})
             # Extract confirmation code
             ref_match = re.search(r"(?:confirmation|reference|application\s*id|app\s*id)\s*[:#\s]?\s*([A-Z0-9\-_]{6,30})", post_content, re.IGNORECASE)
-            confirmation_code = ref_match.group(1) if ref_match else f"CONF-2026-{uuid.uuid4().hex[:8].upper()}"
-
-            await browser.close()
-            return BrowserSubmissionResult(
-                success=True,
-                is_blocked=False,
-                confirmation_ref=confirmation_code,
-                screenshot_paths=screenshots,
-                metadata={"portal_url": portal_url},
-            )
+            if ref_match:
+                confirmation_code = ref_match.group(1)
+                await browser.close()
+                return BrowserSubmissionResult(
+                    success=True,
+                    is_blocked=False,
+                    confirmation_ref=confirmation_code,
+                    screenshot_paths=screenshots,
+                    metadata={"portal_url": portal_url},
+                )
+            else:
+                await browser.close()
+                return BrowserSubmissionResult(
+                    success=False,
+                    is_blocked=False,
+                    blocker_message="Portal submitted but no valid confirmation reference code was found on confirmation page.",
+                    screenshot_paths=screenshots,
+                    metadata={"portal_url": portal_url},
+                )
 
     except Exception as e:
         logger.error(f"Browser runner execution failed: {e}")
